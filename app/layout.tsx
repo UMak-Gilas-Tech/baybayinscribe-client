@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import TopNavbar from "@/components/Navbar";
+import Navrail from "@/components/Navrail";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,10 +26,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script> */}
+        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script> */}
+        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script> */}
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
       >
-        {children}
+        <div className="flex flex-col w-screen">
+          <TopNavbar />
+          <div className="w-full h-full flex flex-row">
+            <Navrail />
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );
