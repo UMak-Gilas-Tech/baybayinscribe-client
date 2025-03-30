@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "types"],
   "exclude": ["node_modules"]
