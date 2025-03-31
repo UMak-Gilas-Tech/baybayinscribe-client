@@ -28,35 +28,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script> */}
-        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script> */}
-        {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script> */}
-      </head>
+      <head></head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Main layout container */}
-        <div className="flex flex-col h-screen">
-          {/* Top Navbar */}
-          <div className="flex-shrink-0">
-            <TopNavbar />
-          </div>
+        <SidebarProvider>
+          {/* Main layout container */}
+          <div className="flex flex-col h-screen">
+            {/* Top Navbar */}
+            <div className="flex-shrink-0 z-10">
+              <TopNavbar />
+            </div>
 
-          {/* Sidebar and Main Content */}
-          <SidebarProvider>
-            <div className="flex flex-1 overflow-hidden">
+            {/* Sidebar and Main Content */}
+            <div className="flex flex-1">
               {/* Sidebar */}
-              <AppSidebar className="sticky top-0 h-screen" />
+              <AppSidebar className="sticky top-0 h-screen z-20" />
 
               {/* Main Content */}
-              <main className="flex-1 overflow-auto">
+              <main className="flex-1 overflow-auto z-0">
                 <SidebarTrigger />
                 {children}
               </main>
             </div>
-          </SidebarProvider>
-        </div>
+          </div>
+        </SidebarProvider>
       </body>
     </html>
   );
