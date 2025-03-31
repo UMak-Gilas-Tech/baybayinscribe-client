@@ -57,7 +57,7 @@ export function NavProjects1({
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild tooltip={item.name}>
               <a href={item.url} className="flex items-center">
-                <item.icon className="shrink-0" /> {/* Icon */}
+                <item.icon className="shrink-0" />
                 <span className="ml-2 group-data-[collapsible=icon]:hidden">
                   {item.name}
                 </span>

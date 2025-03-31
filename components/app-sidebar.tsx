@@ -15,12 +15,10 @@ import {
 
 import { NavMain } from "../components/nav-main"
 import { NavProjects1, NavProjects } from "../components/nav-projects"
-import { NavUser } from "../components/nav-user"
 import { TeamSwitcher } from "../components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from "../components/ui/sidebar"
@@ -39,14 +37,14 @@ const data = {
       plan: "User Role Here",
     },
     {
-      name: "Acme Corp.",
+      name: "Username 2 Here",
       logo: AudioWaveform,
-      plan: "Startup",
+      plan: "Usere Role 2 Here",
     },
     {
-      name: "Evil Corp.",
+      name: "Username 3 Here",
       logo: Command,
-      plan: "Free",
+      plan: "User Role 3 Here",
     },
   ],
   navMain: [
@@ -121,9 +119,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
         <NavProjects1 projects={data.projects1} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
