@@ -13,7 +13,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "../components/ui/avatar";
+} from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,13 +22,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "./ui/dropdown.menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "../components/ui/sidebar";
+} from "./ui/sidebar";
 
 export function NavUser({
   user,
@@ -48,24 +48,29 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-[#6A7FCF] data-[state=open]:text-white hover:bg-[#6A7FCF] hover:text-white"
+              className="data-[state=open]:bg-[#6A7FCF] data-[state=open]:text-black hover:bg-[#6A7FCF] hover:text-black"
             >
+              {/* Avatar Icon */}
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">hi</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+
+              {/* User Info (Visible on md and larger screens) */}
+              <div className="hidden md:flex flex-col flex-1 text-left text-sm leading-tight ml-2">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs text-black">{user.email}</span>
               </div>
+
+              {/* Dropdown Icon (Visible on md and larger screens) */}
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side="bottom" // Ensure the dropdown appears below the user profile
-            align="center" // Align the dropdown to the center of the trigger
-            sideOffset={8} // Add spacing between the trigger and dropdown
+            side="bottom"
+            align="center"
+            sideOffset={8}
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">

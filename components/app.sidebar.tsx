@@ -11,17 +11,18 @@ import {
   Map,
   PieChart,
   SquareTerminal,
+  Settings2,
 } from "lucide-react"
 
-import { NavMain } from "../components/nav-main"
-import { NavProjects1, NavProjects } from "../components/nav-projects"
-import { TeamSwitcher } from "../components/team-switcher"
+import { NavMain } from "./nav.main"
+import { NavProjects1, NavProjects } from "./nav.projects"
+import { TeamSwitcher } from "./team.switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "../components/ui/sidebar"
+} from "./ui/sidebar"
 
 // This is sample data.
 const data = {
@@ -49,9 +50,14 @@ const data = {
   ],
   navMain: [
     {
-      title: "Scanner AI",
+      title: "Text AI (Fil To Baybayin)",
       url: "#",
       icon: SquareTerminal,
+    },
+    {
+      title: "Scanner AI",
+      url: "#",
+      icon: Bot,
       isActive: true,
       items: [
         {
@@ -67,13 +73,13 @@ const data = {
     {
       title: "Sketch",
       url: "#",
-      icon: Bot,
+      icon: BookOpen,
     },
 
     {
       title: "Chat AI",
       url: "#",
-      icon: BookOpen,
+      icon: Settings2,
     },
   ],
   projects: [
