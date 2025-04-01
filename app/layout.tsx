@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNavbar from "../components/Navbar";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
-import { AppSidebar } from "../components/app-sidebar";
+import { SidebarProvider, SidebarTrigger} from "../components/ui/sidebar";
+import { AppSidebar } from "../components/app.sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +47,7 @@ export default function RootLayout({
 
               {/* Main Content */}
               <main className="flex-1 overflow-auto z-0">
-                <SidebarTrigger />
+              <SidebarTrigger />
                 {children}
               </main>
             </div>
