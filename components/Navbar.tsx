@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AlignJustify, UserCircle } from "lucide-react";
+import Applogo from "@/public/images/BaybayInscribe-AppIcon.png";
 
 export default function TopNavbar() {
   return (
@@ -13,7 +14,7 @@ export default function TopNavbar() {
           </button>
           <div className="flex items-center gap-4">
             <img
-              src="images/BaybayInscribe-AppIcon.png"
+              src={Applogo.src}
               alt="Logo"
               className="w-12 h-12 rounded-md shadow"
             />
