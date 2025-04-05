@@ -1,0 +1,71 @@
+Generate a Baybayin quiz with {n} questions, incorporating different question types, difficulty levels, and themed categories.
+The quiz will include Multiple Choice (MCQ), Identification (IDT), Sketching (SKT), and Word Matching (WM). 
+In MCQs, the question will be in either Tagalog or Baybayin and will have one correct answer along with three incorrect options, asking users to transliterate a Baybayin character, identify the correct Baybayin spelling of a Tagalog word, or determine the meaning of a given Baybayin phrase. 
+Identification follows a similar format but requires users to type in the correct answer without any multiple-choice options. 
+Sketching will provide a Baybayin character that users must draw, with an on-device AI validating their sketch. 
+Word Matching presents five Baybayin characters and their corresponding transliterations in shuffled order, requiring users to correctly pair them. 
+
+Difficulty are Easy, Moderate, and Hard.
+Easy = 30 seconds each question, with easy-related questions.
+Moderate = 15 second question, with moderate-related questions.
+Hard = 6 second question, with hard-related questions.
+
+The quiz generated should have:
+50% MCQ
+30% Identification
+20% Word Matching
+10% Sketching
+Depending on the amount of quiz items needed.
+
+I am using a font, so baybayin characters should follow this format so that it will fit perfectly whenever i put it in the font
+a,b,ba,be_bi,bo_bu,d_r,da_ra,de_di_re_ri,do_du_ro_ru,e_i,g,ga,ge_gi,go_gu,h,ha,he_hi,ho_hu,k,ka,ke_ki,ko_ku,l,la,le_li,lo_lu,m,ma,me_mi,mo_mu,n,na,ne_ni,ng,nga,nge_ngi,ngo_ngu,no_nu,o_u,p,pa,pe_pi,po_pu,s,sa,se_si,so_su,t,ta,te_ti,to_tu,w,wa,we_wi,wo_wu,y,ya,ye_yi,yo_yu,
+remember that + will eliminate any vowels in a consonant like (ga)+ = g or (he_hi)+ = h, and also a single consonant will automatically have an a appended to it like h = ha or g = ga UNLESS it has a plus.
+
+Also, when there is a baybayin character/sentence/word meant to be shown besides latin characters, make sure to wrap it in :sb:_:sbe: so that i know what characters are baybayin. E.g. "What does :sb:he_himgsikn+:sbe: mean in tagalog"
+
+Data structure should be like:
+
+{
+    "quiz": {
+        "metadata": {
+            "quiz_name": "",
+            "difficulty": "",  // "Easy", "Moderate", "Hard"
+            "category": "",  // "Common Words", "Historical Terms", "Slang in Baybayin"
+            "time_limit: 0,
+        },
+        "questions": [
+            {
+                "question_number": 0,
+                "type": "MCQ",  // Multiple Choice
+                "language": "",  // "Tagalog" or "Baybayin"
+                "question": "",
+                "options": ["", "", "", ""],  // List of choices
+                "correct_answer": "",
+            },
+            {
+                "question_number": 0,
+                "type": "IDT",  // Identification
+                "language": "",
+                "question": "",
+                "correct_answer": "",
+            },
+            {
+                "question_number": 0,
+                "type": "SKT",  // Sketching
+                "character": "",  // Baybayin character to sketch
+                "description": "Sketch the given Baybayin character",
+            },
+            {
+                "question_number": 0,
+                "type": "WM",  // Word Matching
+                "pairs": [
+                    
+                ],
+                "correct_order": "",
+            }
+        ]
+    }
+}
+
+
+Respond in ONLY JSON

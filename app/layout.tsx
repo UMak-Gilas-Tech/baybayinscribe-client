@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNavbar from "@/components/Navbar";
 import Navrail from "@/components/Navrail";
+import Background from "@/components/background";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,7 +39,10 @@ export default function RootLayout({
           <TopNavbar />
           <div className="w-full h-full flex flex-row">
             <Navrail />
-            {children}
+            <div className="bg-transparent relative w-screen h-screen overflow-scroll">
+              <Background />
+              {children}
+            </div>
           </div>
         </div>
       </body>
