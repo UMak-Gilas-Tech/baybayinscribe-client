@@ -22,7 +22,7 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "./ui/sidebar"
+} from "../ui/sidebar"
 
 // This is sample data.
 const data = {

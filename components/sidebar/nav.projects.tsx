@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "./ui/sidebar"
+} from "../ui/sidebar"
 
 export function NavProjects({
   projects,
