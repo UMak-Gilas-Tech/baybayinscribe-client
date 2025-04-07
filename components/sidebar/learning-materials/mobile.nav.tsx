@@ -72,76 +72,101 @@ export function ResponsiveNav() {
     {
       title: "Baybayin vowels",
       description: "Learn the basic vowel characters of the Baybayin script",
-      href: "#"
+      href: "#",
     },
     {
       title: "Baybayin Kudlit",
       description: "Learn the basic kudlit characters of the Baybayin script",
-      href: "#"
+      href: "#",
     },
     {
       title: "Baybayin Consonant",
       description: "Learn the basic consonant characters of the Baybayin script",
-      href: "#"
+      href: "#",
     },
     {
       title: "Coming Soon",
-      description: "New Baybayin lesson on the way. Stay tuned!"
-    }
+      description: "New Baybayin lesson on the way. Stay tuned!",
+    },
   ];
 
   const quizzes = [
     {
       title: "Shuffle Mode",
       description: "Complete Baybayin words by selecting the correct symbols",
-      href: "#"
+      href: "#",
     },
     {
       title: "Multiple Choice",
       description: "Draw Baybayin characters to test your memory and handwriting",
-      href: "#"
+      href: "#",
     },
     {
       title: "Sketch Quiz",
       description: "Draw Baybayin characters to test your memory and handwriting",
-      href: "#"
+      href: "#",
     },
   ];
 
   return (
-    <div className="p-4 bg-gray-100 h-screen overflow-y-auto">
-      <div className="max-w-md mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-blue-400">GUIDE TO BAYBAYIN</h1>
+    <div className="h-screen overflow-hidden bg-gray-100">
+      <div className="h-full overflow-y-auto p-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-semibold text-blue-400">
+                GUIDE TO BAYBAYIN
+              </h1>
+            </div>
+            <div className="text-gray-400">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
           </div>
-          <div className="text-gray-400">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" fill="currentColor" />
-              <path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" fill="currentColor" />
-              <path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" fill="currentColor" />
-            </svg>
-          </div>
-        </div>
-        
-        <div className="space-y-2 mb-8">
-          {guides.map((guide) => (
-            guide.href ? 
-              <GuideItem key={guide.title} {...guide} /> : 
-              <ComingSoonItem key={guide.title} title={guide.title} description={guide.description} />
-          ))}
-        </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-blue-400">AI QUIZ</h2>
-        </div>
-        
-        <div className="space-y-2">
-          {quizzes.map((quiz) => (
-            <QuizItem key={quiz.title} {...quiz} />
-          ))}
+          <div className="space-y-2 mb-8">
+            {guides.map((guide) =>
+              guide.href ? (
+                <GuideItem key={guide.title} {...guide} />
+              ) : (
+                <ComingSoonItem
+                  key={guide.title}
+                  title={guide.title}
+                  description={guide.description}
+                />
+              )
+            )}
+          </div>
+
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold text-blue-400">AI QUIZ</h2>
+          </div>
+
+          <div className="space-y-2">
+            {quizzes.map((quiz) => (
+              <QuizItem key={quiz.title} {...quiz} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
-} 
+}
