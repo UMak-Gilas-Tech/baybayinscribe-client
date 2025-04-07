@@ -33,11 +33,11 @@ export default function RootLayout({
         {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script> */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden p-0`}
       >
-        <div className="flex flex-col w-screen">
+        <div className="flex flex-col w-screen p-0 m-0">
           <TopNavbar />
-          <div className="w-full h-full flex flex-row">
+          <div className="w-full h-full flex flex-row p-0 m-0">
             <Navrail />
             <div className="bg-transparent relative w-screen h-screen overflow-scroll">
               <Background />
