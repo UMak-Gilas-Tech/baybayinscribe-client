@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
-import { ResponsiveNav } from "../components/sidebar/learning-materials/responsive-nav";
+import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
 
 // import InferenceWebcam from "@/components/InferenceWebcam";
 

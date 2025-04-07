@@ -60,6 +60,8 @@
   --color-grey-300: hsl(224, 45%, 10%);
   --color-grey-200: hsl(231, 15%, 45%);
   --color-grey-100: hsl(231, 15%, 20%);
+  --color:var(--color-neutral-black): hsl(224, 45%, 10%);
+  --color:var(--color-neutral-white): hsl(226, 91%, 91%);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -92,7 +94,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: hsl(233, 21%, 85%);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -143,5 +145,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    @apply bg-[#f0f0f0];
   }
 }
