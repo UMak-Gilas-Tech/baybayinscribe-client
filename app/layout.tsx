@@ -1,5 +1,6 @@
 "use client";
 
+
 import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNavbar from "../components/sidebar/Navbar";
@@ -8,6 +9,7 @@ import "./globals.css";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
 import { siteConfig } from "./metadata";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +26,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/auth/login";
+
   return (
     <html lang="en">
       <head>
@@ -34,19 +38,21 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-          <div className="flex flex-col h-screen">
-            <div className="flex-shrink-0 z-10">
-              <TopNavbar />
-            </div>
+          {!isLoginPage && (
+            <div className="flex flex-col h-screen">
+              <div className="flex-shrink-0 z-10">
+                <TopNavbar />
+              </div>
 
-            <div className="flex flex-1 overflow-hidden">
-              <AppSidebar className="sticky top-0 h-screen z-20" />
-
-              <main className="flex-1 overflow-auto z-0 bg-[#f0f0f0] h-full">
-                {children}
-              </main>
+              <div className="flex flex-1 overflow-hidden">
+                <AppSidebar className="sticky top-0 h-screen z-20" />
+                <main className="flex-1 overflow-auto z-0 h-full">
+                  {children}
+                </main>
+              </div>
             </div>
-          </div>
+          )}
+          {isLoginPage && <main>{children}</main>}
         </SidebarProvider>
         <ScreenSize />
       </body>
