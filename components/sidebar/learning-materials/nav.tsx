@@ -50,11 +50,10 @@ function GuideCard({
           <p className="text-xs text-gray-500 mb-4 line-clamp-2">{description}</p>
           <Link
             href={href}
-            className={`block w-full py-2 text-center text-white rounded-md text-xs font-medium transition-colors ${
-              isComingSoon
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#1e3e59] hover:bg-[#152d42]"
-            }`}
+            className={`block w-full py-2 text-center text-white rounded-md text-xs font-medium transition-colors ${isComingSoon
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#1e3e59] hover:bg-[#152d42]"
+              }`}
           >
             {buttonText}
           </Link>
@@ -156,11 +155,17 @@ export function LearningMaterialsNav() {
   ];
 
   return (
-    <div className="p-4 bg-[#f0f0f0]">
+    <div className="p-4 space-y-4">
+
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-3 mt-8 text-[#1e3e59] uppercase">Guide to Baybayin</h2>
+        <h2 className="text-lg font-semibold mb-3 mt-8 text-[#1e3e59] uppercase">
+          Guide to Baybayin
+        </h2>
         <div className="overflow-x-auto">
-          <div className="flex pb-2 space-x-10" style={{ width: "max-content" }}>
+          <div
+            className="flex pb-2 space-x-10"
+            style={{ width: "max-content" }}
+          >
             {guides.map((guide) => (
               <div key={guide.title} className="w-56 flex-shrink-0">
                 <GuideCard {...guide} />
@@ -170,10 +175,16 @@ export function LearningMaterialsNav() {
         </div>
       </div>
 
+
       <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">AI Quiz</h2>
+        <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">
+          AI Quiz
+        </h2>
         <div className="overflow-x-auto">
-          <div className="flex pb-2 mt-4 space-x-10" style={{ width: "max-content" }}>
+          <div
+            className="flex pb-2 mt-4 space-x-10"
+            style={{ width: "max-content" }}
+          >
             {quizzes.map((quiz) => (
               <div key={quiz.title} className="w-56 flex-shrink-0">
                 <QuizCard {...quiz} />
@@ -182,6 +193,7 @@ export function LearningMaterialsNav() {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

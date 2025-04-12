@@ -109,7 +109,7 @@ export function ResponsiveNav() {
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-100">
+    <div className="h-screen overflow-hidden">
       <div className="h-full overflow-y-auto p-4">
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center mb-6">

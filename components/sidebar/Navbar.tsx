@@ -2,10 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
-import { useSidebar } from "../ui/sidebar"; 
+import { useSidebar } from "../ui/sidebar";
 
 export default function TopNavbar() {
-  const { toggleSidebar } = useSidebar(); 
+  const { toggleSidebar } = useSidebar();
   const user = {
     name: "shadcn",
     email: "m@example.com",
