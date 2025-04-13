@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import TopNavbar from "@/components/Navbar";
 import Navrail from "@/components/Navrail";
 import Background from "@/components/background";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden p-0`}
       >
+        <Toaster />
         <div className="flex flex-col w-screen p-0 m-0">
           <TopNavbar />
           <div className="w-full h-full flex flex-row p-0 m-0">

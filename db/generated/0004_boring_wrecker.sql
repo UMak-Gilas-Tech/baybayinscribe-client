@@ -1,0 +1,1 @@
+ALTER TABLE "quiz_question" ADD COLUMN "is_input_baybayin" boolean DEFAULT false;

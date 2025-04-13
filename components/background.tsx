@@ -4,7 +4,7 @@ import BaybayInscribeBackgroundImage from "@/public/images/BaybayInscribe-Backgr
 
 const Background = () => {
   return (
-    <img className="w-screen h-screen absolute object-cover " src={BaybayInscribeBackgroundImage.src} alt="" />
+    <img className=" -z-10 w-screen h-screen absolute object-cover " src={BaybayInscribeBackgroundImage.src} alt="" />
   );
 };
 

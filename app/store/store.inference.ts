@@ -1,6 +1,6 @@
-"use client";
+"use client"
+
 import * as tf from "@tensorflow/tfjs";
-import { Rank, Tensor } from "@tensorflow/tfjs-core";
 import { create } from "zustand";
 import { LABELS } from "@/constants";
 
@@ -15,7 +15,7 @@ export enum InferenceStatus {
   ERROR,
 }
 
-interface InferenceState {
+export interface InferenceState {
   status: InferenceStatus;
   modelWorkerId: string | undefined;
   inferEngine: InferenceEngine | undefined;
@@ -24,8 +24,9 @@ interface InferenceState {
   init: () => void;
   initLocalModel: () => void;
   inferLocal: (
-    image: HTMLVideoElement | HTMLImageElement,
-    canvas: HTMLCanvasElement
+    image: HTMLVideoElement | HTMLImageElement | undefined,
+    canvas: HTMLCanvasElement,
+    renderToCanvas?: boolean
   ) => void;
 
   renderToCanvas: (
@@ -43,7 +44,7 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
   inferEngine: undefined,
   localModel: undefined,
   localInferenceResult: undefined,
-  inferLocal: async (image, canvas) => {
+  inferLocal: async (image, canvas, renderToCanvas = false) => {
     const model = get().localModel;
     if (!model)
       throw new Error("Model not initialized. Call initLocalModel() first.");
@@ -53,22 +54,31 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     tf.engine().startScope();
 
     const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
-
+    console.log(modelWidth, modelHeight);
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = "#D3DDFD";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "source-over";
+    }
     const input = tf.tidy(() => {
       const imageTensor = tf.browser
-        .fromPixels(image)
+        .fromPixels(image ?? canvas)
         .resizeBilinear([modelWidth, modelHeight])
         .div(255.0)
         .expandDims(0);
       return imageTensor;
     });
-
+    if (ctx) {
+      ctx.fillStyle = "transparent";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     const result: tf.Tensor[] = (await model.executeAsync(
       input
     )) as tf.Tensor[];
     const inferenceResult: number[][][] = result[0].arraySync() as number[][][];
-    const score = result[1].arraySync();
-
+    console.log("Inference result:", inferenceResult[0]);
     const filteredResult = inferenceResult[0]
       .filter((item) => item[4] > 0.5)
       .map((item) => {
@@ -89,16 +99,17 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
 
     set({ localInferenceResult: filteredResult });
 
-    result.forEach((tensor) => tf.dispose(tensor));
-
-    if (result.length > 0) get().renderToCanvas(filteredResult, canvas);
+    if (result.length > 0 && renderToCanvas)
+      get().renderToCanvas(filteredResult, canvas);
 
     tf.dispose(input);
     tf.engine().endScope();
   },
   initLocalModel: async () => {
+    // Ensure TensorFlow is ready before loading the model.
+    await tf.ready();
     set({ status: InferenceStatus.LOADING });
-    const model = await tf.loadGraphModel("models/model.json");
+    const model = await tf.loadGraphModel("../../models/model.json");
 
     console.log("Warming up model...");
     if (model.inputs[0].shape) {

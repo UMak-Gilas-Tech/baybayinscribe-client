@@ -1,8 +1,9 @@
+CREATE TYPE "public"."quiz_difficulty" AS ENUM('Easy', 'Moderate', 'Hard');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
@@ -22,12 +23,12 @@ CREATE TABLE "session" (
 	"updated_at" timestamp NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
-	"user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean NOT NULL,
@@ -62,6 +63,39 @@ CREATE TABLE "learning_resource" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "quiz" (
+	"id" uuid PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "metadata" (
+	"quiz_id" uuid PRIMARY KEY NOT NULL,
+	"quiz_name" text NOT NULL,
+	"difficulty" "quiz_difficulty" NOT NULL,
+	"category" text NOT NULL,
+	"time_limit" integer NOT NULL,
+	"created_at" timestamp NOT NULL,
+	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "quiz_question" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"quiz_id" uuid NOT NULL,
+	"question_number" integer NOT NULL,
+	"type" text NOT NULL,
+	"language" text,
+	"question" text,
+	"options" json,
+	"display_text" text,
+	"correct_answer" text,
+	"characters" text,
+	"description" text,
+	"pairs" json,
+	"created_at" timestamp NOT NULL,
+	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "learning_resource" ADD CONSTRAINT "learning_resource_file_id_file_id_fk" FOREIGN KEY ("file_id") REFERENCES "public"."file"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "learning_resource" ADD CONSTRAINT "learning_resource_file_id_file_id_fk" FOREIGN KEY ("file_id") REFERENCES "public"."file"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "metadata" ADD CONSTRAINT "metadata_quiz_id_quiz_id_fk" FOREIGN KEY ("quiz_id") REFERENCES "public"."quiz"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "quiz_question" ADD CONSTRAINT "quiz_question_quiz_id_quiz_id_fk" FOREIGN KEY ("quiz_id") REFERENCES "public"."quiz"("id") ON DELETE cascade ON UPDATE no action;

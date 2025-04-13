@@ -1,12 +1,47 @@
 {
-  "version": "7",
+  "version": "0",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1742737015441,
-      "tag": "0000_broken_ronan",
+      "when": 1744385132942,
+      "tag": "0000_careless_oracle",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744440467577,
+      "tag": "0001_lively_sister_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744473374354,
+      "tag": "0002_rich_sleeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1744535050365,
+      "tag": "0003_fixed_captain_flint",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744537821694,
+      "tag": "0004_boring_wrecker",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1744550423965,
+      "tag": "0005_complex_trish_tilby",
       "breakpoints": true
     }
   ]

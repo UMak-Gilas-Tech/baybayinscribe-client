@@ -4,10 +4,11 @@ import {
   integer,
   timestamp,
   boolean,
+  uuid, // added for uuid types
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
-  id: text("id").primaryKey(),
+  id: uuid("id").primaryKey(), // changed: id column now uses uuid
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull(),
@@ -24,7 +25,7 @@ export const session = pgTable("session", {
   updatedAt: timestamp("updated_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
-  userId: text("user_id")
+  userId: uuid("user_id") // changed: userId now uses uuid so it matches user.id
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 });
@@ -33,7 +34,7 @@ export const account = pgTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
-  userId: text("user_id")
+  userId: uuid("user_id") // changed: userId now uses uuid so it matches user.id
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),

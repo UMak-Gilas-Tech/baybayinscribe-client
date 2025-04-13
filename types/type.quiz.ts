@@ -1,36 +1,26 @@
-type QuizMetadata = {
-  quiz_name: string;
-  difficulty: "Easy" | "Moderate" | "Hard";
-  category: "Common Words" | "Historical Terms" | "Slang in Baybayin";
-  time_limit: number;
-};
+import { metadata, quiz_question } from "../db/schema/quiz-schema"
+export enum QuizDifficulty {
+  Easy = "Easy",
+  Moderate = "Moderate",
+  Hard = "Hard",
+}
 
-enum QuestionType {
+export type QuizMetadata = typeof metadata.$inferSelect;
+
+export enum QuestionType {
   MCQ = "MCQ",
   IDT = "IDT",
   SKT = "SKT",
-  WM = "WM",
 }
 
-type QuizQuestion = {
-  question_number: number;
-  type: QuestionType;
-  language?: "Tagalog" | "Baybayin";
-  question?: string;
-  options?: [string, string, string, string];
-  correct_answer?: string;
-  character?: string;
-  description?: string;
-  pairs?: WordMatchingPair[];
-  correct_order?: string;
+export type QuizQuestion = typeof quiz_question.$inferInsert;
+
+export type WordMatchingPair = {
+  baybayin: string;
+  latin: string;
 };
 
-type WordMatchingPair = {
-  left: string;
-  right: string;
-};
-
-type Quiz = {
+export type Quiz = {
   metadata: QuizMetadata;
   questions: QuizQuestion[];
 };
