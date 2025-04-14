@@ -16,7 +16,10 @@ const LoginPage = () => {
         <path
           fillRule="evenodd"
           clipRule="evenodd"
-          d="M467.668 1228.1C352.393 1249.77 233.277 1431.71 135.652 1303.79C31.3046 1167.06 -15.0714 872.264 4.30933 620.941C22.1086 390.126 147.975 293.858 226.551 125.041C308.566 -51.1645 349.268 -388.817 467.668 -374.563C586.833 -360.216 597.189 7.37001 682.118 179.887C768.217 354.783 942.591 374.012 957.745 620.941C972.904 867.966 847.771 1060.94 744.071 1189.41C661.837 1291.29 563.271 1210.13 467.668 1228.1Z"
+          d="M467.668 1228.1C352.393 1249.77 233.277 1431.71 135.652 1303.79C31.3046 1167.06 
+          -15.0714 872.264 4.30933 620.941C22.1086 390.126 147.975 293.858 226.551 125.041C308.566 
+          -51.1645 349.268 -388.817 467.668 -374.563C586.833 -360.216 597.189 7.37001 682.118 179.887C768.217 
+          354.783 942.591 374.012 957.745 620.941C972.904 867.966 847.771 1060.94 744.071 1189.41C661.837 1291.29 563.271 1210.13 467.668 1228.1Z"
           fill="#576EB6"
         />
       </svg>
@@ -45,7 +48,6 @@ const LoginPage = () => {
         justifyContent: "center",
         alignItems: "center",
 
-
       }}>
         <Image
           src="/images/butty.login.png"
@@ -69,15 +71,14 @@ const LoginPage = () => {
 
       </div>
 
-
       {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
 
         {/* Login Form */}
         <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-white z-30 relative" style=
-        {{ 
-          transform: 'translateX(-45px)',
-        }}>
+          {{
+            transform: 'translateX(-45px)',
+          }}>
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Login</h2>
           <p className="text-sm text-gray-600 mb-6">Enter your details below to login</p>
 
@@ -92,10 +93,10 @@ const LoginPage = () => {
           </div>
 
           <div className="flex items-center my-6">
-              <hr className="flex-grow" />
-              <span className="px-2 text-sm text-grey-200">OR CONTINUE WITH</span>
-              <hr className="flex-grow" />
-            </div>
+            <hr className="flex-grow" />
+            <span className="px-2 text-sm text-grey-200">OR CONTINUE WITH</span>
+            <hr className="flex-grow" />
+          </div>
 
           {/* Login Form */}
           <form>
@@ -132,9 +133,9 @@ const LoginPage = () => {
 
         {/* Footer Links */}
         <div className="w-full max-w-md mt-4 text-sm text-center text-white z-30" style=
-        {{ 
-          transform: 'translateX(-45px)',
-        }}>
+          {{
+            transform: 'translateX(-45px)',
+          }}>
           <div className="flex justify-between mb-4">
             <span className="text-white">
               Don&apos;t have an account?{" "}

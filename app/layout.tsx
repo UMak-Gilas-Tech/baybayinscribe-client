@@ -26,7 +26,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isLoginPage = typeof window !== "undefined" && window.location.pathname === "/auth/login";
+  const isLoginPage = typeof window !== "undefined" && 
+                    (window.location.pathname === "/auth/register" || 
+                     window.location.pathname === "/auth/login");
 
   return (
     <html lang="en">
