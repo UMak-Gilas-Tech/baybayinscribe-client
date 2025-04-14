@@ -47,7 +47,7 @@ Difficulty levels:
 
 Formatting Rules:
 - Use double equal signs ==like this== to indicate Baybayin-rendered words or phrases in the question text and display_text only.
-- Never use == in the options, correct_answer, or display_text. Only in "question" field.
+- NEVER AND DO NOT use == in the 'options', 'correct_answer', or 'display_text'. Only in "question" field.
 - Never use hyphens, underscores, or separators in options or correct_answer.
 - Options and correct_answer must always be written in clean, lowercase Latin Tagalog.
 
@@ -55,8 +55,7 @@ Baybayin-Compatible Character Format:
 Use only the following values:
 a,b,ba,be_bi,bo_bu,d_r,da_ra,de_di_re_ri,do_du_ro_ru,e_i,g,ga,ge_gi,go_gu,h,ha,he_hi,ho_hu,k,ka,ke_ki,ko_ku,l,la,le_li,lo_lu,m,ma,me_mi,mo_mu,n,na,ne_ni,ng,nga,nge_ngi,ngo_ngu,no_nu,o_u,p,pa,pe_pi,po_pu,s,sa,se_si,so_su,t,ta,te_ti,to_tu,w,wa,we_wi,wo_wu,y,ya,ye_yi,yo_yu
 
-Notes:
-- Append '+' to remove a vowel: 'ga+' = g, 'he_hi+' = h
+Baybayin Rules for Renderer:
 - A lone consonant will auto-append 'a' unless it ends in '+' (e.g., 'g' = 'ga', but 'g+' = g)
 
 Example:

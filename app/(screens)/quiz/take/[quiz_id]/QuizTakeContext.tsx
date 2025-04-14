@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, {
   createContext,
   useContext,
@@ -12,9 +12,14 @@ import {
   Quiz,
   QuizQuestion,
   QuestionType,
+  ModifiedQuizAnswerQuestion,
 } from "../../../../../types/type.quiz";
 import useQuizStore from "@/app/store/store.quiz";
 import { useInferenceStore } from "@/app/store/store.inference";
+import { quiz_answer_question } from "@/db/schema/quiz-schema";
+
+// Added type alias to make id optional in the inferred type.
+
 
 type QuizTakeContextType = {
   quizId?: string;
@@ -28,20 +33,9 @@ type QuizTakeContextType = {
   subscribeToSubmit: (callback: () => void) => void;
   onTimerEnd: (callback: () => void) => void;
   setHealth: React.Dispatch<React.SetStateAction<number>>;
-  answerHistory: Array<{
-    questionNumber?: number;
-    question?: string;
-    answer?: any;
-    isCorrect: boolean;
-    type?: QuestionType;
-  }>;
-  recordAnswer: (record: {
-    questionNumber?: number;
-    question?: string;
-    answer?: any;
-    isCorrect: boolean;
-    type?: QuestionType;
-  }) => void;
+  // changed type to make id optional:
+  answerHistory: ModifiedQuizAnswerQuestion[];
+  recordAnswer: (record: ModifiedQuizAnswerQuestion) => void;
 };
 
 const QuizTakeContext = createContext<QuizTakeContextType | undefined>(
@@ -70,18 +64,12 @@ export const QuizTakeProvider: React.FC<{
   const inference = useInferenceStore();
   const [health, setHealth] = useState(3);
   const [answerHistory, setAnswerHistory] = useState<
-    Array<{
-      questionNumber?: number;
-      question?: string;
-      answer?: any;
-      isCorrect: boolean;
-      type?: QuestionType;
-    }>
+    Array<ModifiedQuizAnswerQuestion>
   >([]);
   const quizStore = useQuizStore();
   useEffect(() => {
     quizStore.loadQuiz(params.quiz_id);
-    console.log(params.quiz_id)
+    console.log(params.quiz_id);
     inference.initLocalModel();
   }, []);
 
@@ -134,13 +122,7 @@ export const QuizTakeProvider: React.FC<{
     };
   };
 
-  const recordAnswer = (record: {
-    questionNumber?: number;
-    question?: string;
-    answer?: any;
-    isCorrect: boolean;
-    type?: QuestionType;
-  }) => {
+  const recordAnswer = (record: ModifiedQuizAnswerQuestion) => {
     setAnswerHistory((prev) => [...prev, record]);
   };
 

@@ -7,20 +7,28 @@ import {
 } from "@/db/schema/quiz-schema";
 import { create } from "zustand";
 import axios from "@/lib/axios";
-import { Quiz } from "@/types/type.quiz";
+import { ModifiedQuizAnswerQuestion, Quiz } from "@/types/type.quiz";
 export type QuizStore = {
   status: Status;
+  quizAnswerUploadStatus: Status;
   quiz?: Quiz | undefined;
   quiz_details?:
-     typeof QuizSchema.$inferSelect & {
-      metadata: typeof metadata.$inferSelect;
-    } & { questions: (typeof quiz_question.$inferSelect)[] } | undefined;
+    | (typeof QuizSchema.$inferSelect & {
+        metadata: typeof metadata.$inferSelect;
+      } & { questions: (typeof quiz_question.$inferSelect)[] })
+    | undefined;
   error?: string;
+  answerHistory:
+    | ({ quiz: { id: string } } & {
+        quiz_answer_question: (typeof quiz_answer_question.$inferSelect)[];
+      })
+    | undefined;
   loadQuiz: (quiz_id: string) => void;
   loadQuizDetails: (quiz_id: string) => void;
 
   submitQuizAnswers: (
-    answers: (typeof quiz_answer_question.$inferSelect)[]
+    quiz_id: string,
+    answers: ModifiedQuizAnswerQuestion[]
   ) => void;
   loadQuizAnswerHistory: (quiz_id: string) => void;
 
@@ -33,7 +41,8 @@ export type QuizStore = {
 
 const useQuizStore = create<QuizStore>((set, get) => ({
   status: "Idle",
-
+  quizAnswerUploadStatus: "Idle",
+  answerHistory: undefined,
   loadQuiz: async (quiz_id: string) => {
     set({ status: "Loading" });
 
@@ -56,13 +65,24 @@ const useQuizStore = create<QuizStore>((set, get) => ({
 
     set({ quiz_details: quiz, status: "Loaded" });
   },
-  submitQuizAnswers: (
-    answers: (typeof quiz_answer_question.$inferSelect)[]
+  submitQuizAnswers: async (
+    quiz_id: string,
+    answers
   ) => {
-    // implement submitQuizAnswers functionality
+    set({status: "Loading"});
+    const response = await axios.post(`/quiz/answers/save/`, {
+      answers: answers,
+    });
   },
-  loadQuizAnswerHistory: (quiz_id: string) => {
-    // implement loadQuizAnswerHistory functionality
+  loadQuizAnswerHistory: async (quiz_id: string) => {
+    set({ status: "Loading" });
+    const response = await axios.get(`/quiz/answers/${quiz_id}`);
+    if (response.status === 200) {
+      const answers = response.data;
+      set({ answerHistory: answers, status: "Loaded" });
+    } else {
+      set({ error: response.data.error, status: "Error" });
+    }
   },
   saveLocalQuizProgress: (answer: typeof quiz_answer_question.$inferSelect) => {
     // implement saveLocalQuizProgress functionality

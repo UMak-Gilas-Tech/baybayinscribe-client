@@ -24,31 +24,40 @@ export default function QuizPage() {
   useEffect(() => {
     setMounted(true);
     quizStore.loadQuizDetails(quizId);
+    quizStore.loadQuizAnswerHistory(quizId);
   }, [quizId]);
 
   if (!mounted) return null; // Prevent hydration mismatch
 
+  // New error fallback if details are missing after loading
+  if (quizStore.status !== "Loading" && !quizStore.quiz_details) {
+    return <div className="p-4 text-center text-red-500">Error: Quiz details not found.</div>;
+  }
+
   return (
     <div className="z-30 max-w-[1044px] px-10 py-10 w-full mx-auto p-1 flex flex-col gap-2">
-      {quizStore.status === "Loading" || quizStore.status == "Idle" ? (
+      {quizStore.status === "Loading" || quizStore.status === "Idle" ? (
         <LoadingSpinner />
       ) : (
         <>
+          {/* Header Section */}
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
             <div className="text-black text-2xl font-bold">
-              {quizStore.quiz_details!.metadata.quiz_name}
+              {quizStore.quiz_details?.metadata?.quiz_name ?? "Untitled Quiz"}
             </div>
             <div
               className={`px-3 py-1 ${
-                quizStore.quiz_details!.metadata.difficulty === "Easy"
+                quizStore.quiz_details?.metadata?.difficulty === "Easy"
                   ? "bg-green-500"
-                  : quizStore.quiz_details!.metadata.difficulty === "Moderate"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Moderate"
                   ? "bg-yellow-500"
-                  : "bg-red-500"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Hard"
+                  ? "bg-red-500"
+                  : "bg-gray-500"
               } rounded-full shadow-md flex justify-center items-center gap-1`}
             >
               <div className="text-black text-lg font-bold font-['Inter']">
-                {quizStore.quiz_details!.metadata.difficulty}
+                {quizStore.quiz_details?.metadata?.difficulty ?? "Unknown"}
               </div>
             </div>
           </div>
@@ -59,9 +68,9 @@ export default function QuizPage() {
               By: {"Butty AI"}
             </div>
             <div className="text-[#585858] text-base font-normal font-['Inter']">
-              {new Date(
-                quizStore.quiz_details!.metadata.created_at
-              ).toDateString()}
+              {quizStore.quiz_details?.metadata?.created_at
+                ? new Date(quizStore.quiz_details.metadata.created_at).toDateString()
+                : "Unknown Date"}
             </div>
           </div>
 
@@ -86,10 +95,13 @@ export default function QuizPage() {
                 </svg>
               </div>
               <div className="text-[#020618] text-base font-bold font-['Inter']">
-                {quizStore.quiz_details!.metadata.difficulty === "Easy" && "3"}
-                {quizStore.quiz_details!.metadata.difficulty === "Moderate" &&
-                  "2"}
-                {quizStore.quiz_details!.metadata.difficulty === "Hard" && "1"}{" "}
+                {quizStore.quiz_details?.metadata?.difficulty === "Easy"
+                  ? "3"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Moderate"
+                  ? "2"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Hard"
+                  ? "1"
+                  : "0"}{" "}
                 Lives
               </div>
             </div>
@@ -119,10 +131,13 @@ export default function QuizPage() {
                 </svg>
               </div>
               <div className="text-[#020618] text-base font-bold font-['Inter']">
-                {quizStore.quiz_details!.metadata.difficulty === "Easy" && "30"}
-                {quizStore.quiz_details!.metadata.difficulty === "Moderate" &&
-                  "15"}
-                {quizStore.quiz_details!.metadata.difficulty === "Hard" && "7"}{" "}
+                {quizStore.quiz_details?.metadata?.difficulty === "Easy"
+                  ? "30"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Moderate"
+                  ? "15"
+                  : quizStore.quiz_details?.metadata?.difficulty === "Hard"
+                  ? "7"
+                  : "0"}{" "}
                 Seconds
               </div>
             </div>
@@ -152,7 +167,7 @@ export default function QuizPage() {
                 </svg>
               </div>
               <div className="text-[#020618] text-base font-bold font-['Inter']">
-                {quizStore.quiz_details!.questions.length} Items
+                {quizStore.quiz_details?.questions?.length ?? 0} Items
               </div>
             </div>
           </div>
@@ -163,31 +178,50 @@ export default function QuizPage() {
               Description
             </div>
             <div className="text-justify text-black text-base font-normal font-['Inter']">
-              {quizStore.quiz_details!.metadata.description ??
-                "There is no description available."}
+              {quizStore.quiz_details?.metadata?.description ?? "There is no description available."}
             </div>
           </div>
 
           {/* Previous Takes Section */}
-          <div className="w-full flex flex-col gap-2">
-            <div className="text-black text-base font-bold font-['Inter'] text-start">
-              Previous Takes
-            </div>
-            <div className="w-full px-4 py-2 bg-[#d3ddfd] rounded-lg shadow-md flex flex-row justify-between items-center gap-2">
-              <div className="text-[#020618] text-base font-bold font-['Inter']">
-                Attempt
-              </div>
-              <div className="text-[#020618] text-base font-bold font-['Inter']">
-                Score
-              </div>
-              <div className="text-[#020618] text-base font-bold font-['Inter']">
-                Time Took
-              </div>
-            </div>
+          <div className="text-black text-base font-bold font-['Inter'] text-start">
+            Previous Takes
           </div>
+          <table className="w-full px-4">
+            <thead className="bg-[#d3ddfd] rounded-lg shadow-md">
+              <tr>
+                <th className="px-4 py-2 text-[#020618] text-base font-bold font-['Inter']">
+                  Attempt
+                </th>
+                <th className="px-4 py-2 text-[#020618] text-base font-bold font-['Inter']">
+                  Score
+                </th>
+                <th className="px-4 py-2 text-[#020618] text-base font-bold font-['Inter']">
+                  Time Took
+                </th>
+              </tr>
+            </thead>
+            <tbody className="block max-h-[200px] overflow-y-auto">
+              {Array.isArray(quizStore.answerHistory?.quiz_answer_question) &&
+              quizStore.answerHistory.quiz_answer_question.length > 0 ? (
+                quizStore.answerHistory.quiz_answer_question.map((answer, idx) => (
+                  <tr key={idx}>
+                    <td className="px-4 py-2">{idx + 1}</td>
+                    <td className="px-4 py-2">{quizStore.answerHistory?.quiz_answer_question.filter(a => a.is_correct).length ?? "-"}</td>
+                    <td className="px-4 py-2">{answer.answered_at ? `${answer.answered_at}s` : "-"}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="px-4 py-2 text-center">No answer history!</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
 
           <div className="w-full flex flex-col items-center justify-center gap-2 py-4">
-            <Button className="w-full" onClick={() => router.push(`/quiz/take/${quizId}`)}>Start Quiz</Button>
+            <Button className="w-full" onClick={() => router.push(`/quiz/take/${quizId}`)}>
+              Start Quiz
+            </Button>
           </div>
         </>
       )}

@@ -1,4 +1,4 @@
-import { metadata, quiz_question } from "../db/schema/quiz-schema"
+import { metadata, quiz_answer_question, quiz_question } from "../db/schema/quiz-schema"
 export enum QuizDifficulty {
   Easy = "Easy",
   Moderate = "Moderate",
@@ -23,4 +23,8 @@ export type WordMatchingPair = {
 export type Quiz = {
   metadata: QuizMetadata;
   questions: QuizQuestion[];
+};
+
+export type ModifiedQuizAnswerQuestion = Omit<typeof quiz_answer_question.$inferSelect, 'id'> & {
+	id?: typeof quiz_answer_question.$inferSelect['id'];
 };

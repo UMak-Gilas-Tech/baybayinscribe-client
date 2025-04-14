@@ -55,7 +55,7 @@ export const quiz_question = pgTable("quiz_question", {
 });
 
 export const quiz_answer_question = pgTable("quiz_answer_question", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   attempt: integer("attempt").notNull(),
   quiz_question_id: uuid("quiz_question_id")
     .notNull()

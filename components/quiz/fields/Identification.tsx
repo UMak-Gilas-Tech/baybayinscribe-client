@@ -4,7 +4,7 @@ import { Button } from "../../../components/ui/button";
 
 export type IdentificationProps = {
   correctAnswer: string;
-  onSubmit: (isCorrect: boolean) => void;
+  onAnswer: (userAnswer: string, isCorrect: boolean) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const Identification = (props: IdentificationProps) => {
@@ -13,7 +13,7 @@ const Identification = (props: IdentificationProps) => {
   const handleSubmit = () => {
     const isCorrect =
       answer.trim().toLowerCase() === props.correctAnswer.trim().toLowerCase();
-    props.onSubmit(isCorrect);
+    props.onAnswer(answer.trim().toLowerCase(), isCorrect);
   }; 
 
   return (

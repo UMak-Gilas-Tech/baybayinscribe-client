@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Progress } from "../../../../../components/ui/progress";
 import QuizPlayerStatistics from "../../../../../components/quiz/QuizPlayerStatistics";
@@ -13,6 +13,8 @@ import LoadingSpinner from "../../../../../components/shared/LoadingSpinner";
 import QuizDoneDialog from "../../../../../components/quiz/dialog/QuizDoneDialog";
 import { useQuizTakeContext } from "./QuizTakeContext";
 import { useRouter } from "next/navigation";
+import useQuizStore from "@/app/store/store.quiz";
+import { uuid } from "drizzle-orm/pg-core";
 
 export const SubmitButton = () => {
   const { onSubmit } = useQuizTakeContext();
@@ -26,18 +28,53 @@ export const SubmitButton = () => {
 export const QuizTakeContent = () => {
   const quizContext = useQuizTakeContext();
   const router = useRouter();
+  const quizStore = useQuizStore();
+
+  // Add a ref to prevent multiple dumps
+  const dumpedRef = useRef(false);
+
+  // Dump all remaining questions when health is 0
+  useEffect(() => {
+    console.log("POOP")
+    if (quizContext.health === 0 && quizContext.quiz && !dumpedRef.current) {
+      const unanswered = quizContext.quiz.questions.filter(
+        (q) =>
+          !quizContext.answerHistory.some(
+            (a) => a.id === q.id
+          )
+      );
+      unanswered.forEach((q) => {
+        quizContext.recordAnswer({
+          quiz_question_id: quizContext.currentQuestion?.id!,
+                  is_correct: false,
+                  user_answer: "Unanswered",
+                  attempt: 0,
+                  answered_at: new Date(),
+                  quiz_id: quizContext.quizId!
+        });
+      });
+      dumpedRef.current = true;
+
+      quizStore.submitQuizAnswers(
+        quizContext.quiz.metadata.quiz_id,
+        quizContext.answerHistory
+      );
+    }
+  }, [quizContext.health, quizContext.quiz, quizContext.answerHistory]);
 
   // Add helper function to compute total score
   const calculateScore = () => {
     if (!quizContext.quiz) return 0;
     return quizContext.quiz.questions.reduce((acc, question) => {
       const answerRecord = quizContext.answerHistory.find(
-        (a) => a.questionNumber === question.question_number
+        (a) => a.quiz_question_id === question.id
       );
-      if (answerRecord?.isCorrect) {
+      if (answerRecord?.is_correct) {
         let multiplier = 1;
-        if (quizContext.quiz!.metadata.difficulty === "Moderate") multiplier = 1.5;
-        else if (quizContext.quiz?.metadata.difficulty === "Hard") multiplier = 2.5;
+        if (quizContext.quiz!.metadata.difficulty === "Moderate")
+          multiplier = 1.5;
+        else if (quizContext.quiz?.metadata.difficulty === "Hard")
+          multiplier = 2.5;
         return acc + 10 * multiplier;
       }
       return acc;
@@ -48,18 +85,19 @@ export const QuizTakeContent = () => {
     <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100">
       <div className="flex flex-col h-screen w-full lg:px-20 md:px-14 px-10">
         <div className="flex flex-col">
-          {quizContext.currentQuestion ? (
+          {quizContext.quiz && quizContext.currentQuestion ? (
             <QuizPlayerStatistics
-              duration={quizContext.quiz?.metadata.time_limit}
+              duration={quizContext.quiz.metadata.time_limit}
               onTimerEnd={() => {
                 quizContext.setHealth((h) => h - 1);
                 toast.error("Time's up!");
                 quizContext.recordAnswer({
-                  questionNumber: quizContext.currentQuestion?.question_number,
-                  question: quizContext.currentQuestion?.question!,
-                  answer: "Time's up",
-                  isCorrect: false,
-                  type: quizContext.currentQuestion?.type as QuestionType,
+                  quiz_question_id: quizContext.currentQuestion?.id!,
+                  is_correct: false,
+                  user_answer: "Unanswered",
+                  attempt: 0,
+                  answered_at: new Date(),
+                  quiz_id: quizContext.quizId!
                 });
                 setTimeout(
                   () => quizContext.setProgress((val) => val + 1),
@@ -93,11 +131,12 @@ export const QuizTakeContent = () => {
             inference={quizContext.inference}
             onDrawingSubmit={(result, isCorrect) => {
               quizContext.recordAnswer({
-                questionNumber: quizContext.currentQuestion?.question_number,
-                question: quizContext.currentQuestion?.question!,
-                answer: result,
-                isCorrect,
-                type: quizContext.currentQuestion?.type as QuestionType,
+                  quiz_question_id: quizContext.currentQuestion?.id!,
+                  is_correct: isCorrect,
+                  user_answer: result,
+                  attempt: 0,
+                  answered_at: new Date(),
+                  quiz_id: quizContext.quizId!
               });
               if (isCorrect) toast.success("Correct!");
               else {
@@ -112,13 +151,13 @@ export const QuizTakeContent = () => {
           <div className="w-full flex items-center justify-center py-10">
             <Progress
               className="w-full md:w-3/4 lg:w-1/2"
-              value={(quizContext.progress / quizContext.quiz.questions.length) * 100} // converted to percentage
+              value={
+                (quizContext.progress / quizContext.quiz.questions.length) * 100
+              } // converted to percentage
               max={100} // progress is now out of 100
             />
           </div>
-        ) : (
-          null
-        )}
+        ) : null}
         {quizContext.currentQuestion &&
         quizContext.currentQuestion.type === QuestionType.MCQ ? (
           <MultipleChoice
@@ -134,11 +173,12 @@ export const QuizTakeContent = () => {
             ]}
             onAnswer={(selected, isCorrect) => {
               quizContext.recordAnswer({
-                questionNumber: quizContext.currentQuestion?.question_number,
-                question: quizContext.currentQuestion?.question!,
-                answer: selected,
-                isCorrect,
-                type: quizContext.currentQuestion?.type as QuestionType,
+                  quiz_question_id: quizContext.currentQuestion?.id!,
+                  is_correct: isCorrect,
+                  user_answer: selected.label,
+                  attempt: 0,
+                  answered_at: new Date(),
+                  quiz_id: quizContext.quizId!
               });
               if (!isCorrect) quizContext.setHealth((h) => h - 1);
               setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
@@ -155,13 +195,14 @@ export const QuizTakeContent = () => {
         quizContext.currentQuestion.type === QuestionType.IDT ? (
           <Identification
             correctAnswer={quizContext.currentQuestion.correct_answer!}
-            onSubmit={(isCorrect) => {
+            onAnswer={(userAnswer, isCorrect) => {
               quizContext.recordAnswer({
-                questionNumber: quizContext.currentQuestion?.question_number,
-                question: quizContext.currentQuestion?.question!,
-                answer: quizContext.currentQuestion?.correct_answer,
-                isCorrect: isCorrect as boolean,
-                type: quizContext.currentQuestion?.type as QuestionType,
+                  quiz_question_id: quizContext.currentQuestion?.id!,
+                  is_correct: isCorrect,
+                  user_answer: userAnswer,
+                  attempt: 0,
+                  answered_at: new Date(),
+                  quiz_id: quizContext.quizId!
               });
               if (isCorrect) toast.success("Correct!");
               else {
@@ -178,20 +219,20 @@ export const QuizTakeContent = () => {
         <QuizDoneDialog
           isOpen={
             quizContext.currentQuestion?.question_number ===
-            quizContext.quiz?.questions.length || quizContext.health === 0
+              quizContext.quiz?.questions.length || quizContext.health === 0
           }
           scoreEarned={calculateScore()}
           correctAnswers={
-            quizContext.answerHistory.filter((a) => a.isCorrect).length
+            quizContext.answerHistory.filter((a) => a.is_correct).length
           }
           authorName="Sebby Siazon"
           correctPercentage={
-            (quizContext.answerHistory.filter((a) => a.isCorrect).length /
+            (quizContext.answerHistory.filter((a) => a.is_correct).length /
               quizContext.answerHistory.length) *
             100
           }
           incorrectAnswers={
-            quizContext.answerHistory.filter((a) => !a.isCorrect).length
+            quizContext.answerHistory.filter((a) => !a.is_correct).length
           }
           quizTitle={
             quizContext.quiz
