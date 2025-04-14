@@ -33,7 +33,7 @@ export function ScreenSize() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-sm flex gap-2 items-center">
+    <div className="fixed bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-sm flex gap-2 items-center z-50">
       <span>{dimensions.width} x {dimensions.height}px</span>
       <span className="w-px h-4 bg-white/20" />
       <span className="text-teal-400">{getBreakpoint(dimensions.width)}</span>
