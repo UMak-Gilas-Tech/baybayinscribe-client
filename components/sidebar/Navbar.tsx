@@ -25,7 +25,6 @@ export default function TopNavbar() {
         />
       </div>
 
-
       <div className="ml-auto flex items-center">
         <button
           onClick={toggleSidebar}
