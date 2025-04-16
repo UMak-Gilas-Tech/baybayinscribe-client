@@ -12,6 +12,7 @@ import { useParams, useRouter } from "next/navigation";
 import useQuizStore from "@/app/store/store.quiz";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export default function QuizPage() {
   const [mounted, setMounted] = useState(false);
@@ -31,7 +32,11 @@ export default function QuizPage() {
 
   // New error fallback if details are missing after loading
   if (quizStore.status !== "Loading" && !quizStore.quiz_details) {
-    return <div className="p-4 text-center text-red-500">Error: Quiz details not found.</div>;
+    return (
+      <div className="p-4 text-center text-red-500">
+        Error: Quiz details not found.
+      </div>
+    );
   }
 
   return (
@@ -41,6 +46,9 @@ export default function QuizPage() {
       ) : (
         <>
           {/* Header Section */}
+          <button className="cursor-pointer" onClick={() => router.back()} >
+            <ChevronLeft />
+          </button>
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
             <div className="text-black text-2xl font-bold">
               {quizStore.quiz_details?.metadata?.quiz_name ?? "Untitled Quiz"}
@@ -69,7 +77,9 @@ export default function QuizPage() {
             </div>
             <div className="text-[#585858] text-base font-normal font-['Inter']">
               {quizStore.quiz_details?.metadata?.created_at
-                ? new Date(quizStore.quiz_details.metadata.created_at).toDateString()
+                ? new Date(
+                    quizStore.quiz_details.metadata.created_at
+                  ).toDateString()
                 : "Unknown Date"}
             </div>
           </div>
@@ -178,7 +188,8 @@ export default function QuizPage() {
               Description
             </div>
             <div className="text-justify text-black text-base font-normal font-['Inter']">
-              {quizStore.quiz_details?.metadata?.description ?? "There is no description available."}
+              {quizStore.quiz_details?.metadata?.description ??
+                "There is no description available."}
             </div>
           </div>
 
@@ -203,23 +214,36 @@ export default function QuizPage() {
             <tbody className="block max-h-[200px] overflow-y-auto">
               {Array.isArray(quizStore.answerHistory?.quiz_answer_question) &&
               quizStore.answerHistory.quiz_answer_question.length > 0 ? (
-                quizStore.answerHistory.quiz_answer_question.map((answer, idx) => (
-                  <tr key={idx}>
-                    <td className="px-4 py-2">{idx + 1}</td>
-                    <td className="px-4 py-2">{quizStore.answerHistory?.quiz_answer_question.filter(a => a.is_correct).length ?? "-"}</td>
-                    <td className="px-4 py-2">{answer.answered_at ? `${answer.answered_at}s` : "-"}</td>
-                  </tr>
-                ))
+                quizStore.answerHistory.quiz_answer_question.map(
+                  (answer, idx) => (
+                    <tr key={idx}>
+                      <td className="px-4 py-2">{idx + 1}</td>
+                      <td className="px-4 py-2">
+                        {quizStore.answerHistory?.quiz_answer_question.filter(
+                          (a) => a.is_correct
+                        ).length ?? "-"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {answer.answered_at ? `${answer.answered_at}s` : "-"}
+                      </td>
+                    </tr>
+                  )
+                )
               ) : (
                 <tr>
-                  <td colSpan={3} className="px-4 py-2 text-center">No answer history!</td>
+                  <td colSpan={3} className="px-4 py-2 text-center">
+                    No answer history!
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
 
           <div className="w-full flex flex-col items-center justify-center gap-2 py-4">
-            <Button className="w-full" onClick={() => router.push(`/quiz/take/${quizId}`)}>
+            <Button
+              className="w-full"
+              onClick={() => router.push(`/quiz/take/${quizId}`)}
+            >
               Start Quiz
             </Button>
           </div>

@@ -12,6 +12,7 @@ export type QuizStore = {
   status: Status;
   quizAnswerUploadStatus: Status;
   quiz?: Quiz | undefined;
+  quizzes?: Quiz[] | undefined;
   quiz_details?:
     | (typeof QuizSchema.$inferSelect & {
         metadata: typeof metadata.$inferSelect;
@@ -37,6 +38,8 @@ export type QuizStore = {
   ) => void;
   loadLocalQuizProgress: (quiz_id: string) => void;
   loadAllLocalQuizProgress: () => void;
+
+  loadAllQuiz: () => void;
 };
 
 const useQuizStore = create<QuizStore>((set, get) => ({
@@ -65,11 +68,8 @@ const useQuizStore = create<QuizStore>((set, get) => ({
 
     set({ quiz_details: quiz, status: "Loaded" });
   },
-  submitQuizAnswers: async (
-    quiz_id: string,
-    answers
-  ) => {
-    set({status: "Loading"});
+  submitQuizAnswers: async (quiz_id: string, answers) => {
+    set({ status: "Loading" });
     const response = await axios.post(`/quiz/answers/save/`, {
       answers: answers,
     });
@@ -92,6 +92,17 @@ const useQuizStore = create<QuizStore>((set, get) => ({
   },
   loadAllLocalQuizProgress: () => {
     // implement loadAllLocalQuizProgress functionality
+  },
+
+  loadAllQuiz: async () => {
+    set({ status: "Loading" });
+    const response = await axios.get(`/quiz/all`);
+    if (response.status === 200) {
+      const quizzes = response.data;
+      set({ quizzes, status: "Loaded" });
+    } else {
+      set({ error: response.data.error, status: "Error" });
+    }
   },
 }));
 

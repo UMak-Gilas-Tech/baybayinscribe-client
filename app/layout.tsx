@@ -41,9 +41,11 @@ export default function RootLayout({
           <TopNavbar />
           <div className="w-full h-full flex flex-row p-0 m-0">
             <Navrail />
-            <div className="bg-transparent relative w-screen h-screen overflow-scroll">
-              <Background />
-              {children}
+            <div className="relative w-screen h-screen">
+              <Background  />
+              <div className="relative w-full h-full overflow-scroll z-10">
+                {children}
+              </div>
             </div>
           </div>
         </div>

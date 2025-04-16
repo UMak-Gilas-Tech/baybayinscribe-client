@@ -30,12 +30,9 @@ export const QuizTakeContent = () => {
   const router = useRouter();
   const quizStore = useQuizStore();
 
-  // Add a ref to prevent multiple dumps
   const dumpedRef = useRef(false);
 
-  // Dump all remaining questions when health is 0
   useEffect(() => {
-    console.log("POOP")
     if (quizContext.health === 0 && quizContext.quiz && !dumpedRef.current) {
       const unanswered = quizContext.quiz.questions.filter(
         (q) =>
