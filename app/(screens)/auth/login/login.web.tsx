@@ -80,7 +80,7 @@ const LoginPage = () => {
             transform: 'translateX(-45px)',
           }}>
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Login</h2>
-          <p className="text-sm text-gray-600 mb-6">Enter your details below to login</p>
+          <p className="text-sm font-bold text-gray-600 mb-6">Log through your social media account to continue</p>
 
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
@@ -94,7 +94,7 @@ const LoginPage = () => {
 
           <div className="flex items-center my-6">
             <hr className="flex-grow" />
-            <span className="px-2 text-sm text-grey-200">OR CONTINUE WITH</span>
+            <span className="px-2 text-sm font-bold text-grey-200">Enter your details below to login</span>
             <hr className="flex-grow" />
           </div>
 

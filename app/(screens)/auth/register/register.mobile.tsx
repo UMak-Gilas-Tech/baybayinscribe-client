@@ -9,41 +9,21 @@ const RegisterMobile = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative hide-scrollbar"
+      className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
       style={{ 
         backgroundImage: "url('/images/bg.phone.login.png')", 
-        overflow: 'auto' // Allow scrolling for the entire page
       }}
     >
-      {/* Whale Design */}
-      <div
-        className="absolute top-0 z-10"
-        style={{
-          width: "130vw",
-          height: "60vh",
-          left: "-10vw",
-          top: "-2vh",
-        }}
-      >
-        <Image
-          src="/images/butty.login.png"
-          alt="Whale Design"
-          layout="fill" 
-          objectFit="contain" 
-          priority 
-        />
-      </div>
 
       {/* Wave Design */}
       <div
         className="absolute z-20 bg-cover bg-center"
         style={{
           width: "100%",
-          minHeight: "75vh",
-          height: "75vh",
+          minHeight: "100vh",
           bottom: "0",
           backgroundImage: "url('/images/vector.bg.png')",
-          backgroundSize: "100% 120%",
+          backgroundSize: "100%",
           backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
         }}
@@ -66,7 +46,7 @@ const RegisterMobile = () => {
             <h1
               className="text-2xl md:text-4xl font-bold text-[#FAD6A5] text-center"
               style={{
-                marginTop: "-15vh",
+                marginTop: "-30vh",
                 marginLeft: "-50px",
               }}
             >
@@ -74,18 +54,18 @@ const RegisterMobile = () => {
             </h1>
 
             {/* Form Heading */}
-            <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5] mt-8 ml-4">
+            <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5] mt-8 ml-2">
               Email Address
             </h2>
 
             {/* Login Form */}
-            <form className="space-y-4 mt-2 ml-4 mr-4">
+            <form className="space-y-4 mt-2 ml-2 mr-2">
               <div>
                 <input
                   type="email"
                   id="email"
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
@@ -97,12 +77,15 @@ const RegisterMobile = () => {
                     type={showPassword ? "text" : "password"}
                     id="password"
                     placeholder="Enter your password"
-                    className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                    className="absolute inset-y-0 right-2 flex items-center text-gray-500"
+                    style={{
+                      right: "30px",
+                    }}
                   >
                     {showPassword ? (
                       <EyeClosed className="w-5 h-5" />
@@ -121,12 +104,15 @@ const RegisterMobile = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     id="confirm-password"
                     placeholder="Confirm your password"
-                    className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                    className="absolute inset-y-0 right-2 flex items-center text-gray-500"
+                    style={{
+                      right: "30px",
+                    }}
                   >
                     {showConfirmPassword ? (
                       <EyeClosed className="w-5 h-5" />

@@ -1,15 +1,14 @@
 "use client";
 
-
 import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { usePathname } from 'next/navigation';
 import TopNavbar from "../components/sidebar/Navbar";
 import { ScreenSize } from "../components/ScreenSize";
 import "./globals.css";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
 import { siteConfig } from "./metadata";
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +25,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isLoginPage = typeof window !== "undefined" && 
-                    (window.location.pathname === "/auth/register" || 
-                     window.location.pathname === "/auth/login");
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/auth/login" || pathname === "/auth/register"
+    || pathname === "/auth/userinfo" || pathname === "/auth/profpic" || pathname === "/auth/terms";
 
   return (
     <html lang="en">

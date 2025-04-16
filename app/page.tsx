@@ -1,34 +1,43 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter, usePathname } from 'next/navigation';
 import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
 import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
 
 // import InferenceWebcam from "@/components/InferenceWebcam";
 
-export default function Home() {
+export default function Home({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isSmallScreen, setIsSmallScreen] = useState(true);
   
   useEffect(() => {
-    // Check if window is available (client-side only)
+    // Check if the router is ready and perform the redirect
+    const handleRedirect = () => {
+      router.push('/auth/login');
+    };
+    handleRedirect(); 
+  }, [router]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const handleResize = () => {
-        setIsSmallScreen(window.innerWidth < 640); // s-sm breakpoint is 640px
+        setIsSmallScreen(window.innerWidth < 640); 
       };
-      
-      // Set initial value
+
       handleResize();
       
-      // Add event listener
       window.addEventListener('resize', handleResize);
       
-      // Clean up
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
 
   return (
     <main className="min-h-screen bg-white">
-      {isSmallScreen ? (
+      {pathname === "/auth/login" || pathname === "/auth/register" ? (
+        <main>{children}</main>
+      ) : isSmallScreen ? (
         <ResponsiveNav />
       ) : (
         <LearningMaterialsNav />

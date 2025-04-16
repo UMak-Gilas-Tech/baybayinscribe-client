@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 
 
 const RegisterWeb = () => {
@@ -36,34 +35,17 @@ const RegisterWeb = () => {
           minHeight: "600px",
 
         }}
-      ></div>
-
-      {/* Whale Design */}
-      <div className="absolute z-20" style={{
-        width: "130vw",
-        height: "30vh",
-        left: "-32vw",
-        top: "38vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-
-      }}>
-        <Image
-          src="/images/butty.login.png"
-          alt="Whale"
-          layout="fixed"
-          width={600}
-          height={100}
-        />
+      >
+            
       </div>
+
       <h1 className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]" style={{
         top: '50%',
         left: '28%',
         transform: 'translateX(-50%)',
         fontSize: '6vw',
       }}>
-        BAYBAYINSCRIBE
+        CREATE ACCOUNT
       </h1>
 
       {/* Left Section */}
@@ -75,12 +57,11 @@ const RegisterWeb = () => {
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
 
         {/* Login Form */}
-        <div className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative" style=
+        <div className="w-full max-w-sm p-4 rounded-lg shadow-lg  bg-white z-30 relative" style=
           {{
-            transform: 'translateX(-35px)',
+            transform: 'translateX(-50px)',
           }}>
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">CREATE ACCOUNT</h2>
-          <p className="text-sm text-gray-600 mb-6">Enter your details below to get started!</p>
+          <h1 className=" text-gray-600 font-bold mb-6">Register through your social media account</h1>
 
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
@@ -94,7 +75,7 @@ const RegisterWeb = () => {
 
           <div className="flex items-center my-6">
             <hr className="flex-grow" />
-            <span className="px-2 text-sm text-grey-200">OR CONTINUE WITH</span>
+            <span className="px-2 text-sm font-bold text-grey-200">OR ENTER YOUR DETAILS</span>
             <hr className="flex-grow" />
           </div>
 
@@ -126,6 +107,7 @@ const RegisterWeb = () => {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Confirm Password
               </label>
+
               <input
                 type="password"
                 id="password"
@@ -137,38 +119,20 @@ const RegisterWeb = () => {
               type="submit"
               className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
             >
-              Login
+              Register
             </button>
           </form>
         </div>
 
         {/* Footer Links */}
-        <div className="w-full max-w-md mt-4 text-sm text-center text-white z-30" style=
+        <div className="w-95 max-w-md mt-4 text-sm text-center text-white z-30" style=
           {{
-            transform: 'translateX(-45px)',
+            transform: 'translateX(-18%)',
           }}>
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-center mb-4">
             <span className="text-white">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline hover:underline">
-                Sign up
-              </a>
+            By joining, I declare that I have read and accept the Terms and Privacy Policy
             </span>
-            <a href="#" className="underline hover:underline">
-              Forgot your password?
-            </a>
-          </div>
-          <div className="flex flex-col">
-            <p className="text-xs text-gray-300 text-left">
-              By clicking continue, you agree to our{" "}
-              <a href="#" className="text-white underline hover:underline">
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-white underline hover:underline">
-                Privacy Policy
-              </a>.
-            </p>
           </div>
         </div>
       </div>
