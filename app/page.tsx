@@ -1,35 +1,39 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
+import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
 
-import React, { useState } from "react";
-import InferenceWebcam from "@/components/InferenceWebcam";
-import { ArrowRightLeft } from "lucide-react";
+// import InferenceWebcam from "@/components/InferenceWebcam";
 
 import { baybayinToLatin } from "@/lib/baybayify";
 export default function Home() {
-  const [detectedText, setDetectedText] = useState<string | undefined>(
-    undefined
-  );
+  const [isSmallScreen, setIsSmallScreen] = useState(true);
+  
+  useEffect(() => {
+    // Check if window is available (client-side only)
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        setIsSmallScreen(window.innerWidth < 640); // s-sm breakpoint is 640px
+      };
+      
+      // Set initial value
+      handleResize();
+      
+      // Add event listener
+      window.addEventListener('resize', handleResize);
+      
+      // Clean up
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   return (
-    <div className="flex flex-row items-center justify-evenly w-screen h-[85vh] m-0 p-0">
-      <InferenceWebcam
-        sizeClass="w-[500px] h-[500px]"
-        onDetect={(result) =>
-          setDetectedText(result.map((v) => v.className).join(""))
-        }
-      />
-
-      <div className="flex flex-col items-center justify-center gap-20">
-        <ArrowRightLeft size={24} />
-      </div>
-
-      <div className="w-[500px] h-[500px] shadow-xl border-xl p-4">
-        <span>
-          {detectedText
-            ? baybayinToLatin(detectedText)
-            : "Detected Text will be here"}
-        </span>
-      </div>
-    </div>
+    <main className="min-h-screen bg-white">
+      {isSmallScreen ? (
+        <ResponsiveNav />
+      ) : (
+        <LearningMaterialsNav />
+      )}
+    </main>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
-
+import React from "react";
 import { useRef, useEffect } from "react";
 import {
   useInferenceStore,
   InferenceStatus,
 } from "../app/store/store.inference";
 import { Switch } from "./ui/switch";
-import React from "react";
 import { InferenceResult } from "@/types/inference";
+
+// import { InferenceEngine, CVImage } from "inferencejs";
 
 interface InferenceWebcamProps {
   sizeClass?: string;
