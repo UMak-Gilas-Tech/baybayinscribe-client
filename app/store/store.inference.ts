@@ -44,7 +44,7 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
   inferEngine: undefined,
   localModel: undefined,
   localInferenceResult: undefined,
-  inferLocal: async (image, canvas, renderToCanvas = false) => {
+  inferLocal: async (image, canvas, renderToCanvas = false, isSketch = false) => {
     const model = get().localModel;
     if (!model)
       throw new Error("Model not initialized. Call initLocalModel() first.");
@@ -56,7 +56,8 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
     console.log(modelWidth, modelHeight);
     const ctx = canvas.getContext("2d");
-    if (ctx) {
+    
+    if (ctx && isSketch) {
       ctx.globalCompositeOperation = "destination-over";
       ctx.fillStyle = "#D3DDFD";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -64,13 +65,13 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     }
     const input = tf.tidy(() => {
       const imageTensor = tf.browser
-        .fromPixels(image ?? canvas)
+        .fromPixels(image ? image : canvas)
         .resizeBilinear([modelWidth, modelHeight])
         .div(255.0)
         .expandDims(0);
       return imageTensor;
     });
-    if (ctx) {
+    if (ctx && isSketch) {
       ctx.fillStyle = "transparent";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -101,6 +102,8 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
 
     if (result.length > 0 && renderToCanvas)
       get().renderToCanvas(filteredResult, canvas);
+
+    console.log("Rendered?", result.length > 0, renderToCanvas)
 
     tf.dispose(input);
     tf.engine().endScope();
@@ -197,6 +200,7 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     detectFrame();
   },
   renderToCanvas: (inferenceResult, canvas) => {
+    // Set canvas style when rendering to canvas is enabled
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -207,6 +211,8 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
 
     const scaleX = canvas.width / 640;
     const scaleY = canvas.height / 640;
+
+    console.log("Hello Canvas Renderer")
 
     if (inferenceResult.length > 0) {
       let minX = Infinity,
@@ -229,6 +235,7 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
       ctx.strokeStyle = "red";
       ctx.lineWidth = 1;
       ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
+      console.log("Rendered to canvas:");
     }
   },
 }));
