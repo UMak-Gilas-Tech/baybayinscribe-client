@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const ProfPicMobile = () => {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
-      style={{ 
-        backgroundImage: "url('/images/bg.phone.login.png')", 
+      style={{
+        backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
 
@@ -64,12 +65,9 @@ const ProfPicMobile = () => {
             </button>
 
             {/* Skip Link */}
-            <button
-              type="button"
-              className="text-[#FAD6A5] hover:underline"
-            >
+            <Link href="/auth/terms" className="text-[#FAD6A5] underline hover:underline">
               Skip
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,4 +1,6 @@
+
 import React from "react";
+import Link from "next/link";
 
 
 const RegisterWeb = () => {
@@ -132,9 +134,9 @@ const RegisterWeb = () => {
           <div className="flex justify-center mb-4 space-y-2">
             <span className="text-white">
               Already have an account?{" "}
-              <a href="/auth/login" className="underline hover:underline">
+              <Link href="/auth/login" className="underline hover:underline">
                 Login here
-              </a>
+              </Link>
             </span>
           </div>
           <div className="flex flex-col">

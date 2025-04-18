@@ -61,7 +61,7 @@ const UserInfoWeb = () => {
             transform: 'translateX(-35px)',
           }}>
 
-          <h1 className="text-sm font-bold text-gray-600 mb-6">Enter your details below:</h1>
+          <h1 className="text-sm font-bold text-gray-600 mb-6">Great let us continue! Enter your details below</h1>
 
           {/* User Info Form */}
           <form>

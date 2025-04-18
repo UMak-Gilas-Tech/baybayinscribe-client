@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const ProfPicWeb = () => {
   return (
@@ -82,12 +83,9 @@ const ProfPicWeb = () => {
           </button>
 
           {/* Skip Link */}
-          <button
-            type="button"
-            className="text-[#585858] hover:underline"
-          >
+          <Link href="/auth/terms" className="underline hover:underline">
             Skip
-          </button>
+          </Link>
         </div>
       </div>
     </div>

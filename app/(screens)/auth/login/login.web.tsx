@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 
 const LoginPage = () => {
@@ -140,9 +141,9 @@ const LoginPage = () => {
           <div className="flex justify-between mb-4">
             <span className="text-white">
               Don&apos;t have an account?{" "}
-              <a href="/auth/register" className="underline hover:underline">
+              <Link href="/auth/register" className="underline hover:underline">
                 Sign up
-              </a>
+              </Link>
             </span>
             <a href="#" className="underline hover:underline">
               Forgot your password?

@@ -47,6 +47,7 @@ const UserInfoMobile = () => {
             >
               USER INFORMATION
             </h1>
+            <h1 className="text-sm font-bold text-[#FAD6A5] mt-6 mb-6">Great let us continue! Enter your details below</h1> 
 
             {/* Form */}
             <form className="space-y-4 mt-4 ml-2 mr-2">
@@ -73,7 +74,7 @@ const UserInfoMobile = () => {
                   id="firstname"
                   placeholder="Enter your first name"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                />  
               </div>
 
               {/* Last Name */}

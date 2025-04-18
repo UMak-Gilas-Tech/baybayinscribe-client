@@ -85,7 +85,7 @@ const data = {
   projects: [
     {
       name: "Learning",
-      url: "#",
+      url: "/auth/login",
       icon: Frame,
     },
     {

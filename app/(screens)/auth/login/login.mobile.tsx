@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image"; 
+import Link from "next/link";
 
 const LoginMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -109,9 +110,10 @@ const LoginMobile = () => {
               <div className="flex flex-col md:flex-row justify-between text-xs text-black">
                 <span>
                   Don&apos;t have an account?{" "}
-                  <a href="/auth/register" className="underline text-[#00C8FF] hover:text-[#00eeff]">
+                  <Link href="/auth/register" className="underline text-[#00C8FF] hover:text-[#00eeff]">
                     Sign up
-                  </a>
+                  </Link>
+                  
                   <span className="mx-2">|</span>
                   <a href="#" className="underline text-[#00C8FF] hover:text-[#00eeff]">
                     Forgot password?
