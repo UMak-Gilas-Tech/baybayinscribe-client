@@ -10,7 +10,7 @@ import {
   useInferenceStore,
   InferenceStatus,
 } from "../app/store/store.inference";
-import { InferenceResult } from "@/types/inference";
+import { InferenceResult } from "@/types/type.inference";
 import { SendToBack } from "lucide-react";
 import { Button } from "./ui/button";
 

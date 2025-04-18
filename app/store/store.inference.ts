@@ -6,7 +6,7 @@ import { LABELS } from "@/constants";
 
 // @ts-expect-error
 import { InferenceEngine, CVImage } from "inferencejs";
-import { InferenceResult } from "@/types/inference";
+import { InferenceResult } from "@/types/type.inference";
 
 export enum InferenceStatus {
   IDLE,

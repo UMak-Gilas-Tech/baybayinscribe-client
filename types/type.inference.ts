@@ -7,3 +7,9 @@ export type InferenceResult = {
   confidence: number;
   className: string;
 };
+
+export type InferenceResultHistory = {
+  detectedBaybayinString: string[];
+  avgConfidence: number;
+  timestamp: string;
+}

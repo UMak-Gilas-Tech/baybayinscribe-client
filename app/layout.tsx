@@ -30,25 +30,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>{siteConfig.name}</title>
+        <title>{`BaybayInscribe | ${siteConfig.name}`}</title>
         <meta name="description" content={siteConfig.description} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden p-0`}
       >
         <SidebarProvider>
-          {/* Global notifications from HEAD */}
           <Toaster />
           <div className="flex flex-col h-screen">
             <div className="flex-shrink-0 z-10">
               <TopNavbar />
             </div>
             <div className="flex flex-1 overflow-hidden">
-              {/* Sidebar from new branch */}
               <AppSidebar className="sticky top-0 h-screen z-20" />
               <div className="w-full h-full flex flex-row overflow-hidden">
                 <div className="relative flex-1 h-full">
-                  {/* Background component from HEAD */}
                   <Background />
                   <main className="relative w-full h-full overflow-scroll z-10">
                     {children}
@@ -58,7 +55,6 @@ export default function RootLayout({
             </div>
           </div>
         </SidebarProvider>
-        {/* Utility component from new branch */}
         <ScreenSize />
       </body>
     </html>
