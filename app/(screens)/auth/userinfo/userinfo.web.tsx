@@ -1,6 +1,34 @@
+"use client";
+
 import React from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  username: z.string().min(1, { message: "Username is required" }),
+  firstname: z.string().min(1, { message: "First Name is required" }),
+  lastname: z.string().min(1, { message: "Last Name is required" }),
+  contactnumber: z.string().min(1, { message: "Contact Number is required" }),
+  dob: z.string().min(1, { message: "Date of Birth is required" }),
+});
 
 const UserInfoWeb = () => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      firstname: "",
+      lastname: "",
+      contactnumber: "",
+      dob: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log(values);
+  };
+
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
 
@@ -64,13 +92,14 @@ const UserInfoWeb = () => {
           <h1 className="text-sm font-bold text-gray-600 mb-6">Great let us continue! Enter your details below</h1>
 
           {/* User Info Form */}
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             {/* Username */}
             <div className="mb-4">
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
               </label>
               <input
+                {...form.register("username")}
                 type="text"
                 id="username"
                 placeholder="Enter your username"
@@ -83,6 +112,7 @@ const UserInfoWeb = () => {
                 First Name
               </label>
               <input
+                {...form.register("firstname")}
                 type="text"
                 id="firstname"
                 placeholder="Enter your first name"
@@ -95,6 +125,7 @@ const UserInfoWeb = () => {
                 Last Name
               </label>
               <input
+                {...form.register("lastname")}
                 type="text"
                 id="lastname"
                 placeholder="Enter your last name"
@@ -107,6 +138,7 @@ const UserInfoWeb = () => {
                 Contact Number (Optional)
               </label>
               <input
+                {...form.register("contactnumber")}
                 type="tel"
                 id="contact.number"
                 placeholder="Enter your contact number"
@@ -119,6 +151,7 @@ const UserInfoWeb = () => {
                 Date of Birth (Optional)
               </label>
               <input
+                {...form.register("dob")}
                 type="date"
                 id="dob"
                 placeholder="Select your date of birth"

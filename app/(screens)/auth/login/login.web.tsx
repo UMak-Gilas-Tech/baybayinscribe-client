@@ -1,9 +1,29 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+const formSchema = z.object({
+  email: z.string().min(1, { message: "Email is required" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
 
-const LoginPage = () => {
+const LoginWeb = () => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+  }
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
 
@@ -101,12 +121,13 @@ const LoginPage = () => {
           </div>
 
           {/* Login Form */}
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
+                {...form.register("email")}
                 type="email"
                 id="email"
                 placeholder="Enter your email"
@@ -118,6 +139,7 @@ const LoginPage = () => {
                 Password
               </label>
               <input
+                {...form.register("password")}
                 type="password"
                 id="password"
                 placeholder="Enter your password"
@@ -167,4 +189,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginWeb;

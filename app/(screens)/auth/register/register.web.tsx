@@ -1,12 +1,40 @@
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import { authClient } from "../../../lib/auth-client";
 
 const RegisterWeb = () => {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await authClient.signUp.email({ email, password, name: "New user" });
+      if (response?.error) {
+        setError(response.error.message || "Registration failed");
+      } else {
+        router.push("/auth/userinfo");
+      }
+    } catch {
+      setError("An unexpected error occurred");
+    }
+  };
+
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-
       {/* Vector SVG Design */}
       <svg
         className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none"
@@ -25,7 +53,6 @@ const RegisterWeb = () => {
         />
       </svg>
 
-
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center z-10"
@@ -35,54 +62,60 @@ const RegisterWeb = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "left center",
           minHeight: "600px",
+        }}
+      />
 
+      {/* Title */}
+      <h1
+        className="absolute z-30 font-bold text-[#FFD8B9]"
+        style={{
+          top: "50%",
+          left: "28%",
+          transform: "translateX(-50%)",
+          fontSize: "6vw",
         }}
       >
-
-      </div>
-
-      <h1 className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]" style={{
-        top: '50%',
-        left: '28%',
-        transform: 'translateX(-50%)',
-        fontSize: '6vw',
-      }}>
         CREATE ACCOUNT
       </h1>
 
       {/* Left Section */}
-      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0">
-
-      </div>
+      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
       {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
-
-        {/* Login Form */}
-        <div className="w-full max-w-sm p-4 rounded-lg shadow-lg  bg-white z-30 relative" style=
-          {{
-            transform: 'translateX(-50px)',
-          }}>
-          <h1 className=" text-gray-600 font-bold mb-6">Register through your social media account</h1>
+        {/* Register Form */}
+        <div
+          className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
+          style={{ transform: "translateX(-50px)" }}
+        >
+          <h1 className="text-gray-600 font-bold mb-6">
+            Register through your social media account
+          </h1>
 
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
-            <button className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-              <span className="font-medium">Facebook</span>
+            <button
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+            >
+              Facebook
             </button>
-            <button className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-              <span className="font-medium">Google</span>
+            <button
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+            >
+              Google
             </button>
           </div>
 
           <div className="flex items-center my-6">
             <hr className="flex-grow" />
-            <span className="px-2 text-sm font-bold text-grey-200">OR ENTER YOUR DETAILS</span>
+            <span className="px-2 text-sm font-bold text-grey-200">
+              OR ENTER YOUR DETAILS
+            </span>
             <hr className="flex-grow" />
           </div>
 
-          {/* Login Form */}
-          <form>
+          {/* Manual Registration Form */}
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
@@ -90,6 +123,8 @@ const RegisterWeb = () => {
               <input
                 type="email"
                 id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -101,52 +136,54 @@ const RegisterWeb = () => {
               <input
                 type="password"
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                 Confirm Password
               </label>
-
               <input
                 type="password"
-                id="password"
-                placeholder="Enter your password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
             <button
               type="submit"
               className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
             >
-              Register
+              Continue
             </button>
           </form>
         </div>
 
         {/* Footer Links */}
-        <div className="w-95 max-w-md mt-4 text-sm text-center text-white z-30" style=
-          {{
-            transform: 'translateX(-33%)',
-          }}>
-          <div className="flex justify-center mb-4 space-y-2">
-            <span className="text-white">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="underline hover:underline">
-                Login here
-              </Link>
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <p className="text-xs text-gray-300" style=
-              {{
-                transform: 'translateX(14%)',
-              }}>
-              By clicking continue, you agree to our Terms and Privacy Policy.
-            </p>
-          </div>
+        <div
+          className="w-95 max-w-md mt-4 text-sm text-center text-white z-30"
+          style={{ transform: "translateX(-33%)" }}
+        >
+          <p>
+            Already have an account?{" "}
+            <Link href="/auth/login" className="underline hover:underline">
+              Login here
+            </Link>
+          </p>
+          <p
+            className="text-xs text-gray-300 mt-2"
+            style={{ transform: "translateX(14%)" }}
+          >
+            By clicking Continue, you agree to our Terms and Privacy Policy.
+          </p>
         </div>
       </div>
     </div>

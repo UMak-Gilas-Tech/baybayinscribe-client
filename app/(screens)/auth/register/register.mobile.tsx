@@ -3,10 +3,39 @@ import React, { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authClient } from "../../../lib/auth-client";
 
 const RegisterMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await authClient.signUp.email({ email, password, name: "New user" });
+      if (response?.error) {
+        setError(response.error.message || "Registration failed");
+      } else {
+        router.push("/auth/userinfo");
+      }
+    } catch {
+      setError("An unexpected error occurred");
+    }
+  };
 
   return (
     <div
@@ -60,13 +89,15 @@ const RegisterMobile = () => {
             </h2>
 
             {/* Login Form */}
-            <form className="space-y-4 mt-2 ml-2 mr-2">
+            <form onSubmit={handleSubmit} className="space-y-4 mt-2 ml-2 mr-2">
               <div>
                 <input
                   type="email"
                   id="email"
                   placeholder="Enter your email"
                   className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
@@ -79,6 +110,8 @@ const RegisterMobile = () => {
                     id="password"
                     placeholder="Enter your password"
                     className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -106,7 +139,9 @@ const RegisterMobile = () => {
                     id="confirm-password"
                     placeholder="Confirm your password"
                     className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -136,11 +171,14 @@ const RegisterMobile = () => {
                   By clicking continue, you agree to our Terms and Privacy Policy.
                 </p>
               </div>
+              
+              {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
               <button
                 type="submit"
                 className="w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition"
               >
-                Register
+                Continue
               </button>
             </form>
 
