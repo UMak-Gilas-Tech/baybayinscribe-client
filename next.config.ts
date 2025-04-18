@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  output: "export",
+  // Remove the static export to allow dynamic API routes
+  // output: "export",
 };
 
 export default nextConfig;
