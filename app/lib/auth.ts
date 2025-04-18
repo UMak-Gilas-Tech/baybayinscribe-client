@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import db from "../../db/index";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { nextCookies } from "better-auth/plugins/next-cookies"; //maybe need to install dependency for this one
+
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -21,5 +21,4 @@ export const auth = betterAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     },
   },
-  plugins: [nextCookies()],
 });
