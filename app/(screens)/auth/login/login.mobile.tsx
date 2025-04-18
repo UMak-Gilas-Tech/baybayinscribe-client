@@ -109,7 +109,7 @@ const LoginMobile = () => {
               <div className="flex flex-col md:flex-row justify-between text-xs text-black">
                 <span>
                   Don&apos;t have an account?{" "}
-                  <a href="#" className="underline text-[#00C8FF] hover:text-[#00eeff]">
+                  <a href="/auth/register" className="underline text-[#00C8FF] hover:text-[#00eeff]">
                     Sign up
                   </a>
                   <span className="mx-2">|</span>

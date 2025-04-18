@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
-import Image from "next/image"; 
+import Image from "next/image";
 
 const RegisterMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,8 +10,8 @@ const RegisterMobile = () => {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
-      style={{ 
-        backgroundImage: "url('/images/bg.phone.login.png')", 
+      style={{
+        backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
 
@@ -54,7 +54,7 @@ const RegisterMobile = () => {
             </h1>
 
             {/* Form Heading */}
-            <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5] mt-8 ml-2">
+            <h2 className="text-basefont-semibold text-[#FAD6A5] mt-8 ml-2">
               Email Address
             </h2>
 
@@ -122,14 +122,22 @@ const RegisterMobile = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between text-xs text-[#FAD6A5]">
+              <div className="flex flex-col justify-between text-xs text-black">
                 <span>
-                  By joining, I declare that I have read and accept the Terms and Privacy Policy
+                  Already have an account?{" "}
+                  <a href="/auth/login" className="underline text-[#00C8FF] hover:text-[#00eeff]">
+                    Login here
+                  </a>
                 </span>
+              </div>
+              <div className="flex flex-col">
+                <p className="text-xs text-[#FAD6A5]">
+                  By clicking continue, you agree to our Terms and Privacy Policy.
+                </p>
               </div>
               <button
                 type="submit"
-                className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition"
+                className="w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition"
               >
                 Register
               </button>

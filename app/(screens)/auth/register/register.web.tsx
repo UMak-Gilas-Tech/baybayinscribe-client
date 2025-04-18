@@ -36,7 +36,7 @@ const RegisterWeb = () => {
 
         }}
       >
-            
+
       </div>
 
       <h1 className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]" style={{
@@ -127,12 +127,23 @@ const RegisterWeb = () => {
         {/* Footer Links */}
         <div className="w-95 max-w-md mt-4 text-sm text-center text-white z-30" style=
           {{
-            transform: 'translateX(-18%)',
+            transform: 'translateX(-33%)',
           }}>
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-4 space-y-2">
             <span className="text-white">
-            By joining, I declare that I have read and accept the Terms and Privacy Policy
+              Already have an account?{" "}
+              <a href="/auth/login" className="underline hover:underline">
+                Login here
+              </a>
             </span>
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs text-gray-300" style=
+              {{
+                transform: 'translateX(14%)',
+              }}>
+              By clicking continue, you agree to our Terms and Privacy Policy.
+            </p>
           </div>
         </div>
       </div>
