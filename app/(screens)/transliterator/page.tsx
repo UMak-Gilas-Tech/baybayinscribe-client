@@ -42,7 +42,6 @@ const TransliterationScreen = () => {
     </div>
   );
 
-  // Render input section for Baybayin
   const renderBaybayinInput = () => (
     <div className="border-2 border-[#31384D] bg-[#e7ecfe] lg:rounded-xl md:rounded-xl rounded-b-xl p-2 flex-1 w-full">
       <h2 className="text-2xl p-2 font-bold mb-2">Baybayin</h2>
