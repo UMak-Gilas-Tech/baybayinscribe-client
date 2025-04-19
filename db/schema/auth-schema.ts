@@ -18,17 +18,18 @@ import {
 	updatedAt: timestamp("updated_at").notNull(),
   });
   
-  export const userProfile = pgTable("user_profile", {
+  export const userInformation = pgTable("user_information", {
 	userId: text("user_id")
 	  .primaryKey()
 	  .references(() => user.id, { onDelete: "cascade" }),
-	username: varchar("username", { length: 100 }).unique().notNull(),
-	firstName: varchar("first_name", { length: 100 }).notNull(),
-	lastName: varchar("last_name", { length: 100 }).notNull(),
+	username: varchar("username", { length: 30 }).unique().notNull(),
+	firstName: varchar("first_name", { length: 30 }).notNull(),
+	lastName: varchar("last_name", { length: 30 }).notNull(),
 	contactNumber: varchar("contact_number", { length: 15 }).notNull(),
 	dateOfBirth: date("date_of_birth").notNull(),
 	profilePictureUrl: text("profile_picture_url"),
 	agreedToTerms: boolean("agreed_to_terms").notNull(),
+	wantsNotifications: boolean("wants_notifications").notNull().default(false),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
   });
@@ -75,7 +76,7 @@ import {
   
   export const schema = {
 	user,
-	userProfile,
+	userInformation,
 	session,
 	account,
 	verification,
