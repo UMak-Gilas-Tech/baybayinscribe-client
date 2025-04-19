@@ -41,7 +41,7 @@ const TermsServicesMobile = () => {
             <h1
               className="text-2xl md:text-4xl text-[#FAD6A5] text-center mb-8 font-bold"
             >
-              Profile Picture
+              Terms and Agreement
             </h1>
 
             {/* Profile Picture Placeholder */}

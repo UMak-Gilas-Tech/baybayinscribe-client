@@ -1,44 +1,65 @@
 "use client";
 
-import React from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-const formSchema = z.object({
-  username: z.string().min(1, { message: "Username is required" }),
-  firstname: z.string().min(1, { message: "First Name is required" }),
-  lastname: z.string().min(1, { message: "Last Name is required" }),
-  contactnumber: z.string().min(1, { message: "Contact Number is required" }),
-  dob: z.string().min(1, { message: "Date of Birth is required" }),
-});
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const UserInfoWeb = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      firstname: "",
-      lastname: "",
-      contactnumber: "",
-      dob: "",
-    },
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    contactNumber: "",
+    dateOfBirth: "",
+    agreedToTerms: true,
+    wantsNotifications: false
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      form.username.length > 30 ||
+      form.firstName.length > 30 ||
+      form.lastName.length > 30 ||
+      !/^\d{11}$/.test(form.contactNumber)
+    ) {
+      setError("Please check your input values.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/user.information", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        localStorage.setItem("userInfo", JSON.stringify(form));
+        router.push("/auth/profpic");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to submit information.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong.");
+    }
   };
 
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-
       {/* Vector SVG Design */}
-      <svg
-        className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none"
-        viewBox="0 0 953 1117"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid meet"
-      >
+      <svg className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none" viewBox="0 0 953 1117">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -50,7 +71,6 @@ const UserInfoWeb = () => {
         />
       </svg>
 
-
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center z-10"
@@ -60,108 +80,104 @@ const UserInfoWeb = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "left center",
           minHeight: "600px",
-
         }}
+      />
+
+      <h1
+        className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]"
+        style={{ top: "50%", left: "28%", transform: "translateX(-50%)", fontSize: "5vw" }}
       >
-
-      </div>
-
-      <h1 className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]" style={{
-        top: '50%',
-        left: '28%',
-        transform: 'translateX(-50%)',
-        fontSize: '5vw',
-      }}>
         USER INFORMATION
       </h1>
 
       {/* Left Section */}
-      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0">
-
-      </div>
+      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
       {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
-
         {/* Login Form */}
-        <div className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative" style=
-          {{
-            transform: 'translateX(-35px)',
-          }}>
-
+        <div
+          className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
+          style={{ transform: "translateX(-35px)" }}
+        >
           <h1 className="text-sm font-bold text-gray-600 mb-6">Great let us continue! Enter your details below</h1>
 
-          {/* User Info Form */}
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            {/* Username */}
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Username
               </label>
               <input
-                {...form.register("username")}
                 type="text"
                 id="username"
+                value={form.username}
+                onChange={handleChange}
+                maxLength={30}
                 placeholder="Enter your username"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* First Name */}
+
             <div className="mb-4">
-              <label htmlFor="firstname" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
                 First Name
               </label>
               <input
-                {...form.register("firstname")}
                 type="text"
-                id="firstname"
+                id="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                maxLength={30}
                 placeholder="Enter your first name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* Last Name */}
+
             <div className="mb-4">
-              <label htmlFor="lastname" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                 Last Name
               </label>
               <input
-                {...form.register("lastname")}
                 type="text"
-                id="lastname"
+                id="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                maxLength={30}
                 placeholder="Enter your last name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* Contact Number */}
+
             <div className="mb-4">
-              <label htmlFor="contact-number" className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Number (Optional)
+              <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                Contact Number
               </label>
               <input
-                {...form.register("contactnumber")}
                 type="tel"
-                id="contact.number"
+                id="contactNumber"
+                value={form.contactNumber}
+                onChange={handleChange}
                 placeholder="Enter your contact number"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* Date of Birth */}
+
             <div className="mb-4">
-              <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-1">
-                Date of Birth (Optional)
+              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+                Date of Birth
               </label>
               <input
-                {...form.register("dob")}
                 type="date"
-                id="dob"
-                placeholder="Select your date of birth"
+                id="dateOfBirth"
+                value={form.dateOfBirth}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <button
-              type="submit"
-              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
-            >
+
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition">
               Continue
             </button>
           </form>

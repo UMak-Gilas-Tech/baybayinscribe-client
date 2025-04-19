@@ -1,7 +1,36 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const TermsServicesWeb = () => {
+  const [agree, setAgree] = useState(false);
+  const [wantsNotifications, setWantsNotifications] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleCheckboxChange = () => {
+    setAgree(!agree);
+    setError("");
+  };
+
+  const handleNotificationChange = () => {
+    setWantsNotifications(!wantsNotifications);
+  };
+
+  const handleSubmit = () => {
+    if (!agree) {
+      setError("Please agree to the terms and conditions to proceed.");
+      return;
+    }
+
+    // If you've already saved wants_notifications earlier, no need to POST again
+    // But if not, you could redirect to a handler page or call an update API here
+
+    router.push("/auth/login");
+  };
+
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
 
@@ -41,9 +70,9 @@ const TermsServicesWeb = () => {
         top: '50%',
         left: '28%',
         transform: 'translateX(-50%)',
-        fontSize: '6vw',
+        fontSize: '4vw',
       }}>
-        PROFILE PICTURE
+        TERMS AND AGREEMENT
       </h1>
 
       {/* Left Section */}
@@ -59,7 +88,6 @@ const TermsServicesWeb = () => {
           style={{
             transform: 'translateX(-35px)',
           }}>
-
 
           {/* Profile Picture Placeholder */}
           <div className="mb-6">
@@ -80,22 +108,35 @@ const TermsServicesWeb = () => {
           {/* Checkboxes */}
           <div className="w-full flex flex-col items-start space-y-3 mb-6 px-4">
             <div className="flex items-center">
-              <input type="checkbox" id="terms-web" className="mr-2 accent-[#837EFF]" />
-              <label htmlFor="terms-web" className="text-sm text-[#585858]">
-                Yes, I agree to the <a href="#" className="text-[#837EFF] underline">Terms of Service</a>.
+              <input type="checkbox" 
+              id="agree" 
+              checked={agree} 
+              onChange={handleCheckboxChange} 
+              className="mr-2 accent-[#837EFF]" required/>
+              <label htmlFor="agree" className="text-sm text-[#585858]">
+                Yes, I agree to the Terms of Service.
               </label>
+
             </div>
             <div className="flex items-center">
-              <input type="checkbox" id="notifications-web" className="mr-2 accent-[#837EFF]" />
-              <label htmlFor="notifications-web" className="text-sm text-[#585858]">
+              <input type="checkbox" 
+              id="notifications" 
+              checked={wantsNotifications}
+              onChange={handleNotificationChange}
+              className="mr-2 accent-[#837EFF]" />
+              <label htmlFor="notifications" className="text-sm text-[#585858]">
                 Yes, I want to be notified of upcoming offers, events, and latest news.
               </label>
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
           {/* Finish Registration Button */}
           <button
             type="button"
+            onClick={handleSubmit}
             className="w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition"
           >
             Finish Registration
