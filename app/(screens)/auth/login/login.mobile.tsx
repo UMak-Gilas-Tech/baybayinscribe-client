@@ -3,9 +3,41 @@ import React, { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image"; 
 import Link from "next/link";
+import { authClient } from "../../../lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const LoginMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+
+    setLoginError(""); // reset error before attempt
+
+
+    try {
+      await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: "/",
+      }, {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          setLoginError(ctx.error?.message || "This account does not exist.");
+        },
+      });
+    } catch {
+      setLoginError("Failed to sign in. Please try again.");
+    }
+  };
 
   return (
     <div
@@ -77,13 +109,15 @@ const LoginMobile = () => {
             </h2>
 
             {/* Login Form */}
-            <form className="space-y-4 mt-2 ml-4 mr-4">
+            <form className="space-y-4 mt-2 ml-4 mr-4" onSubmit={handleLogin}>
               <div>
                 <input
                   type="email"
                   id="email"
                   placeholder="Enter your email"
                   className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -93,6 +127,8 @@ const LoginMobile = () => {
                     id="password"
                     placeholder="Enter your password"
                     className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -120,11 +156,13 @@ const LoginMobile = () => {
                   </a>
                 </span>
               </div>
+
+              {loginError && <p className="text-red-500 mb-4">{loginError}</p>}
               <button
                 type="submit"
                 className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition"
               >
-                Sign up
+                Sign in
               </button>
             </form>
 

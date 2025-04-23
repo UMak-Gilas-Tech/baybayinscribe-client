@@ -1,8 +1,61 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const UserInfoMobile = () => {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    contactNumber: "",
+    dateOfBirth: "",
+    agreedToTerms: true,
+    wantsNotifications: false
+  });
+
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      form.username.length > 30 ||
+      form.firstName.length > 30 ||
+      form.lastName.length > 30 ||
+      !/^\d{11}$/.test(form.contactNumber)
+    ) {
+      setError("Please check your input values.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/user.information", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        localStorage.setItem("userInfo", JSON.stringify(form));
+        router.push("/auth/profpic");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to submit information.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong.");
+    }
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
@@ -51,7 +104,7 @@ const UserInfoMobile = () => {
             <h1 className="text-sm font-bold text-[#FAD6A5] mt-6 mb-6">Great let us continue! Enter your details below</h1> 
 
             {/* Form */}
-            <form className="space-y-4 mt-4 ml-2 mr-2">
+            <form className="space-y-4 mt-4 ml-2 mr-2" onSubmit={handleSubmit}>
               {/* Username */}
               <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
                 Username
@@ -62,6 +115,8 @@ const UserInfoMobile = () => {
                   id="username"
                   placeholder="Enter your username"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.username}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -72,9 +127,11 @@ const UserInfoMobile = () => {
               <div>
                 <input
                   type="text"
-                  id="firstname"
+                  id="firstName"
                   placeholder="Enter your first name"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.firstName}
+                  onChange={handleChange}
                 />  
               </div>
 
@@ -85,9 +142,11 @@ const UserInfoMobile = () => {
               <div>
                 <input
                   type="text"
-                  id="lastname"
+                  id="lastName"
                   placeholder="Enter your last name"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.lastName}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -98,9 +157,11 @@ const UserInfoMobile = () => {
               <div>
                 <input
                   type="tel"
-                  id="contact.number"
+                  id="contactNumber"
                   placeholder="Enter your contact number"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.contactNumber}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -111,13 +172,16 @@ const UserInfoMobile = () => {
               <div>
                 <input
                   type="date"
-                  id="dob"
+                  id="dateOfBirth"
                   placeholder="Select your date of birth"
                   className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={form.dateOfBirth}
+                  onChange={handleChange}
                 />
               </div>
 
               {/* Submit Button */}
+              {error && <p className="text-red-500 mb-4">{error}</p>}
               <button
                 type="submit"
                 className="w-full py-3 mt-6 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition"
@@ -125,7 +189,6 @@ const UserInfoMobile = () => {
                 Continue
               </button>
             </form>
-
           </div>
         </div>
       </div>
