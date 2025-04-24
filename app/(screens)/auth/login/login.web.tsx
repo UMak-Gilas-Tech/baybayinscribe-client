@@ -198,7 +198,7 @@ const LoginWeb = () => {
                 Sign up
               </Link>
             </span>
-            <a href="#" className="underline hover:underline">
+            <a href="/auth/forgotpassword" className="underline hover:underline">
               Forgot your password?
             </a>
           </div>

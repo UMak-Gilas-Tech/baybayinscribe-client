@@ -4,14 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../lib/auth";
 import { Pool } from "pg";
 
-// Create a PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
 export async function POST(req: NextRequest) {
   try {
-    // Get current session user with proper headers
     const session = await auth.api.getSession({
       headers: req.headers
     });
@@ -32,7 +30,6 @@ export async function POST(req: NextRequest) {
       wantsNotifications,
     } = body;
 
-    // Basic validation
     if (
       !username || username.length > 30 ||
       !firstName || firstName.length > 30 ||

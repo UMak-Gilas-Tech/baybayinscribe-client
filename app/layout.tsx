@@ -27,7 +27,8 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/auth/login" || pathname === "/auth/register"
-    || pathname === "/auth/userinfo" || pathname === "/auth/profpic" || pathname === "/auth/terms";
+    || pathname === "/auth/userinfo" || pathname === "/auth/profpic" || pathname === "/auth/terms"
+    || pathname === "/auth/forgotpassword" || pathname === "/auth/resetpassword";
 
   return (
     <html lang="en">
