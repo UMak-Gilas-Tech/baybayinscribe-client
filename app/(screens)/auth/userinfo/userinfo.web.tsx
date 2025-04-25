@@ -95,6 +95,7 @@ const UserInfoWeb = () => {
 
       {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
+        
         {/* Login Form */}
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
