@@ -26,7 +26,8 @@ export interface InferenceState {
   inferLocal: (
     image: HTMLVideoElement | HTMLImageElement | undefined,
     canvas: HTMLCanvasElement,
-    renderToCanvas?: boolean
+    renderToCanvas?: boolean,
+    isSketch?: boolean
   ) => void;
 
   renderToCanvas: (
@@ -56,7 +57,11 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
     console.log(modelWidth, modelHeight);
     const ctx = canvas.getContext("2d");
-    
+
+    let originalImageData: ImageData | undefined;
+    if (ctx) {
+      originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
     if (ctx && isSketch) {
       ctx.globalCompositeOperation = "destination-over";
       ctx.fillStyle = "#D3DDFD";
@@ -71,6 +76,7 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
         .expandDims(0);
       return imageTensor;
     });
+
     if (ctx && isSketch) {
       ctx.fillStyle = "transparent";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -103,8 +109,10 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     if (result.length > 0 && renderToCanvas)
       get().renderToCanvas(filteredResult, canvas);
 
-    console.log("Rendered?", result.length > 0, renderToCanvas)
-
+    // restore original drawing before disposing
+    if (ctx && originalImageData) {
+      ctx.putImageData(originalImageData, 0, 0);
+    }
     tf.dispose(input);
     tf.engine().endScope();
   },

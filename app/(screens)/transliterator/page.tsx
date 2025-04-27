@@ -6,9 +6,9 @@ import TransliteratorHeader from "@/public/images/TransliteratorHeader.png";
 import baybayifyWord, { baybayinToLatin } from "@/lib/baybayify";
 
 const TransliterationScreen = () => {
-  // Unified bidirectional state with default "shi"
-  const [latinText, setLatinText] = useState("shi");
-  const [baybayinText, setBaybayinText] = useState(baybayifyWord("shi"));
+
+  const [latinText, setLatinText] = useState("");
+  const [baybayinText, setBaybayinText] = useState(baybayifyWord(""));
 
   // New state to toggle the order of inputs
   const [switchOrder, setSwitchOrder] = useState(false);

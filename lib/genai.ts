@@ -1,7 +1,11 @@
+"use server";
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Quiz, QuizDifficulty } from "../types/type.quiz"
+import { Quiz, QuizDifficulty } from "../types/type.quiz";
 
 const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+
+console.log("API KEY: ", apiKey);
 
 if (!apiKey) {
   throw new Error("GOOGLE_GENAI_API_KEY is not set");
@@ -121,7 +125,28 @@ Format structure:
 DO NOT GENERATE QUESTIONS THAT DOESNT CHALLENGE A USER'S BAYBAYIN READING/WRITING CAPABILITY. I WILL PUNISH YOU FOR IT.
 
 Respond only in JSON Plain Text!
-`
+`;
+
+// Baybayin-only instruction for generic queries
+const baybayinInstruction = `You are a Baybayin expert AI, and your name is Butty. You are a small, gentle, and lovable whale with a personality of a kid but a knowledge of a historian. Your job must only answer Baybayin-related questions and accept Baybayin-related queries. Query: {query}.
+Baybayin Rules for Renderer:
+- A lone consonant will auto-append 'a' unless it ends in '+' (e.g., 'g' = 'ga', but 'g+' = g) and a consonant has a non-a vowel. So mlki means malaki, and mhl+ means mahal.
+Do not use ASCII baybayin characters. I have my own renderer for that. But wrap the baybayin characters in double equal signs ==like this==.
+
+You are also allowed to lead users off chat but only in ONE PAGE. Here are the pages you can lead them to:
+- sketch
+- transliterate
+
+you dont have to lead the user to a page each and every question. just figure out the times needed. 
+
+format must be like this:
+navigate:page_name
+e.g. navigate:sketch
+
+and you can only add this at the end of your response.
+
+also only respond in tagalog.
+`;
 
 const googleGenerativeAI = new GoogleGenerativeAI(
   process.env.GOOGLE_GENAI_API_KEY!
@@ -130,19 +155,49 @@ const model = googleGenerativeAI.getGenerativeModel({
   model: "gemini-2.0-flash",
 });
 
-export const generateQuiz = async (question_count: number, topic: string, difficulty: QuizDifficulty, quiz_name?: string, quiz_description?: string) => {
+export const generateQuiz = async (
+  question_count: number,
+  topic: string,
+  difficulty: QuizDifficulty,
+  quiz_name?: string,
+  quiz_description?: string
+) => {
   try {
     let _newPrompt = prompt;
     _newPrompt = _newPrompt.replace("{x}", question_count.toString());
     _newPrompt = _newPrompt.replace("{y}", topic);
     _newPrompt = _newPrompt.replace("{z}", difficulty);
-    _newPrompt = _newPrompt.replace("{b}", quiz_description ? `Quiz Description: ${quiz_description}` : "Generate me a quiz description depending on the question topic");
-    _newPrompt = _newPrompt.replace("{a}", quiz_name ? `Quiz Name: ${quiz_name}` : "Generate me a quiz name depending on the question topic");
-    console.log(_newPrompt)
+    _newPrompt = _newPrompt.replace(
+      "{b}",
+      quiz_description
+        ? `Quiz Description: ${quiz_description}`
+        : "Generate me a quiz description depending on the question topic"
+    );
+    _newPrompt = _newPrompt.replace(
+      "{a}",
+      quiz_name
+        ? `Quiz Name: ${quiz_name}`
+        : "Generate me a quiz name depending on the question topic"
+    );
+    console.log(_newPrompt);
     const response = await model.generateContent([_newPrompt]);
-    return JSON.parse(response.response.text().replace("```json", "").replace("```", "")).quiz as Quiz;
+    return JSON.parse(
+      response.response.text().replace("```json", "").replace("```", "")
+    ).quiz as Quiz;
   } catch (error) {
     console.error("Error generating question:", error);
+    throw error;
+  }
+};
+
+// New helper to prompt Gemini directly under that constraint
+export const promptGemini = async (userQuery: string): Promise<string> => {
+  try {
+    const fullPrompt = baybayinInstruction.replace("{query}", userQuery);
+    const response = await model.generateContent([fullPrompt]);
+    return response.response.text();
+  } catch (error) {
+    console.error("Error in promptGemini:", error);
     throw error;
   }
 };
