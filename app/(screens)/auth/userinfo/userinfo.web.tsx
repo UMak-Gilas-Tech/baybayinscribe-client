@@ -27,9 +27,9 @@ const UserInfoWeb = () => {
     e.preventDefault();
 
     if (
-      form.username.length > 30 ||
-      form.firstName.length > 30 ||
-      form.lastName.length > 30 ||
+      form.username.length > 15 ||
+      form.firstName.length > 15 ||
+      form.lastName.length > 15 ||
       !/^\d{11}$/.test(form.contactNumber)
     ) {
       setError("Please check your input values.");
@@ -45,7 +45,7 @@ const UserInfoWeb = () => {
 
       if (res.ok) {
         localStorage.setItem("userInfo", JSON.stringify(form));
-        router.push("/auth/profpic");
+        router.push("/auth/terms");
       } else {
         const data = await res.json();
         setError(data.error || "Failed to submit information.");

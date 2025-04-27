@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const TermsServicesMobile = () => { 
+const TermsServicesMobile = () => {
   const [agree, setAgree] = useState(false);
   const [wantsNotifications, setWantsNotifications] = useState(false);
   const [error, setError] = useState("");
@@ -34,8 +33,8 @@ const TermsServicesMobile = () => {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
-      style={{ 
-        backgroundImage: "url('/images/bg.phone.login.png')", 
+      style={{
+        backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
 
@@ -72,41 +71,30 @@ const TermsServicesMobile = () => {
               Terms and Agreement
             </h1>
 
-            {/* Profile Picture Placeholder */}
-            <div className="mb-8">
-              <Image
-                src="/images/profpic.placeholder.png"
-                alt="Profile Picture Placeholder"
-                width={150}
-                height={150}
-                className="rounded-full"
-              />
-            </div>
-
             {/* Instructions Text */}
             <p className="text-[#FAD6A5] text-center mb-6">
-              Please check the box below
+              Please check the box below:
             </p>
 
             {/* Checkboxes */}
             <div className="w-full flex flex-col items-start space-y-3 mb-6 px-4">
               <div className="flex items-center">
-                <input type="checkbox" 
-                id="terms" 
-                checked={agree} 
-                onChange={handleCheckboxChange} 
-                className="mr-2 accent-[#837EFF]" required/>
+                <input type="checkbox"
+                  id="terms"
+                  checked={agree}
+                  onChange={handleCheckboxChange}
+                  className="mr-2 accent-[#837EFF]" required />
                 <label htmlFor="terms" className="text-sm text-[#FAD6A5]">
-                  Yes, I agree to the <a href="#" className="text-blue-100 underline">Terms of Service</a>.
+                  I agree to the Terms of Service and Privacy Policy.
                 </label>
               </div>
               <div className="flex items-center">
-                <input type="checkbox" id="notifications" 
-                checked={wantsNotifications} 
-                onChange={handleNotificationChange} 
-                className="mr-2 accent-[#837EFF]" required/>
+                <input type="checkbox" id="notifications"
+                  checked={wantsNotifications}
+                  onChange={handleNotificationChange}
+                  className="mr-2 accent-[#837EFF]" required />
                 <label htmlFor="notifications" className="text-sm text-[#FAD6A5]">
-                  Yes, I want to be notified of upcoming offers, events, and latest news.
+                  I want to be notified of upcoming offers, events, and latest news.
                 </label>
               </div>
             </div>

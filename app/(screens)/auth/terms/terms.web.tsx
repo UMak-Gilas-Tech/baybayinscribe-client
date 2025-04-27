@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const TermsServicesWeb = () => {
@@ -89,16 +88,6 @@ const TermsServicesWeb = () => {
             transform: 'translateX(-35px)',
           }}>
 
-          {/* Profile Picture Placeholder */}
-          <div className="mb-6">
-            <Image
-              src="/images/profpic.placeholder.png"
-              alt="Profile Picture Placeholder"
-              width={150}
-              height={150}
-              className="rounded-full"
-            />
-          </div>
 
           {/* Instructions Text */}
           <p className="text-[#585858] text-center mb-6">
@@ -108,24 +97,24 @@ const TermsServicesWeb = () => {
           {/* Checkboxes */}
           <div className="w-full flex flex-col items-start space-y-3 mb-6 px-4">
             <div className="flex items-center">
-              <input type="checkbox" 
-              id="agree" 
-              checked={agree} 
-              onChange={handleCheckboxChange} 
-              className="mr-2 accent-[#837EFF]" required/>
+              <input type="checkbox"
+                id="agree"
+                checked={agree}
+                onChange={handleCheckboxChange}
+                className="mr-2 accent-[#837EFF]" required />
               <label htmlFor="agree" className="text-sm text-[#585858]">
-                Yes, I agree to the Terms of Service.
+                I agree to the Terms of Service and Privacy Policy.
               </label>
 
             </div>
             <div className="flex items-center">
-              <input type="checkbox" 
-              id="notifications" 
-              checked={wantsNotifications}
-              onChange={handleNotificationChange}
-              className="mr-2 accent-[#837EFF]" />
+              <input type="checkbox"
+                id="notifications"
+                checked={wantsNotifications}
+                onChange={handleNotificationChange}
+                className="mr-2 accent-[#837EFF]" />
               <label htmlFor="notifications" className="text-sm text-[#585858]">
-                Yes, I want to be notified of upcoming offers, events, and latest news.
+                I want to be notified of upcoming offers, events, and latest news.
               </label>
             </div>
           </div>

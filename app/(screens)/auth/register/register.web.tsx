@@ -12,9 +12,13 @@ const RegisterWeb = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setLoginError("");
+    setError("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -30,6 +34,28 @@ const RegisterWeb = () => {
       }
     } catch {
       setError("An unexpected error occurred");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Google. Please try again.");
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Facebook. Please try again.");
     }
   };
 
@@ -96,11 +122,13 @@ const RegisterWeb = () => {
           <div className="flex gap-4 mb-6">
             <button
               className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              onClick={handleFacebookSignIn}
             >
               Facebook
             </button>
             <button
               className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              onClick={handleGoogleSignIn}
             >
               Google
             </button>
@@ -157,6 +185,7 @@ const RegisterWeb = () => {
             </div>
 
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+            {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
 
             <button
               type="submit"

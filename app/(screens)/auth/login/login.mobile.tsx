@@ -48,17 +48,17 @@ const LoginMobile = () => {
     }
   };
 
-
   const handleFacebookSignIn = async () => {
     try {
       await authClient.signIn.social({
         provider: "facebook",
-        callbackURL: "/api/auth/check.user.info", 
+        callbackURL: "/api/auth/check.user.info",
       });
     } catch {
       setLoginError("Failed to sign in with Facebook. Please try again.");
     }
   };
+
 
   return (
     <div

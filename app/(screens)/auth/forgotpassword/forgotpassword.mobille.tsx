@@ -1,9 +1,35 @@
 "use client";
 
-import React from "react";
-
+import React, { useState } from "react";
+import { authClient } from "../../../lib/auth-client";
 
 const ForgotPasswordMobile = () => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    try {
+      await authClient.forgetPassword({ 
+        email,
+        redirectTo: "/auth/resetpassword",
+      }, {
+        onSuccess: () => {
+          setStatus("success");
+        },
+        onError: (ctx) => {
+          setStatus("error");
+          setErrorMessage(ctx.error?.message || "Something went wrong. Please try again.");
+        }
+      });
+    } catch {
+      setStatus("error");
+      setErrorMessage("Failed to send reset link. Please try again later.");
+    }
+  };
  
   return (
     <div
@@ -12,7 +38,6 @@ const ForgotPasswordMobile = () => {
         backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
-
       {/* Wave Design */}
       <div
         className="absolute z-20 bg-cover bg-center"
@@ -48,32 +73,44 @@ const ForgotPasswordMobile = () => {
                 marginLeft: "-50px",
               }}
             >
-              RESET PASSWORD
+              FORGOT PASSWORD
             </h1>
 
             {/* Form Heading */}
             <h2 className="text-basefont-semibold text-[#FAD6A5] mt-8 ml-2">
-              Email Address
+              Enter your email to reset your password
             </h2>
 
-            {/* Login Form */}
-            <form className="space-y-4 mt-2 ml-2 mr-2">
-              <div>
-                <input
-                  type="email"
-                  id="email"
-                  placeholder="Enter your email"
-                  className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+            {status === "success" ? (
+              <div className="text-green-500 mb-4 p-2">
+                Reset link sent! Please check your email.
               </div>
-            
-              <button
-                type="submit"
-                className="w-70 py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition"
-              >
-                Send Reset Link
-              </button>
-            </form>
+            ) : (
+              <form className="space-y-4 mt-2 ml-2 mr-2" onSubmit={handleSubmit}>
+                <div>
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                {status === "error" && (
+                  <div className="text-red-600 mb-4">{errorMessage}</div>
+                )}
+              
+                <button
+                  type="submit"
+                  className="w-70 py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition"
+                  disabled={status === "loading"}
+                >
+                  {status === "loading" ? "Sending..." : "Send Reset Link"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

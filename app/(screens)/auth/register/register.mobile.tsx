@@ -16,9 +16,13 @@ const RegisterMobile = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setLoginError("");
+    setError("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -34,6 +38,28 @@ const RegisterMobile = () => {
       }
     } catch {
       setError("An unexpected error occurred");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Google. Please try again.");
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Facebook. Please try again.");
     }
   };
 
@@ -173,6 +199,7 @@ const RegisterMobile = () => {
               </div>
               
               {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+              {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
 
               <button
                 type="submit"
@@ -190,7 +217,9 @@ const RegisterMobile = () => {
 
             {/* Social Login */}
             <div className="flex justify-center gap-12">
-              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md">
+              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md"
+                onClick={handleFacebookSignIn}
+              >
                 <Image
                   src="/images/fb.icon.png"
                   alt="Facebook Icon"
@@ -198,7 +227,9 @@ const RegisterMobile = () => {
                   height={48}
                 />
               </button>
-              <button className="flex items-center justify-center">
+              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md"
+                onClick={handleGoogleSignIn}
+              >
                 <Image
                   src="/images/google.icon.png"
                   alt="Google Icon"

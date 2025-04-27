@@ -95,7 +95,7 @@ const ForgotPasswordWeb = () => {
               Reset link sent! Please check your email.
             </div>
           ) : (
-            /* Manual Registration Form */
+
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
