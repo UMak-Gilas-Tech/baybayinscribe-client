@@ -13,13 +13,11 @@ const LoginMobile = () => {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
     setLoginError(""); // reset error before attempt
-
 
     try {
       await authClient.signIn.email({
@@ -36,6 +34,29 @@ const LoginMobile = () => {
       });
     } catch {
       setLoginError("Failed to sign in. Please try again.");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/api/auth/check.user.info", 
+      });
+    } catch {
+      setLoginError("Failed to sign in with Google. Please try again.");
+    }
+  };
+
+
+  const handleFacebookSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: "/api/auth/check.user.info", 
+      });
+    } catch {
+      setLoginError("Failed to sign in with Facebook. Please try again.");
     }
   };
 
@@ -175,7 +196,10 @@ const LoginMobile = () => {
 
             {/* Social Login */}
             <div className="flex justify-center gap-12">
-              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md">
+              <button 
+                className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md"
+                onClick={handleFacebookSignIn}
+              >
                 <Image
                   src="/images/fb.icon.png"
                   alt="Facebook Icon"
@@ -183,7 +207,10 @@ const LoginMobile = () => {
                   height={48}
                 />
               </button>
-              <button className="flex items-center justify-center">
+              <button 
+                className="flex items-center justify-center"
+                onClick={handleGoogleSignIn}
+              >
                 <Image
                   src="/images/google.icon.png"
                   alt="Google Icon"

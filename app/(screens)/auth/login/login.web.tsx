@@ -39,6 +39,28 @@ const LoginWeb = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Google. Please try again.");
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: "/api/auth/check.user.info",
+      });
+    } catch {
+      setLoginError("Failed to sign in with Facebook. Please try again.");
+    }
+  };
+
 
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
@@ -111,8 +133,6 @@ const LoginWeb = () => {
 
       {/* Left Section */}
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0">
-
-
       </div>
 
 
@@ -131,10 +151,16 @@ const LoginWeb = () => {
 
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
-            <button className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+            <button
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              onClick={() => handleFacebookSignIn()}
+            >
               <span className="font-medium">Facebook</span>
             </button>
-            <button className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+            <button
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              onClick={() => handleGoogleSignIn()}
+            >
               <span className="font-medium">Google</span>
             </button>
           </div>
@@ -201,18 +227,6 @@ const LoginWeb = () => {
             <a href="/auth/forgotpassword" className="underline hover:underline">
               Forgot your password?
             </a>
-          </div>
-          <div className="flex flex-col">
-            <p className="text-xs text-gray-300 text-left">
-              By clicking continue, you agree to our{" "}
-              <a href="#" className="text-white underline hover:underline">
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-white underline hover:underline">
-                Privacy Policy
-              </a>.
-            </p>
           </div>
         </div>
       </div>
