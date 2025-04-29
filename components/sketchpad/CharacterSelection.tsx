@@ -29,7 +29,10 @@ export const CharacterSelectionDrawer = () => {
     >
       <DrawerContent className="h-[60%] flex flex-col items-center">
         <DrawerHeader>
-          <DrawerTitle className="text-2xl">Baybayin Characters</DrawerTitle>
+          <DrawerTitle className="flex flex-col items-center justify-center gap-2">
+            <span className="text-2xl font-bold">Select Baybayin Characters</span>
+            <span className="text-stone-400">This will guide you in sketching.</span>
+            </DrawerTitle>
         </DrawerHeader>
         <div className="h-full grid grid-cols-6 gap-2 place-items-center overflow-y-auto pb-6">
           {baybayinCharacters.map((label, index) => (

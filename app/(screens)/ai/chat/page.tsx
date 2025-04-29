@@ -36,7 +36,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
   // extract navigation commands
   const commands: Array<"sketch" | "transliterate"> = [];
   if (props.text.includes("navigate:sketch")) commands.push("sketch");
-  if (props.text.includes("navigate:transliterate")) commands.push("transliterate");
+  if (props.text.includes("navigate:transliterate"))
+    commands.push("transliterate");
 
   // strip navigation tokens from display text
   const displayText = props.text
@@ -48,24 +49,20 @@ const ChatBubble = (props: ChatBubbleProps) => {
   return (
     <div
       className={`w-full h-auto flex flex-row items-start ${
-        props.isUser ? "justify-end" : "justify-start"
+        props.isUser ? "justify-end" : "justify-start items-center"
       }`}
     >
+      {!props.isUser && (
+        <img src={AppLogo.src} alt="BaybayInscribe Logo" className="w-12 h-12 rounded-full mx-6" />
+      )}
+
       <div
-        className={`p-4 rounded-xl shadow-xl w-1/2 flex ${
+        className={`p-4 rounded-xl w-1/2 flex ${
           props.isUser
-            ? "items-center gap-2 bg-[#e7ecfc]"
-            : "flex-col items-start gap-2 bg-[#122254] text-white"
+            ? "items-center gap-2 bg-[#d3ddfd] border-[0.5px] border-[#3f5187] text-black"
+            : "flex-col items-start gap-2 bg-[#e7ecfc] border-[0.5px] border-[#3f5187] text-black"
         }`}
       >
-        {!props.isUser && (
-          <img
-            src={AppLogo.src}
-            alt="BaybayInscribe Logo"
-            className="w-6 h-6"
-          />
-        )}
-
         <span
           className={`${
             props.isUser ? "text-[#122254] text-right" : "text-white"
@@ -133,8 +130,12 @@ const ChatPageChatBody = ({
       <div className="w-full h-full mx-auto flex flex-col items-center justify-center gap-4 p-4 ">
         <div className="bg-[#e7ecfc] w-1/2 p-4 px-6 shadow-xl rounded-xl flex flex-col items-start justify-center">
           <div className="flex flex-row gap-4">
-            <img src={AppLogo.src} className="h-14 rounded-xl shadow-xl aspect-square" alt="" />
-            
+            <img
+              src={AppLogo.src}
+              className="h-14 rounded-xl shadow-xl aspect-square"
+              alt=""
+            />
+
             <div className="flex flex-col items-start justify-start">
               <h2 className="font-bold text-2xl">Kamusta!</h2>
               <span>Ano ang maitutulong ko sa iyo ngayon?</span>
@@ -214,9 +215,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (status === "Loaded") {
-      const words = response
-        .split(" ")
-        .filter((w) => w && w !== "undefined");
+      const words = response.split(" ").filter((w) => w && w !== "undefined");
       let idx = 0;
       setMessages((m) => [...m, { text: "", isUser: false }]);
       const iv = setInterval(() => {
