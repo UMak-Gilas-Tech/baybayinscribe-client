@@ -42,8 +42,8 @@ const TermsServicesMobile = () => {
       <div
         className="absolute z-20 bg-cover bg-center"
         style={{
-          width: "100%",
-          minHeight: "105vh",
+          width: "105%",
+          minHeight: "95vh",
           bottom: "0",
           backgroundImage: "url('/images/vector.bg.png')",
           backgroundSize: "100%",
@@ -63,7 +63,9 @@ const TermsServicesMobile = () => {
           }}
         >
           {/* Content Container */}
-          <div className="w-full max-w-xs md:max-w-sm flex flex-col items-center">
+          <div className="w-full max-w-xs md:max-w-sm flex flex-col items-center" style={{
+            transform: "translateY(-30%)",
+          }}>
             {/* Title */}
             <h1
               className="text-2xl md:text-4xl text-[#FAD6A5] text-center mb-8 font-bold"

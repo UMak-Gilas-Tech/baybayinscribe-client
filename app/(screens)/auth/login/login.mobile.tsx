@@ -172,9 +172,9 @@ const LoginMobile = () => {
                   </Link>
                   
                   <span className="mx-2">|</span>
-                  <a href="#" className="underline text-[#00C8FF] hover:text-[#00eeff]">
+                  <Link href="/auth/forgotpassword" className="underline text-[#00C8FF] hover:text-[#00eeff]">
                     Forgot password?
-                  </a>
+                  </Link>
                 </span>
               </div>
 

@@ -116,7 +116,7 @@ const ResetPasswordMobile = () => {
             </h1>
 
             {status === "success" ? (
-              <div className="text-green-500 mb-4 p-2 bg-white rounded">
+              <div className="text-green-500 mb-4 p-2">
                 Password reset successful! Redirecting to login...
               </div>
             ) : (
