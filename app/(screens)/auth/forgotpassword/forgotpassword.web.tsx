@@ -13,6 +13,15 @@ const ForgotPasswordWeb = () => {
     setStatus("loading");
 
     try {
+      const emailCheckResponse = await fetch(`/api/auth/check.email?email=${encodeURIComponent(email)}`);
+      const emailCheckData = await emailCheckResponse.json();
+      
+      if (!emailCheckData.exists) {
+        setStatus("error");
+        setErrorMessage("Email not found. Please check your email or register a new account.");
+        return;
+      }
+
       await authClient.forgetPassword({
         email,
         redirectTo: "/auth/resetpassword",

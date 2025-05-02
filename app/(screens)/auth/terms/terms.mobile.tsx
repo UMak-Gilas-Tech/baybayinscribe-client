@@ -7,6 +7,7 @@ const TermsServicesMobile = () => {
   const [agree, setAgree] = useState(false);
   const [wantsNotifications, setWantsNotifications] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleCheckboxChange = () => {
@@ -18,16 +19,40 @@ const TermsServicesMobile = () => {
     setWantsNotifications(!wantsNotifications);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!agree) {
       setError("Please agree to the terms and conditions to proceed.");
       return;
     }
 
-    // If you've already saved wants_notifications earlier, no need to POST again
-    // But if not, you could redirect to a handler page or call an update API here
+    setIsSubmitting(true);
 
-    router.push("/auth/login");
+    try {
+      // Save the notification preference
+      const response = await fetch("/api/user.information", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          wantsNotifications,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Failed to save notification preference:", data.error);
+        // Continue anyway, don't block the user flow
+      }
+
+      router.push("/auth/login");
+    } catch (err) {
+      console.error("Error saving notification preference:", err);
+      // Continue anyway, don't block the user flow
+      router.push("/auth/login");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -85,7 +110,7 @@ const TermsServicesMobile = () => {
               <input type="checkbox" id="notifications"
                 checked={wantsNotifications}
                 onChange={handleNotificationChange}
-                className="mr-2 accent-[#837EFF]" required />
+                className="mr-2 accent-[#837EFF]" />
 
               <label htmlFor="notifications" className="text-sm md:text-base lg:text-sm text-[#FAD6A5]">
                 I want to be notified of upcoming offers, events, and latest news.
@@ -98,10 +123,13 @@ const TermsServicesMobile = () => {
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             type="button"
-            className="w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition"
+            disabled={isSubmitting}
+            className={`w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
             onClick={handleSubmit}
           >
-            Finish Registration
+            {isSubmitting ? "Processing..." : "Finish Registration"}
           </button>
         </div>
       </div>

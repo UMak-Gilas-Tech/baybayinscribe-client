@@ -7,6 +7,7 @@ const TermsServicesWeb = () => {
   const [agree, setAgree] = useState(false);
   const [wantsNotifications, setWantsNotifications] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleCheckboxChange = () => {
@@ -18,16 +19,40 @@ const TermsServicesWeb = () => {
     setWantsNotifications(!wantsNotifications);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!agree) {
       setError("Please agree to the terms and conditions to proceed.");
       return;
     }
 
-    // If you've already saved wants_notifications earlier, no need to POST again
-    // But if not, you could redirect to a handler page or call an update API here
+    setIsSubmitting(true);
 
-    router.push("/auth/login");
+    try {
+      // Save the notification preference
+      const response = await fetch("/api/user.information", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          wantsNotifications,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error("Failed to save notification preference:", data.error);
+        // Continue anyway, don't block the user flow
+      }
+
+      router.push("/auth/login");
+    } catch (err) {
+      console.error("Error saving notification preference:", err);
+      // Continue anyway, don't block the user flow
+      router.push("/auth/login");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -126,9 +151,12 @@ const TermsServicesWeb = () => {
           <button
             type="button"
             onClick={handleSubmit}
-            className="w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition"
+            disabled={isSubmitting}
+            className={`w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Finish Registration
+            {isSubmitting ? "Processing..." : "Finish Registration"}
           </button>
         </div>
       </div>

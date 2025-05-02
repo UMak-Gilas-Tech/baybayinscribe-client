@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "Sidebar / Learning",
+  name: "User Auth",
   description: "Learn Baybayin script interactively",
 };
 
