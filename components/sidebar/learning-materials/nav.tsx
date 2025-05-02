@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface NavCardProps {
   title: string;
@@ -23,7 +24,15 @@ function GuideCard({
       <div className="relative">
         <div className="relative h-44 bg-[#e9f5f2] flex items-center justify-center p-4">
           {image ? (
-            <img src={image} alt={title} className="w-full h-full object-contain" />
+            <div className="relative w-full h-full">
+              <Image 
+                src={image} 
+                alt={title} 
+                className="object-contain" 
+                fill
+                sizes="(max-width: 768px) 100vw, 224px"
+              />
+            </div>
           ) : (
             <div className="w-12 h-12 flex items-center justify-center">
               <svg
@@ -73,7 +82,15 @@ function QuizCard({ title, description, href, buttonText = "Start Learning", ima
     <div className="bg-gray-200 rounded-lg overflow-hidden shadow-sm border border-blue-200">
       <div className="relative h-44 bg-[#e9f5f2] flex items-center justify-center p-4">
         {image ? (
-          <img src={image} alt={title} className="w-full h-full object-contain" />
+          <div className="relative w-full h-full">
+            <Image 
+              src={image} 
+              alt={title} 
+              className="object-contain" 
+              fill
+              sizes="(max-width: 768px) 100vw, 224px"
+            />
+          </div>
         ) : (
           <div className="w-12 h-12 flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -103,25 +120,25 @@ export function LearningMaterialsNav() {
       title: "Baybayin vowels",
       description: "Learn the basic vowel characters of the Baybayin script",
       href: "#",
-      image: "images/baybayin.vowels.png",
+      image: "/images/baybayin.vowels.png",
     },
     {
       title: "Baybayin Kudlit",
       description: "Learn the basic kudlit characters of the Baybayin script",
       href: "#",
-      image: "images/baybayin.kudlit.png",
+      image: "/images/baybayin.kudlit.png",
     },
     {
       title: "Baybayin Consonant",
       description: "Learn the basic consonant characters of the Baybayin script",
       href: "#",
-      image: "images/baybayin.consonant.png",
+      image: "/images/baybayin.consonant.png",
     },
     {
       title: "Coming Soon",
       description: "New Baybayin lesson on the way. Stay tuned!",
       href: "#",
-      image: "images/baybayin.comingsoon.png",
+      image: "/images/baybayin.comingsoon.png",
       isComingSoon: true,
     }
   ];
@@ -131,25 +148,25 @@ export function LearningMaterialsNav() {
       title: "Shuffle Mode",
       description: "Mix and match Baybayin characters for fast-paced review",
       href: "#",
-      image: "images/baybayin.shuffle.png",
+      image: "/images/baybayin.shuffle.png",
     },
     {
       title: "Multiple Choice Quiz",
       description: "Test your knowledge with multiple choice questions",
       href: "#",
-      image: "images/baybayin.multiplechoice.png",
+      image: "/images/baybayin.multiplechoice.png",
     },
     {
       title: "Fill in the Blank Quiz",
       description: "Complete Baybayin words by selecting the correct symbols",
       href: "#",
-      image: "images/baybayin.fillinblanks.png",
+      image: "/images/baybayin.fillinblanks.png",
     },
     {
       title: "Sketch Quiz",
       description: "Draw Baybayin characters to test your memory and handwriting",
       href: "#",
-      image: "images/baybayin.sketchquiz.png",
+      image: "/images/baybayin.sketchquiz.png",
     },
 
   ];
