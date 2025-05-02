@@ -50,6 +50,34 @@
       "when": 1744592841641,
       "tag": "0006_green_clea",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1745986902280,
+      "tag": "0007_complete_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1746077148251,
+      "tag": "0008_fat_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1746080257822,
+      "tag": "0009_high_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1746146410403,
+      "tag": "0010_silky_quicksilver",
+      "breakpoints": true
     }
   ]
 }

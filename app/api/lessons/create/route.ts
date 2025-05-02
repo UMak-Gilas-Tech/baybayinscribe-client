@@ -1,20 +1,17 @@
-import db from "@/db";
-import { learningResource } from "@/db/schema/learning-resources";
-import { put } from "@vercel/blob";
-import { NextResponse } from "next/server";
+"use server";
 
-export const dynamic = "force-static";
+import { useServerLrStore } from "@/app/store/server/server.store.lr";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
     const title = formData.get("title")?.toString();
-    const content = formData.get("content")?.toString();
+    const description = formData.get("description")?.toString();
 
-    if (!title || !content) {
+    if (!title || !description) {
       return new Response(
-        JSON.stringify({ error: "Title and content are required" }),
+        JSON.stringify({ error: "Title and description are required" }),
         {
           status: 400,
           headers: {
@@ -24,35 +21,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const fileUpload = await put(
-      "learning_resources/" + file?.name,
-      file!.stream(),
-      {
-        token: process.env.VERCEL_BLOB_TOKEN,
-        access: "public",
-      }
-    );
+    const lessonsState = useServerLrStore.getState();
+    await lessonsState.createLesson(title, description);
 
-    const response = await db
-      .insert(learningResource)
-      .values({
-        id: crypto.randomUUID(),
-        title,
-        markdown_file: fileUpload.downloadUrl,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning()
-      .then((data) => {
-        return new Response(JSON.stringify(data), {
-          status: 201,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-      });
-
-    return NextResponse.json({ message: "Lesson created successfully", response });
+    return NextResponse.json("Lesson created successfully", { status: 201 });
   } catch (error) {
     console.error("Error creating lesson:", error);
     return new Response(JSON.stringify({ error: "Failed to create lesson" }), {
