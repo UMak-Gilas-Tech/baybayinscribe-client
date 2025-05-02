@@ -32,7 +32,7 @@ const TermsServicesMobile = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center bg-cover bg-center relative overflow-y-auto"
       style={{
         backgroundImage: "url('/images/bg.phone.login.png')",
       }}
@@ -40,77 +40,69 @@ const TermsServicesMobile = () => {
 
       {/* Wave Design */}
       <div
-        className="absolute z-20 bg-cover bg-center"
+        className="fixed bottom-0 left-0 right-0 z-10 bg-cover bg-center"
         style={{
-          width: "105%",
-          minHeight: "95vh",
-          bottom: "0",
+          width: "130%",
+          minHeight: "90vh",
           backgroundImage: "url('/images/vector.bg.png')",
-          backgroundSize: "100%",
+          backgroundSize: "100% 115%",
           backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
         }}
-      >
-        <div
-          className="absolute z-20 bg-cover bg-center flex flex-col items-center justify-start pt-[15vh]"
-          style={{
-            width: "100%",
-            height: "80vh",
-            bottom: "0",
-            backgroundImage: "url('/images/vector.bg.png')",
-            backgroundPosition: "center top",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          {/* Content Container */}
-          <div className="w-full max-w-xs md:max-w-sm flex flex-col items-center" style={{
-            transform: "translateY(-30%)",
-          }}>
-            {/* Title */}
-            <h1
-              className="text-2xl md:text-4xl text-[#FAD6A5] text-center mb-8 font-bold"
-            >
-              Terms and Agreement
-            </h1>
+      />
 
-            {/* Instructions Text */}
-            <p className="text-[#FAD6A5] text-center mb-6">
-              Please check the box below:
-            </p>
+      {/* Content Container */}
+      <div className="relative z-20 flex flex-col items-center w-full h-full pt-40 pb-16">
+        <div className="w-full max-w-xs md:max-w-sm px-4">
+          {/* Title */}
+          <h1
+            className="text-2xl md:text-4xl lg:text-4xl text-[#FAD6A5] text-center mt-16 mb-8 font-bold whitespace-nowrap"
+          >
+            Terms and Agreement
+          </h1>
 
-            {/* Checkboxes */}
-            <div className="w-full flex flex-col items-start space-y-3 mb-6 px-4">
-              <div className="flex items-center">
-                <input type="checkbox"
-                  id="terms"
-                  checked={agree}
-                  onChange={handleCheckboxChange}
-                  className="mr-2 accent-[#837EFF]" required />
-                <label htmlFor="terms" className="text-sm text-[#FAD6A5]">
-                  I agree to the Terms of Service and Privacy Policy.
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input type="checkbox" id="notifications"
-                  checked={wantsNotifications}
-                  onChange={handleNotificationChange}
-                  className="mr-2 accent-[#837EFF]" required />
-                <label htmlFor="notifications" className="text-sm text-[#FAD6A5]">
-                  I want to be notified of upcoming offers, events, and latest news.
-                </label>
-              </div>
+          {/* Instructions Text */}
+          <p className="text-[#FAD6A5] text-center mb-6 text-sm md:text-lg lg:text-base">
+            Please check the box below:
+          </p>
+
+          {/* Checkboxes */}
+          <div className="w-full flex flex-col items-start space-y-3 mb-6">
+            <div className="flex items-center">
+              <input type="checkbox"
+                id="terms"
+                checked={agree}
+                onChange={handleCheckboxChange}
+                className="mr-2 accent-[#837EFF]" required />
+
+              <label htmlFor="terms" className="text-sm md:text-base lg:text-sm text-[#FAD6A5]">
+                I agree to the Terms of Service and Privacy Policy.
+              </label>
+
             </div>
 
-            {/* Finish Registration Button */}
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <button
-              type="button"
-              className="w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition"
-              onClick={handleSubmit}
-            >
-              Finish Registration
-            </button>
+            <div className="flex items-center">
+              <input type="checkbox" id="notifications"
+                checked={wantsNotifications}
+                onChange={handleNotificationChange}
+                className="mr-2 accent-[#837EFF]" required />
+
+              <label htmlFor="notifications" className="text-sm md:text-base lg:text-sm text-[#FAD6A5]">
+                I want to be notified of upcoming offers, events, and latest news.
+              </label>
+
+            </div>
           </div>
+
+          {/* Finish Registration Button */}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          <button
+            type="button"
+            className="w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition"
+            onClick={handleSubmit}
+          >
+            Finish Registration
+          </button>
         </div>
       </div>
     </div>

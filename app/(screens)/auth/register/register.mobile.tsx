@@ -75,11 +75,13 @@ const RegisterMobile = () => {
       <div
         className="absolute z-20 bg-cover bg-center"
         style={{
-          width: "100%",
-          minHeight: "100vh",
+          width: "150%",
+          minHeight: "95vh",
+          height: "95vh",
           bottom: "0",
           backgroundImage: "url('/images/vector.bg.png')",
-          backgroundSize: "100%",
+          MozBackgroundSize: "cover",
+          backgroundSize: "100% 115%",
           backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
         }}
@@ -110,7 +112,7 @@ const RegisterMobile = () => {
             </h1>
 
             {/* Form Heading */}
-            <h2 className="text-basefont-semibold text-[#FAD6A5] mt-8 ml-2">
+            <h2 className="text-base font-semibold text-[#FAD6A5] mt-8 ml-2">
               Email Address
             </h2>
 
@@ -121,7 +123,7 @@ const RegisterMobile = () => {
                   type="email"
                   id="email"
                   placeholder="Enter your email"
-                  className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -135,7 +137,7 @@ const RegisterMobile = () => {
                     type={showPassword ? "text" : "password"}
                     id="password"
                     placeholder="Enter your password"
-                    className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -144,7 +146,7 @@ const RegisterMobile = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-2 flex items-center text-gray-500"
                     style={{
-                      right: "30px",
+                      right: "15px",
                     }}
                   >
                     {showPassword ? (
@@ -164,7 +166,7 @@ const RegisterMobile = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     id="confirm-password"
                     placeholder="Confirm your password"
-                    className="w-70 px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     />
@@ -173,7 +175,7 @@ const RegisterMobile = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-2 flex items-center text-gray-500"
                     style={{
-                      right: "30px",
+                      right: "15px",
                     }}
                   >
                     {showConfirmPassword ? (
@@ -184,7 +186,7 @@ const RegisterMobile = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col justify-between text-xs text-black">
+              <div className="flex flex-col justify-between text-xs text-[#FFD8B9]">
                 <span>
                   Already have an account?{" "}
                   <Link href="/auth/login" className="underline text-[#00C8FF] hover:text-[#00eeff]">

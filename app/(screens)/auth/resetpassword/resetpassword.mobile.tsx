@@ -72,123 +72,107 @@ const ResetPasswordMobile = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-end bg-cover bg-center relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center bg-cover bg-center relative overflow-y-auto"
       style={{
         backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
       {/* Wave Design */}
       <div
-        className="absolute z-20 bg-cover bg-center"
+        className="fixed bottom-0 left-0 right-0 z-10 bg-cover bg-center"
         style={{
-          width: "100%",
-          minHeight: "100vh",
-          bottom: "0",
+          width: "120%",
+          minHeight: "95vh",
           backgroundImage: "url('/images/vector.bg.png')",
-          backgroundSize: "100%",
+          backgroundSize: "100% 115%",
           backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
         }}
-      >
-        <div
-          className="absolute z-20 bg-cover bg-center flex flex-col items-center justify-start"
-          style={{
-            width: "100%",
-            height: "75vh",
-            bottom: "0",
-            backgroundImage: "url('/images/vector.bg.png')",
-            backgroundPosition: "center top",
-            backgroundRepeat: "no-repeat",
-            paddingTop: "25vh",
-          }}
-        >
-          {/* Content Container */}
-          <div className="w-full max-w-xs md:max-w-sm">
-            {/* Title */}
-            <h1
-              className="text-2xl md:text-4xl font-bold text-[#FAD6A5] text-center"
-              style={{
-                marginTop: "-30vh",
-                marginLeft: "-50px",
-              }}
-            >
-              ENTER NEW PASSWORD
-            </h1>
+      />
+      
+      {/* Content Container */}
+      <div className="relative z-20 flex flex-col items-center w-full h-full pt-30 pb-16">
+        <div className="w-full max-w-xs md:max-w-sm px-4">
+          {/* Title */}
+          <h1
+            className="text-2xl md:text-4xl font-bold text-[#FAD6A5] text-center mt-16 mb-4"
+          >
+            ENTER NEW PASSWORD
+          </h1>
 
-            {status === "success" ? (
-              <div className="text-green-500 mb-4 p-2">
-                Password reset successful! Redirecting to login...
-              </div>
-            ) : (
-              <>
-                {/* Form Heading */}
-                <h2 className="text-basefont-semibold text-[#FAD6A5] mt-8 ml-2">
-                  New Password
-                </h2>
+          {status === "success" ? (
+            <div className="text-green-500 mb-4 p-2">
+              Password reset successful! Redirecting to login...
+            </div>
+          ) : (
+            <>
+              {/* Form Heading */}
+              <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5] mt-6 mb-4">
+                New Password
+              </h2>
 
-                {/* Login Form */}
-                <form className="space-y-4 mt-2 ml-2 mr-2" onSubmit={handleSubmit}>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      placeholder="Enter your password"
-                      className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-3 flex items-center text-gray-500"
-                    >
-                      {showPassword ? (
-                        <EyeClosed className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  <h2 className="text-basefont-semibold text-[#FAD6A5] mt-2">
-                    Confirm New Password
-                  </h2>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      id="confirmPassword"
-                      placeholder="Confirm your password"
-                      className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-3 flex items-center text-gray-500"
-                    >
-                      {showConfirmPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  
-                  {status === "error" && (
-                    <div className="text-red-600 p-2 mb-4">{errorMessage}</div>
-                  )}
-                  
+              {/* Login Form */}
+              <form className="space-y-4 mt-2" onSubmit={handleSubmit}>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    placeholder="Enter your password"
+                    className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                   <button
-                    type="submit"
-                    disabled={status === "loading" || !token}
-                    className={`w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition ${
-                      (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
                   >
-                    {status === "loading" ? "Resetting..." : "Reset Password"}
+                    {showPassword ? (
+                      <EyeClosed className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
-                </form>
-              </>
-            )}
-          </div>
+                </div>
+                <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5] mt-2">
+                  Confirm New Password
+                </h2>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    placeholder="Confirm your password"
+                    className="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                  >
+                    {showConfirmPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                
+                {status === "error" && (
+                  <div className="text-red-600 p-2 mb-4">{errorMessage}</div>
+                )}
+                
+                <button
+                  type="submit"
+                  disabled={status === "loading" || !token}
+                  className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition ${
+                    (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {status === "loading" ? "Resetting..." : "Reset Password"}
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>

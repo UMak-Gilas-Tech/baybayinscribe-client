@@ -164,7 +164,7 @@ const LoginMobile = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between text-xs text-black">
+              <div className="flex flex-col md:flex-row justify-between text-xs text-[#FFD8B9]">
                 <span>
                   Don&apos;t have an account?{" "}
                   <Link href="/auth/register" className="underline text-[#00C8FF] hover:text-[#00eeff]">
