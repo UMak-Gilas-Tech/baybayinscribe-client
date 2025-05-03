@@ -1,14 +1,14 @@
-
 import {
 	pgTable,
+	uuid,
 	text,
 	timestamp,
 	boolean,
 	varchar,
 	date,
-  } from "drizzle-orm/pg-core";
-  
-  export const user = pgTable("user", {
+} from "drizzle-orm/pg-core";
+
+export const user = pgTable("user", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
@@ -16,9 +16,9 @@ import {
 	image: text("image"), // profile picture
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
-  });
-  
-  export const userInformation = pgTable("user_information", {
+});
+
+export const userInformation = pgTable("user_information", {
 	userId: text("user_id")
 	  .primaryKey()
 	  .references(() => user.id, { onDelete: "cascade" }),
@@ -32,9 +32,9 @@ import {
 	wantsNotifications: boolean("wants_notifications").notNull().default(false),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
-  });
-  
-  export const session = pgTable("session", {
+});
+
+export const session = pgTable("session", {
 	id: text("id").primaryKey(),
 	expiresAt: timestamp("expires_at").notNull(),
 	token: text("token").notNull().unique(),
@@ -45,9 +45,9 @@ import {
 	userId: text("user_id")
 	  .notNull()
 	  .references(() => user.id, { onDelete: "cascade" }),
-  });
-  
-  export const account = pgTable("account", {
+});
+
+export const account = pgTable("account", {
 	id: text("id").primaryKey(),
 	accountId: text("account_id").notNull(),
 	providerId: text("provider_id").notNull(),
@@ -63,22 +63,22 @@ import {
 	password: text("password"),
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
-  });
-  
-  export const verification = pgTable("verification", {
+});
+
+export const verification = pgTable("verification", {
 	id: text("id").primaryKey(),
 	identifier: text("identifier").notNull(),
 	value: text("value").notNull(),
 	expiresAt: timestamp("expires_at").notNull(),
 	createdAt: timestamp("created_at"),
 	updatedAt: timestamp("updated_at"),
-  });
-  
-  export const schema = {
+});
+
+export const schema = {
 	user,
 	userInformation,
 	session,
 	account,
 	verification,
-  };
-  
+};
+

@@ -1,1 +1,0 @@
-ALTER TABLE "metadata" ADD COLUMN "description" text;

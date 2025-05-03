@@ -5,78 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1744385132942,
-      "tag": "0000_careless_oracle",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1744440467577,
-      "tag": "0001_lively_sister_grimm",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1744473374354,
-      "tag": "0002_rich_sleeper",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1744535050365,
-      "tag": "0003_fixed_captain_flint",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1744537821694,
-      "tag": "0004_boring_wrecker",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1744550423965,
-      "tag": "0005_complex_trish_tilby",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1744592841641,
-      "tag": "0006_green_clea",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1745986902280,
-      "tag": "0007_complete_moon_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1746077148251,
-      "tag": "0008_fat_cannonball",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1746080257822,
-      "tag": "0009_high_mister_fear",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1746146410403,
-      "tag": "0010_silky_quicksilver",
+      "when": 1746252980351,
+      "tag": "0000_nappy_toad_men",
       "breakpoints": true
     }
   ]

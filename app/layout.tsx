@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import TopNavbar from "../components/sidebar/Navbar";
 import Background from "@/components/background";
 import { Toaster } from "sonner";
@@ -29,9 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/auth/login" || pathname === "/auth/register"
-    || pathname === "/auth/userinfo" || pathname === "/auth/profpic" || pathname === "/auth/terms"
-    || pathname === "/auth/forgotpassword" || pathname === "/auth/resetpassword";
+  const isLoginPage =
+    pathname === "/auth/login" ||
+    pathname === "/auth/register" ||
+    pathname === "/auth/userinfo" ||
+    pathname === "/auth/profpic" ||
+    pathname === "/auth/terms" ||
+    pathname === "/auth/forgotpassword" ||
+    pathname === "/auth/resetpassword";
 
   return (
     <html lang="en">
