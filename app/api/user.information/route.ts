@@ -5,11 +5,12 @@ import { auth } from "../../lib/auth";
 import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: process.env.DB_CON_STR,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 export async function POST(req: NextRequest) {
-  try {
+  try { 
     const session = await auth.api.getSession({
       headers: req.headers
     });
