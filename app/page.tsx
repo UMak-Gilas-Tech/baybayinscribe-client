@@ -1,18 +1,34 @@
 "use client";
-import React from "react";
 import SignedinScreen from "./signedinscreen/page";
-// import InferenceWebcam from "@/components/InferenceWebcam";
+import React, { useEffect, useState } from "react";
+import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
+import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
 
-
-export default function Home({ children }: { children: React.ReactNode }) {
+export default function Home() {
+  const [isSmallScreen, setIsSmallScreen] = useState(true);
+  
+  useEffect(() => {
+    // Check if window is available (client-side only)
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        setIsSmallScreen(window.innerWidth < 640); 
+      };
+      
+      handleResize();
+      
+      window.addEventListener('resize', handleResize);
+      
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   return (
     <main className="min-h-screen bg-white">
-      <div className="flex flex-col items-center justify-center h-screen">  
-        <h1 className="text-2xl font-bold mt-10">Homepage Content here</h1>
-        <SignedinScreen />
-      </div>
-      {children}
+      {isSmallScreen ? (
+        <ResponsiveNav />
+      ) : (
+        <LearningMaterialsNav />
+      )}
     </main>
   );
 }

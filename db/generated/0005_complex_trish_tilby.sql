@@ -1,0 +1,1 @@
+ALTER TABLE "quiz_answer_question" ADD COLUMN "attempt" integer NOT NULL;

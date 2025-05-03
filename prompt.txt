@@ -1,0 +1,96 @@
+Generate a Baybayin quiz with 15 questions, with the topic of Philippine History, and difficulty EASY.
+
+The quiz will include Multiple Choice (MCQ), Identification (IDT), and Sketching (SKT)
+
+In MCQs, the question will be in either Tagalog or Baybayin and will have one correct answer along with three incorrect options, asking users to transliterate a Baybayin character, identify the correct Baybayin spelling of a Tagalog word, or determine the meaning of a given Baybayin phrase.
+
+Identification follows a similar format but requires users to type in the correct answer without any multiple-choice options. **Do not ask the user to transliterate a Tagalog word into Baybayin in identification questions.** Identification should only ask for Tagalog words as answers when the prompt is Baybayin.
+
+Sketching will provide a Baybayin character that users must draw, with an on-device AI validating their sketch. **Never include sketching questions when the language is Baybayin.**
+
+Word Matching presents five Baybayin characters and their corresponding transliterations in shuffled order, requiring users to correctly pair them.
+
+All answers and questions should be in Tagalog
+
+Difficulty levels:
+- Easy = 30 seconds per question, with easy-related questions.
+- Moderate = 15 seconds per question, with moderate-related questions.
+- Hard = 6 seconds per question, with hard-related questions.
+
+Quiz question type distribution:
+- 50% MCQ
+- 30% Identification
+- 20% Sketching  
+WIth 60% tagalog language and 40% baybayin language
+(adjusted automatically based on total number of items)
+
+### Multiple Choice Question Rules
+- The 'display_text' is the Baybayin Letter or Word you want the user to answer. Like "What is the transliteration of this?" and then for display_text show the character like "himagsikan" or some shit. 
+
+### Baybayin Rendering Rules:
+- When the **language is Baybayin**, the **questions and answers should all be written in Tagalog**, but **any Baybayin character** used inside them must follow the Baybayin orthographic rules described below.
+- Do not wrap full sentences or entire questions in ':sb:' and ':sbe:' tags.
+- Only wrap **single Baybayin words or phrases** in ':sb:' and ':sbe:' when shown **alongside Latin text**.
+
+All MCQ Options should be in latin, NOT BAYBAYIN. but for question texts (ONLY QUESTION TEXTS) that needs to have both a baybayin character and latin tagalog, still follow the baybayin rules.
+
+#### Examples:
+- Correct: ':sb:po_pus:sbe:' (pusa)
+- Incorrect: ':sb:po:pu:sa:sbe:'
+- Incorrect: ':sb:p:u:s:a:sbe:'
+- Incorrect: ':sb:po_pu:sa:sbe:' for the word "pusa"
+
+Also:
+- Do **not** use 'Sketching' type questions if the language is Baybayin.
+- When showing Baybayin characters for rendering, use the Baybayin-compatible format (see below).
+- When the language is **Baybayin**, do **not** put baybayin characters in the question/answer. The rendering engine will be  the one responsible for transliterating tagalog to baybayin.
+- When language is tagalog, always include a baybayin challenge for them to IDT or MCQ
+
+### Baybayin-Compatible Character Format:
+Use only the following values:
+a,b,ba,be_bi,bo_bu,d_r,da_ra,de_di_re_ri,do_du_ro_ru,e_i,g,ga,ge_gi,go_gu,h,ha,he_hi,ho_hu,k,ka,ke_ki,ko_ku,l,la,le_li,lo_lu,m,ma,me_mi,mo_mu,n,na,ne_ni,ng,nga,nge_ngi,ngo_ngu,no_nu,o_u,p,pa,pe_pi,po_pu,s,sa,se_si,so_su,t,ta,te_ti,to_tu,w,wa,we_wi,wo_wu,y,ya,ye_yi,yo_yu
+
+Notes:
+- Append '+' to remove a vowel: 'ga+' = g, 'he_hi+' = h
+- A lone consonant will auto-append 'a' unless it ends in '+' (e.g., 'g' = 'ga', but 'g+' = g)
+
+### JSON Format:
+
+'''json
+{
+  "quiz": {
+    "metadata": {
+      "quiz_name": "",
+      "difficulty": "",  // "Easy", "Moderate", "Hard"
+      "category": "",  // "Common Words", "Historical Terms", "Slang in Baybayin"
+      "time_limit": 0
+    },
+    "questions": [
+      {
+        "question_number": 0,
+        "type": "MCQ",  // Multiple Choice
+        "language": "",  // "Tagalog" or "Baybayin"
+        "question": "",
+        "display_text: "",
+        "options": ["", "", "", ""],
+        "correct_answer": ""
+      },
+      {
+        "question_number": 0,
+        "type": "IDT",  // Identification
+        "language": "",
+        "question": "",
+        "correct_answer": ""
+      },
+      {
+        "question_number": 0,
+        "type": "SKT",  // Sketching
+        "character": "",
+        "description": "Sketch the given Baybayin character"
+      },
+      
+    ]
+  }
+}
+
+Respond in ONLY JSON!
