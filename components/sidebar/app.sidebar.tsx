@@ -51,7 +51,7 @@ const data = {
   navMain: [
     {
       title: "Text AI (Fil To Baybayin)",
-      url: "#",
+      url: "/transliterator",
       icon: SquareTerminal,
     },
     {
@@ -62,23 +62,23 @@ const data = {
       items: [
         {
           title: "Web Cam",
-          url: "#",
+          url: "/ai/vision",
         },
         {
           title: "Upload Image",
-          url: "#",
+          url: "/ai/vision",
         },
       ],
     },
     {
       title: "Sketch",
-      url: "#",
+      url: "/ai/sketch",
       icon: BookOpen,
     },
 
     {
       title: "Chat AI",
-      url: "#",
+      url: "/ai/chat",
       icon: Settings2,
     },
   ],
@@ -98,7 +98,7 @@ const data = {
   projects1: [
     {
       name: "Edit Profile",
-      url: "#",
+      url: "/signedinscreen",
       icon: Frame,
     },
     {

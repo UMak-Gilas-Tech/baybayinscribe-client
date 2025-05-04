@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
 import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
-import SignedInScreen from "./signedinscreen/page";
 
 export default function Home() {
   const [isSmallScreen, setIsSmallScreen] = useState(true);
@@ -29,7 +28,6 @@ export default function Home() {
       ) : (
         <LearningMaterialsNav />
       )}
-      <SignedInScreen/>
     </main>
   );
 }
