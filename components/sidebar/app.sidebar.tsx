@@ -98,7 +98,7 @@ const data = {
   projects1: [
     {
       name: "Edit Profile",
-      url: "#",
+      url: "/profile/settings/accounts",
       icon: Frame,
     },
     {
