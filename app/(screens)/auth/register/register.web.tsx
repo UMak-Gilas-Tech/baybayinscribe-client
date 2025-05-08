@@ -95,13 +95,13 @@ const RegisterWeb = () => {
       <h1
         className="absolute z-30 font-bold text-[#FFD8B9]"
         style={{
-          top: "50%",
-          left: "28%",
+          top: "40%",
+          left: "25%",
           transform: "translateX(-50%)",
-          fontSize: "6vw",
+          fontSize: "9vw",
         }}
       >
-        CREATE ACCOUNT
+        REGISTER
       </h1>
 
       {/* Left Section */}

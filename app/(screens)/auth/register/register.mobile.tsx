@@ -108,7 +108,7 @@ const RegisterMobile = () => {
                 marginLeft: "-50px",
               }}
             >
-              CREATE ACCOUNT
+              REGISTER
             </h1>
 
             {/* Form Heading */}

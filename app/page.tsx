@@ -5,18 +5,18 @@ import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.n
 
 export default function Home() {
   const [isSmallScreen, setIsSmallScreen] = useState(true);
-  
+
   useEffect(() => {
     // Check if window is available (client-side only)
     if (typeof window !== 'undefined') {
       const handleResize = () => {
-        setIsSmallScreen(window.innerWidth < 640); 
+        setIsSmallScreen(window.innerWidth < 640);
       };
-      
+
       handleResize();
-      
+
       window.addEventListener('resize', handleResize);
-      
+
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
