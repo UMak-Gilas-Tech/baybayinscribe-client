@@ -23,6 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "../ui/sidebar"
+import ProfileModal from "@/components/profile.settings/accounts/ModalProf"
 
 // This is sample data.
 const data = {
@@ -85,7 +86,7 @@ const data = {
   projects: [
     {
       name: "Learning",
-      url: "/auth/login",
+      url: "#",
       icon: Frame,
     },
     {
@@ -94,11 +95,29 @@ const data = {
       icon: PieChart,
     },
   ],
+}
 
-  projects1: [
+// Mock user data for demonstration
+const mockUserData = {
+  firstName: "Lans Clarence",
+  lastName: "Villena",
+  username: "lanserinno",
+  email: "lensclerence@gmail.com",
+  dateOfBirth: "11/02/2003",
+  provider: "Google", 
+  contactNumber: "09123456789",
+};
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  
+  const openProfileModal = () => setIsProfileModalOpen(true);
+  const closeProfileModal = () => setIsProfileModalOpen(false);
+
+  const projects1 = [
     {
       name: "Edit Profile",
-      url: "/profile/settings/accounts",
+      action: openProfileModal,
       icon: Frame,
     },
     {
@@ -108,24 +127,31 @@ const data = {
     },
     {
       name: "General",
-      url: "#",
+      url: "/testdrive",
       icon: Map,
     },
-  ],
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  ];
+  
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavProjects1 projects={data.projects1} />
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher teams={data.teams} />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={data.navMain} />
+          <NavProjects projects={data.projects} />
+          <NavProjects1 projects={projects1} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Profile Modal */}
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={closeProfileModal}
+        userData={mockUserData}
+      />
+    </>
   )
 }

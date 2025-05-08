@@ -45,7 +45,8 @@ export function NavProjects1({
 }: {
   projects: {
     name: string
-    url: string
+    url?: string
+    action?: () => void
     icon: LucideIcon
   }[]
 }) {
@@ -56,12 +57,24 @@ export function NavProjects1({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild tooltip={item.name}>
-              <a href={item.url} className="flex items-center">
-                <item.icon className="shrink-0" />
-                <span className="ml-2 group-data-[collapsible=icon]:hidden">
-                  {item.name}
-                </span>
-              </a>
+              {item.action ? (
+                <button
+                  onClick={item.action}
+                  className="flex items-center"
+                >
+                  <item.icon className="shrink-0" />
+                  <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                    {item.name}
+                  </span>
+                </button>
+              ) : (
+                <a href={item.url} className="flex items-center">
+                  <item.icon className="shrink-0" />
+                  <span className="ml-2 group-data-[collapsible=icon]:hidden">
+                    {item.name}
+                  </span>
+                </a>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
