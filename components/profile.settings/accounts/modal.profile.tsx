@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import ProfileModalMobile from "./Mobile.Profile";
-import ProfileModalDesktop from "./Desktop.Profile";
+import ProfileModalMobile from "./mobile.profile";
+import ProfileModalDesktop from "./desktop.profile";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; // Import VisuallyHidden for accessibility
 

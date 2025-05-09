@@ -23,7 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "../ui/sidebar"
-import ProfileModal from "@/components/profile.settings/accounts/ModalProf"
+import ProfileModal from "@/components/profile.settings/accounts/modal.profile"
 
 // This is sample data.
 const data = {
