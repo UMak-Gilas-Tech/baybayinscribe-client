@@ -145,7 +145,10 @@ export default function ProfileModalMobile({ userData, onClose }: ProfileModalMo
               height={20}
               className="mr-3"
             />
-            <span>Date of Birth: {userData.dateOfBirth}</span>
+            <span>
+              Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString(
+                'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
+            </span>
           </div>
           <div className="flex items-center">
             <Image

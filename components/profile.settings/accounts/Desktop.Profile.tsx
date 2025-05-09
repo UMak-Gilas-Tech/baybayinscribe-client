@@ -15,18 +15,18 @@ type UserData = {
   firstName: string;
   lastName: string;
   username: string;
-  contactNumber: string;
+  contactNumber?: string;
   dateOfBirth?: string;
   email: string;
   authProviders?: AuthProvider[];
 };
 
 type ProfileModalDesktopProps = {
-  userData: UserData;
   onClose: () => void;
+  userData: UserData;
 };
 
-export default function ProfileModalDesktop({ userData, onClose }: ProfileModalDesktopProps) {
+export default function ProfileModalDesktop({ onClose, userData }: ProfileModalDesktopProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -127,7 +127,7 @@ export default function ProfileModalDesktop({ userData, onClose }: ProfileModalD
           </div>
 
           {/* User Profile */}
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-4">
             <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <Image
 
@@ -189,7 +189,9 @@ export default function ProfileModalDesktop({ userData, onClose }: ProfileModalD
                   height={20}
                   className="mr-3"
                 />
-                <span>Date of Birth: {userData.dateOfBirth}</span>
+                <span>
+                Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
+                </span>
               </div>
 
 
@@ -277,7 +279,7 @@ export default function ProfileModalDesktop({ userData, onClose }: ProfileModalD
               width={120}
               height={120}
             />
-            
+
           </div>
         </div>
       </div>
