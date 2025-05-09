@@ -30,7 +30,7 @@ type ProfileModalProps = {
 };
 
 export default function ProfileModal({ userData, onClose, isOpen }: ProfileModalProps) {
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery("(max-width: 1023px)");
 
   if (!isOpen) return null;
 
