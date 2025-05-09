@@ -60,16 +60,6 @@ const data = {
       url: "#",
       icon: Bot,
       isActive: true,
-      items: [
-        {
-          title: "Web Cam",
-          url: "#",
-        },
-        {
-          title: "Upload Image",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Sketch",

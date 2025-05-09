@@ -190,7 +190,8 @@ export default function ProfileModalDesktop({ onClose, userData }: ProfileModalD
                   className="mr-3"
                 />
                 <span>
-                Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
+                  Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString(
+                    'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
                 </span>
               </div>
 
