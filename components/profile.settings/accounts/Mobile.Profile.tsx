@@ -1,10 +1,11 @@
 "use client"
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/app/lib/auth-client";
+import MobileEditProfile from "./edit.profile/mobile.edit";
 
 type AuthProvider = {
   name: string;
@@ -24,10 +25,12 @@ type UserData = {
 type ProfileModalMobileProps = {
   userData: UserData;
   onClose: () => void;
+  onEdit?: () => void;
 };
 
-export default function ProfileModalMobile({ userData, onClose }: ProfileModalMobileProps) {
+export default function ProfileModalMobile({ userData, onClose, onEdit }: ProfileModalMobileProps) {
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -38,6 +41,30 @@ export default function ProfileModalMobile({ userData, onClose }: ProfileModalMo
       },
     });
   };
+
+  const handleSaveProfile = async (updatedData: UserData) => {
+    // TODO: Implement API call to update user data
+    console.log('Updated user data:', updatedData);
+    setIsEditing(false);
+  };
+
+  const handleEditClick = () => {
+    if (onEdit) {
+      onEdit();
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  if (isEditing && !onEdit) {
+    return (
+      <MobileEditProfile
+        onClose={() => setIsEditing(false)}
+        userData={userData}
+        onSave={handleSaveProfile}
+      />
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden">
@@ -85,7 +112,10 @@ export default function ProfileModalMobile({ userData, onClose }: ProfileModalMo
           <div>
             <h3 className="text-lg font-semibold">{userData.firstName} {userData.lastName}</h3>
             <p className="text-sm text-gray-500">@{userData.username}</p>
-            <button className="text-blue-600 text-sm flex items-center">
+            <button 
+              className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
+              onClick={handleEditClick}
+            >
               <svg
                 className="w-3 h-3 mr-1"
                 viewBox="0 0 24 24"
@@ -224,7 +254,7 @@ export default function ProfileModalMobile({ userData, onClose }: ProfileModalMo
 
           {/* Delete Account*/}
           <div className="mt-2 mb-2">
-            <button className="flex items-center text-red-600">
+            <button className="flex items-center text-red-600 hover:text-red-500 cursor-pointer">
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 6H5H21"
                   stroke="currentColor"
@@ -251,7 +281,7 @@ export default function ProfileModalMobile({ userData, onClose }: ProfileModalMo
       <div className="mt-auto p-4 border-gray-200 border-t">
         <button
           onClick={handleSignOut}
-          className="flex items-center text-gray-700 py-2 hover:text-blue-600"
+          className="flex items-center text-gray-700 py-2 hover:text-blue-600 cursor-pointer"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
