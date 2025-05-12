@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ type UserData = {
   dateOfBirth?: string;
   email: string;
   authProviders?: AuthProvider[];
+  profilePictureUrl?: string | null;
 };
 
 type ProfileModalDesktopProps = {
@@ -31,6 +32,12 @@ type ProfileModalDesktopProps = {
 export default function ProfileModalDesktop({ onClose, userData, onEdit }: ProfileModalDesktopProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [currentUserData, setCurrentUserData] = useState(userData);
+
+  // Update currentUserData when userData prop changes
+  useEffect(() => {
+    setCurrentUserData(userData);
+  }, [userData]);
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -42,10 +49,38 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
     });
   };
 
+  // Handler for saving profile
   const handleSaveProfile = async (updatedData: UserData) => {
-    // TODO: Implement API call to update user data
-    console.log('Updated user data:', updatedData);
-    setIsEditing(false);
+    try {
+      // Prepare the data to be sent to the server
+      const dataToUpdate = {
+        ...updatedData,
+        // Use the new profile picture URL if provided, otherwise keep the existing one
+        profilePictureUrl: updatedData.profilePictureUrl ?? currentUserData.profilePictureUrl
+      };
+
+      const response = await fetch('/api/user.information/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToUpdate),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      // Update the local state with new data
+      setCurrentUserData({
+        ...updatedData,
+        profilePictureUrl: dataToUpdate.profilePictureUrl,
+        authProviders: updatedData.authProviders || currentUserData.authProviders
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   const handleEditClick = () => {
@@ -62,7 +97,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
     return (
       <DesktopEditProfile 
         onClose={() => setIsEditing(false)} 
-        userData={userData} 
+        userData={currentUserData} 
         onSave={handleSaveProfile}
       />
     );
@@ -153,22 +188,21 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <X size={20} />
             </button>
-          </div>
-
-          {/* User Profile */}
+          </div>          {/* User Profile */}
           <div className="flex items-center mb-4">
             <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <Image
-                src="/images/user.profile/user.avatar.png"
+                src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
                 alt="User Profile"
                 width={64}
                 height={64}
                 className="object-cover w-full h-full"
+                priority
               />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800">{userData.firstName} {userData.lastName}</h3>
-              <p className="text-sm text-gray-500">{userData.username}</p>
+              <h3 className="font-semibold text-gray-800">{currentUserData.firstName} {currentUserData.lastName}</h3>
+              <p className="text-sm text-gray-500">{currentUserData.username}</p>
               <button 
                 onClick={handleEditClick}
                 className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
@@ -207,7 +241,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
                   height={20}
                   className="mr-3"
                 />
-                <span>{userData.contactNumber}</span>
+                <span>{currentUserData.contactNumber}</span>
               </div>
 
               <div className="flex items-center">
@@ -219,7 +253,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
                   className="mr-3"
                 />
                 <span>
-                  Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString(
+                  Date of Birth: {currentUserData.dateOfBirth ? new Date(currentUserData.dateOfBirth).toLocaleDateString(
                     'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
                 </span>
               </div>
@@ -232,7 +266,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
                   height={20}
                   className="mr-3"
                 />
-                <span>{userData.email}</span>
+                <span>{currentUserData.email}</span>
               </div>
             </div>
           </div>
@@ -248,57 +282,32 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
                   width={80}
                   height={80}
                   className="object-cover w-25 h-full ml-20"
-                  style={{ transform: "translateY(30px)" }} // Adjust the Y position of the image
+                  style={{ transform: "translateY(30px)" }}
                 />
               </div>
             </div>
 
-
-            {/* Google Provider */}
             <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-              {userData.authProviders && userData.authProviders.length > 0 ? (
-                userData.authProviders.map((provider, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Image
-                        src={`/images/user.profile/google.icon.account.png`}
-                        alt={provider.name}
-                        width={20}
-                        height={20}
-                        className="mr-3"
-                      />
-                      <span>{provider.name} Linked</span>
-                    </div>
-                    <button className="text-red-600 text-sm">Unlink</button>
-                  </div>
-                ))
-              ) : (
+              {!currentUserData.authProviders?.length && (
                 <div className="text-gray-500">No authentication providers linked</div>
               )}
-
-              {/* Facebook Provider */}
-              {userData.authProviders && userData.authProviders.length > 0 ? (
-                userData.authProviders.map((provider, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Image
-                        src={`/images/user.profile/facebook.icon.account.png`}
-                        alt={provider.name}
-                        width={20}
-                        height={20}
-                        className="mr-3"
-                      />
-                      <span>Facebook Linked</span>
-                    </div>
-                    <button className="text-red-600 text-sm">Unlink</button>
+              {currentUserData.authProviders?.map((provider, index) => (
+                <div key={`${provider.name}-${index}`} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Image
+                      src={`/images/user.profile/${provider.name.toLowerCase()}.icon.account.png`}
+                      alt={provider.name}
+                      width={20}
+                      height={20}
+                      className="mr-3"
+                    />
+                    <span>{provider.name} Linked</span>
                   </div>
-                ))
-              ) : (
-                <div className="text-gray-500">No authentication providers linked</div>
-              )}
+                  <button className="text-red-600 text-sm">Unlink</button>
+                </div>
+              ))}
             </div>
           </div>
-
 
           {/* Butty mascot at bottom */}
           <div className="absolute bottom-0 right-0">
@@ -314,4 +323,4 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
       </div>
     </div>
   );
-} 
+}

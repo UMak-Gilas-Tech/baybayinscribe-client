@@ -11,6 +11,7 @@ type UserData = {
   contactNumber?: string;
   dateOfBirth?: string;
   email: string;
+  profilePictureUrl?: string | null;
 };
 
 type EditProfileDesktopProps = {
@@ -20,8 +21,7 @@ type EditProfileDesktopProps = {
 };
 
 export default function DesktopEditProfile({ onClose, userData, onSave }: EditProfileDesktopProps) {
-  const [formData, setFormData] = useState<UserData>(userData);
-  const [profileImage, setProfileImage] = useState<string>("/images/user.profile/user.avatar.png");
+  const [formData, setFormData] = useState<UserData>(userData);  const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,16 +64,88 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
       });
     }
   };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImage(URL.createObjectURL(file));
-    }
-  };
+      
+      // Validate file type
+      if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+        setErrors(prev => ({
+          ...prev,
+          profilePicture: "Invalid file type. Please upload a JPG, JPEG, or PNG file."
+        }));
+        return;
+      }
 
-  const removeProfileImage = () => {
+      // Validate file size (4MB)
+      if (file.size > 4 * 1024 * 1024) {
+        setErrors(prev => ({
+          ...prev,
+          profilePicture: "File size too large. Maximum size is 4MB."
+        }));
+        return;
+      }      // Create temporary URL for preview
+      setProfileImage(URL.createObjectURL(file));
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/user.information/upload-profile-picture', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to upload profile picture');
+        }
+
+        setProfileImage(data.url);
+        // Update the form data with the new profile picture URL
+        setFormData(prev => ({
+          ...prev,
+          profilePictureUrl: data.url
+        }));
+      } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        setErrors(prev => ({
+          ...prev,
+          profilePicture: "Failed to upload profile picture. Please try again."
+        }));
+      }
+    }
+  };  const removeProfileImage = async () => {
     setProfileImage("/images/user.profile/user.avatar.png");
+    
+    try {
+      const response = await fetch('/api/user.information/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          profilePictureUrl: null
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove profile picture');
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        profilePictureUrl: null
+      }));
+    } catch (error) {
+      console.error('Error removing profile picture:', error);
+      setErrors(prev => ({
+        ...prev,
+        profilePicture: "Failed to remove profile picture. Please try again."
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -92,10 +164,45 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData);
+      try {
+        // Include the profile picture URL in the update data
+        const dataToUpdate = {
+          ...formData,
+          // If we have a profile picture URL in the form data, use it, otherwise use null
+          profilePictureUrl: formData.profilePictureUrl
+        };
+
+        const response = await fetch('/api/user.information/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dataToUpdate),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const error = data.error || 'Failed to update profile';
+          setErrors(prev => ({
+            ...prev,
+            submit: error
+          }));
+          return;
+        }
+
+        // Pass the updated data to the onSave callback including the profile picture URL
+        onSave(dataToUpdate);
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        setErrors(prev => ({
+          ...prev,
+          submit: 'An error occurred while saving changes'
+        }));
+      }
     }
   };
 
@@ -309,6 +416,9 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
 
             {/* Warning text */}
             <p className="text-blue-700 text-sm mt-6 mb-4">Please complete all changed to continue</p>
+            {errors.submit && (
+              <p className="text-red-500 text-sm mb-4">{errors.submit}</p>
+            )}
 
             {/* Action Buttons */}
             <div className="flex justify-end space-x-4 pt-4 mt-4 border-t border-gray-200">

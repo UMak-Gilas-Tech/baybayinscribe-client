@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ type UserData = {
   dateOfBirth?: string;
   email: string;
   authProviders?: AuthProvider[];
+  profilePictureUrl?: string | null;
 };
 
 type ProfileModalMobileProps = {
@@ -29,8 +30,13 @@ type ProfileModalMobileProps = {
 };
 
 export default function ProfileModalMobile({ userData, onClose, onEdit }: ProfileModalMobileProps) {
-  const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();  const [isEditing, setIsEditing] = useState(false);
+  const [currentUserData, setCurrentUserData] = useState(userData);
+
+  // Update currentUserData when userData prop changes
+  useEffect(() => {
+    setCurrentUserData(userData);
+  }, [userData]);
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -41,11 +47,39 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       },
     });
   };
-
   const handleSaveProfile = async (updatedData: UserData) => {
-    // TODO: Implement API call to update user data
-    console.log('Updated user data:', updatedData);
-    setIsEditing(false);
+    try {
+      // Prepare the data to be sent to the server
+      const dataToUpdate = {
+        ...updatedData,
+        // Use the new profile picture URL if provided, otherwise keep the existing one
+        profilePictureUrl: updatedData.profilePictureUrl ?? currentUserData.profilePictureUrl
+      };
+
+      const response = await fetch('/api/user.information/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToUpdate),
+      });      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      // Update the local state with new data
+      setCurrentUserData({
+        ...updatedData,
+        profilePictureUrl: dataToUpdate.profilePictureUrl,
+        authProviders: updatedData.authProviders || currentUserData.authProviders
+      });
+      setIsEditing(false);
+      
+      if (onEdit) {
+        onEdit();
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   const handleEditClick = () => {
@@ -55,12 +89,11 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       setIsEditing(true);
     }
   };
-
   if (isEditing && !onEdit) {
     return (
-      <MobileEditProfile
-        onClose={() => setIsEditing(false)}
-        userData={userData}
+      <MobileEditProfile 
+        onClose={() => setIsEditing(false)} 
+        userData={currentUserData} 
         onSave={handleSaveProfile}
       />
     );
@@ -102,7 +135,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
         <div className="flex items-center">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-4">
             <Image
-              src="/images/user.profile/user.avatar.png"
+              src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
               alt="User Profile"
               width={64}
               height={64}
@@ -110,8 +143,8 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">{userData.firstName} {userData.lastName}</h3>
-            <p className="text-sm text-gray-500">@{userData.username}</p>
+            <h3 className="text-lg font-semibold">{currentUserData.firstName} {currentUserData.lastName}</h3>
+            <p className="text-sm text-gray-500">@{currentUserData.username}</p>
             <button 
               className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
               onClick={handleEditClick}
@@ -165,7 +198,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
               height={20}
               className="mr-3"
             />
-            <span>{userData.contactNumber}</span>
+            <span>{currentUserData.contactNumber}</span>
           </div>
           <div className="flex items-center">
             <Image
@@ -176,7 +209,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
               className="mr-3"
             />
             <span>
-              Date of Birth: {userData.dateOfBirth ? new Date(userData.dateOfBirth).toLocaleDateString(
+              Date of Birth: {currentUserData.dateOfBirth ? new Date(currentUserData.dateOfBirth).toLocaleDateString(
                 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
             </span>
           </div>
@@ -188,7 +221,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
               height={20}
               className="mr-3"
             />
-            <span>{userData.email}</span>
+            <span>{currentUserData.email}</span>
           </div>
         </div>
       </div>
@@ -205,51 +238,25 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             className="object-cover w-25 h-full ml-15 hidden xs:block"
             style={{ transform: "translateY(30px)" }}
           />
-        </div>
-
-
-        {/* Google Provider */}
-        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-          {userData.authProviders && userData.authProviders.length > 0 ? (
-            userData.authProviders.map((provider, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Image
-                    src={`/images/user.profile/google.icon.account.png`}
-                    alt={provider.name}
-                    width={20}
-                    height={20}
-                    className="mr-3"
-                  />
-                  <span>{provider.name} Linked</span>
-                </div>
-                <button className="text-red-600 text-sm">Unlink</button>
-              </div>
-            ))
-          ) : (
+        </div>        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+          {!currentUserData.authProviders?.length && (
             <div className="text-gray-500">No authentication providers linked</div>
           )}
-
-          {/* Facebook Provider */}
-          {userData.authProviders && userData.authProviders.length > 0 ? (
-            userData.authProviders.map((provider, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Image
-                    src={`/images/user.profile/facebook.icon.account.png`}
-                    alt={provider.name}
-                    width={20}
-                    height={20}
-                    className="mr-3"
-                  />
-                  <span>Facebook Account Linked</span>
-                </div>
-                <button className="text-red-600 text-sm">Unlink</button>
+          {currentUserData.authProviders?.map((provider, index) => (
+            <div key={`${provider.name}-${index}`} className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Image
+                  src={`/images/user.profile/${provider.name.toLowerCase()}.icon.account.png`}
+                  alt={provider.name}
+                  width={20}
+                  height={20}
+                  className="mr-3"
+                />
+                <span>{provider.name} Linked</span>
               </div>
-            ))
-          ) : (
-            <div className="text-gray-500">No authentication providers linked</div>
-          )}
+              <button className="text-red-600 text-sm">Unlink</button>
+            </div>
+          ))}
 
 
           {/* Delete Account*/}

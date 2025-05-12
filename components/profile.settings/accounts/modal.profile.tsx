@@ -23,6 +23,7 @@ type UserData = {
   email: string;
   authProviders?: AuthProvider[];
   provider?: string; // For compatibility with existing code
+  profilePictureUrl?: string | null;
 };
 
 type ProfileModalProps = {
@@ -31,9 +32,15 @@ type ProfileModalProps = {
   isOpen: boolean;
 };
 
-export default function ProfileModal({ userData, onClose, isOpen }: ProfileModalProps) {
+export default function ProfileModal({ userData: initialUserData, onClose, isOpen }: ProfileModalProps) {
   const isMobile = useMediaQuery("(max-width: 1023px)");
   const [isEditing, setIsEditing] = useState(false);
+  const [localUserData, setLocalUserData] = useState(initialUserData);
+  
+  // Update local state when initialUserData changes
+  useEffect(() => {
+    setLocalUserData(initialUserData);
+  }, [initialUserData]);
   
   // Reset editing state when modal is opened
   useEffect(() => {
@@ -46,17 +53,47 @@ export default function ProfileModal({ userData, onClose, isOpen }: ProfileModal
 
   // Convert provider string to authProviders array if needed
   const enhancedUserData = {
-    ...userData,
-    authProviders: userData.authProviders || (
-      userData.provider ? [{ name: userData.provider, linked: true }] : []
+    ...localUserData,
+    authProviders: localUserData.authProviders || (
+      localUserData.provider ? [{ name: localUserData.provider, linked: true }] : []
     ),
   };
-  
-  // Handler for saving profile
+    // Handler for saving profile
   const handleSaveProfile = async (updatedData: UserData) => {
-    // TODO: Implement API call to update user data
-    console.log('Updated user data:', updatedData);
-    setIsEditing(false);
+    try {
+      // Prepare the data for update, keeping existing profilePictureUrl if not changed
+      const dataToUpdate = {
+        ...updatedData,
+        profilePictureUrl: updatedData.profilePictureUrl ?? localUserData.profilePictureUrl
+      };
+
+      const response = await fetch('/api/user.information/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToUpdate),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      // Get the updated user data from the response
+      const updatedUserData = await response.json();
+      
+      const enhancedUpdatedData = {
+        ...updatedUserData,
+        profilePictureUrl: updatedUserData.profilePictureUrl || localUserData.profilePictureUrl,
+        authProviders: updatedUserData.authProviders || []
+      };
+
+      // Update local state and close edit mode
+      setLocalUserData(enhancedUpdatedData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
   
   // Choose the content based on edit mode and device type
