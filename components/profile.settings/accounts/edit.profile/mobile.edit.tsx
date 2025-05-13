@@ -340,7 +340,7 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                         <button
                             type="button"
                             onClick={onClose}
-                            className="w-full border-[#521414] text-red-600 py-3 rounded-md font-medium hover:bg-[#521414] cursor-pointer hover:text-white"
+                            className="w-full border-[#521414] bg-gray-200 text-red-600 py-3 rounded-md font-medium hover:bg-[#521414] cursor-pointer hover:text-white"
                         >
                             Discard Changes
                         </button>

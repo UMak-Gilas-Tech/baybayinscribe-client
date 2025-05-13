@@ -27,9 +27,10 @@ type ProfileModalDesktopProps = {
   onClose: () => void;
   userData: UserData;
   onEdit?: () => void;
+  onShowTerms?: () => void;
 };
 
-export default function ProfileModalDesktop({ onClose, userData, onEdit }: ProfileModalDesktopProps) {
+export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowTerms }: ProfileModalDesktopProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(userData);
@@ -106,7 +107,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
       <div className="bg-black/50 fixed inset-0" onClick={onClose}></div>
-      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[850px] max-w-[95vw]">
+      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[850px] max-w-[100vw]">
         {/* Left sidebar */}
         <div className="w-[250px] p-4 border-r border-blue-500">
           <h2 className="text-xl font-semibold mb-6">Settings</h2>
@@ -117,8 +118,10 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
             </button>
             <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
               Preferences
-            </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+            </button>            <button 
+              onClick={onShowTerms}
+              className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer"
+            >
               Terms of service
             </button>
             <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
@@ -314,8 +317,8 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit }: Profi
             <Image
               src="/images/user.profile/butty.waving.png"
               alt="Butty mascot"
-              width={120}
-              height={120}
+              width={160}
+              height={160}
             />
 
           </div>

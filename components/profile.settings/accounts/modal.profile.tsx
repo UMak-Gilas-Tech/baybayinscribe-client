@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import ProfileModalMobile from "./mobile.profile";
 import ProfileModalDesktop from "./desktop.profile";
+import MobileTerms from "./terms/mobile.terms";
+import DesktopTerms from "./terms/desktop.terms";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; // Import VisuallyHidden for accessibility
 import MobileEditProfile from "./edit.profile/mobile.edit";
@@ -35,6 +37,7 @@ type ProfileModalProps = {
 export default function ProfileModal({ userData: initialUserData, onClose, isOpen }: ProfileModalProps) {
   const isMobile = useMediaQuery("(max-width: 1023px)");
   const [isEditing, setIsEditing] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [localUserData, setLocalUserData] = useState(initialUserData);
   
   // Update local state when initialUserData changes
@@ -42,10 +45,11 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
     setLocalUserData(initialUserData);
   }, [initialUserData]);
   
-  // Reset editing state when modal is opened
+  // Reset states when modal is opened
   useEffect(() => {
     if (isOpen) {
       setIsEditing(false);
+      setShowTerms(false);
     }
   }, [isOpen]);
 
@@ -58,7 +62,8 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
       localUserData.provider ? [{ name: localUserData.provider, linked: true }] : []
     ),
   };
-    // Handler for saving profile
+
+  // Handler for saving profile
   const handleSaveProfile = async (updatedData: UserData) => {
     try {
       // Prepare the data for update, keeping existing profilePictureUrl if not changed
@@ -95,10 +100,22 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
       console.error('Error updating profile:', error);
     }
   };
-  
-  // Choose the content based on edit mode and device type
+
+  // Choose the content based on states and device type
   let modalContent;
-  if (isEditing && isMobile) {
+  if (showTerms) {
+    modalContent = isMobile ? (
+      <MobileTerms 
+        onClose={onClose}
+        onProfileClick={() => setShowTerms(false)}
+      />
+    ) : (
+      <DesktopTerms 
+        onClose={onClose}
+        onProfileClick={() => setShowTerms(false)}
+      />
+    );
+  } else if (isEditing && isMobile) {
     modalContent = (
       <MobileEditProfile
         onClose={() => setIsEditing(false)}
@@ -128,6 +145,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
         userData={enhancedUserData} 
         onClose={onClose} 
         onEdit={() => setIsEditing(true)}
+        onShowTerms={() => setShowTerms(true)}
       />
     );
   }
@@ -138,9 +156,10 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
         className="p-0 border-none max-w-4xl bg-transparent shadow-none"
         onInteractOutside={(e) => e.preventDefault()}
       >
-        {/* Add DialogTitle for accessibility */}
         <DialogTitle>
-          <VisuallyHidden>Edit Profile</VisuallyHidden>
+          <VisuallyHidden>
+            {showTerms ? "Terms of Service" : "Edit Profile"}
+          </VisuallyHidden>
         </DialogTitle>
         {modalContent}
       </DialogContent>

@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/app/lib/auth-client";
 import MobileEditProfile from "./edit.profile/mobile.edit";
+import MobileSettings from "./mobile.settings";
 
 type AuthProvider = {
   name: string;
@@ -30,7 +31,9 @@ type ProfileModalMobileProps = {
 };
 
 export default function ProfileModalMobile({ userData, onClose, onEdit }: ProfileModalMobileProps) {
-  const router = useRouter();  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(userData);
 
   // Update currentUserData when userData prop changes
@@ -47,6 +50,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       },
     });
   };
+
   const handleSaveProfile = async (updatedData: UserData) => {
     try {
       // Prepare the data to be sent to the server
@@ -62,7 +66,8 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dataToUpdate),
-      });      if (!response.ok) {
+      });      
+      if (!response.ok) {
         throw new Error('Failed to update profile');
       }
 
@@ -89,6 +94,8 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       setIsEditing(true);
     }
   };
+
+
   if (isEditing && !onEdit) {
     return (
       <MobileEditProfile 
@@ -103,8 +110,13 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
     <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden">
       {/* Tabs */}
       <div className="flex items-center justify-between border-b border-gray-200">
-        <div className="flex w-full">
-          <button className="flex-1 py-3 text-center text-blue-600 font-semibold border-b-2 border-blue-600">
+        <div className="flex w-full">          
+          <button 
+            onClick={() => setIsSettingsVisible(false)}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
+              !isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+            }`}
+          >
             <Image
               src="/images/user.profile/butty.stand.png"
               alt="Profile Icon"
@@ -114,7 +126,12 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             />
             Profile
           </button>
-          <button className="flex-1 py-3 text-center text-gray-500 hover:text-blue-600">
+          <button 
+            onClick={() => setIsSettingsVisible(true)}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
+              isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+            }`}
+          >
             <Image
               src="/images/user.profile/butty.tonguecheek.png"
               alt="Settings Icon"
@@ -238,7 +255,8 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             className="object-cover w-25 h-full ml-15 hidden xs:block"
             style={{ transform: "translateY(30px)" }}
           />
-        </div>        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+        </div>        
+        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
           {!currentUserData.authProviders?.length && (
             <div className="text-gray-500">No authentication providers linked</div>
           )}
@@ -257,7 +275,6 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
               <button className="text-red-600 text-sm">Unlink</button>
             </div>
           ))}
-
 
           {/* Delete Account*/}
           <div className="mt-2 mb-2">
@@ -282,8 +299,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             </button>
           </div>
         </div>
-      </div>
-
+      </div>      
       {/* Log out button */}
       <div className="mt-auto p-4 border-gray-200 border-t">
         <button
@@ -297,21 +313,18 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-
             <path d="M16 17L21 12L16 7"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-
             <path d="M21 12H9"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-
           </svg>
           Log out
         </button>
@@ -328,6 +341,13 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
         </div>
       </div>
 
+      {/* Settings Overlay */}
+      <MobileSettings 
+        onSignOut={handleSignOut}
+        isVisible={isSettingsVisible}
+        onClose={() => setIsSettingsVisible(false)}
+
+      />
     </div>
   );
 }

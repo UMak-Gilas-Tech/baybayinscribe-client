@@ -209,7 +209,8 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
       <div className="bg-black/50 fixed inset-0" onClick={onClose}></div>
-      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[900px] max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[900px] max-h-[90vh]">
+        
         {/* Left Sidebar */}
         <div className="w-[250px] p-4 border-r border-blue-500 overflow-y-auto">
           <h2 className="text-xl font-semibold mb-6">Settings</h2>
@@ -240,7 +241,7 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-4 relative">
+        <div className="flex-1 p-4 relative overflow-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-blue-300">Edit Your Account</h2>
             <button onClick={onClose} className="text-blue-300">
