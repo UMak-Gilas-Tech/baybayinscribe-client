@@ -28,9 +28,11 @@ type ProfileModalDesktopProps = {
   userData: UserData;
   onEdit?: () => void;
   onShowTerms?: () => void;
+  onShowAbout?: () => void;
+  onShowPreferences?: () => void;
 };
 
-export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowTerms }: ProfileModalDesktopProps) {
+export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowTerms, onShowAbout, onShowPreferences }: ProfileModalDesktopProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(userData);
@@ -92,13 +94,11 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
     }
   };
 
-  // Only show edit profile component if we're managing edit state locally
-  // and not delegating to parent component
   if (isEditing && !onEdit) {
     return (
-      <DesktopEditProfile 
-        onClose={() => setIsEditing(false)} 
-        userData={currentUserData} 
+      <DesktopEditProfile
+        onClose={() => setIsEditing(false)}
+        userData={currentUserData}
         onSave={handleSaveProfile}
       />
     );
@@ -113,18 +113,27 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
           <h2 className="text-xl font-semibold mb-6">Settings</h2>
 
           <nav className="space-y-1">
+
             <button className="w-full py-2 text-blue-600 font-medium text-left cursor-pointer">
               Account
             </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+
+            <button 
+            onClick={onShowPreferences}
+            className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
               Preferences
-            </button>            <button 
+            </button>
+
+            <button
               onClick={onShowTerms}
               className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer"
             >
               Terms of service
             </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+
+            <button
+              onClick={onShowAbout}
+              className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
               About
             </button>
           </nav>
@@ -191,7 +200,9 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <X size={20} />
             </button>
-          </div>          {/* User Profile */}
+          </div>
+
+          {/* User Profile */}
           <div className="flex items-center mb-4">
             <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <Image
@@ -206,7 +217,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
             <div>
               <h3 className="font-semibold text-gray-800">{currentUserData.firstName} {currentUserData.lastName}</h3>
               <p className="text-sm text-gray-500">{currentUserData.username}</p>
-              <button 
+              <button
                 onClick={handleEditClick}
                 className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
               >
@@ -220,17 +231,16 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
           </div>
 
           {/* Account Info */}
-          <div className="mb-6">
+          <div className="mb-6 mt-6">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-800">Account Info</h3>
-              <div className="flex items-center">
+              <div className="relative w-full">
+                <h3 className="font-semibold">Account Info</h3>
                 <Image
                   src="/images/user.profile/butty.stand.png"
                   alt="Butty mascot"
-                  width={40}
-                  height={40}
-                  className="object-cover w-25 h-full ml-20"
-                  style={{ transform: "translateY(30px)" }}
+                  width={120}
+                  height={70}
+                  className="hidden xs:block absolute -top-10 -right-8"
                 />
               </div>
             </div>
@@ -275,17 +285,16 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
           </div>
 
           {/* Auth Provider */}
-          <div className="mb-6">
+          <div className="mb-6 mt-16">
             <div className="flex justify-between items-center mb-1">
-              <h3 className="font-semibold text-gray-800">Auth Provider</h3>
-              <div>
+              <div className="relative w-full">
+                <h3 className="font-semibold">Auth Provider </h3>
                 <Image
                   src="/images/user.profile/butty.thumbsup.png"
-                  alt="Butty giving thumbs up"
-                  width={80}
-                  height={80}
-                  className="object-cover w-25 h-full ml-20"
-                  style={{ transform: "translateY(30px)" }}
+                  alt="Butty mascot"
+                  width={120}
+                  height={70}
+                  className="hidden xs:block absolute -top-8 -right-12"
                 />
               </div>
             </div>
@@ -317,7 +326,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
             <Image
               src="/images/user.profile/butty.waving.png"
               alt="Butty mascot"
-              width={160}
+              width={220}
               height={160}
             />
 

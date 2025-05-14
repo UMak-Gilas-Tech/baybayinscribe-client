@@ -66,7 +66,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dataToUpdate),
-      });      
+      });
       if (!response.ok) {
         throw new Error('Failed to update profile');
       }
@@ -78,7 +78,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
         authProviders: updatedData.authProviders || currentUserData.authProviders
       });
       setIsEditing(false);
-      
+
       if (onEdit) {
         onEdit();
       }
@@ -98,9 +98,9 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
 
   if (isEditing && !onEdit) {
     return (
-      <MobileEditProfile 
-        onClose={() => setIsEditing(false)} 
-        userData={currentUserData} 
+      <MobileEditProfile
+        onClose={() => setIsEditing(false)}
+        userData={currentUserData}
         onSave={handleSaveProfile}
       />
     );
@@ -110,12 +110,11 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
     <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden">
       {/* Tabs */}
       <div className="flex items-center justify-between border-b border-gray-200">
-        <div className="flex w-full">          
-          <button 
+        <div className="flex w-full">
+          <button
             onClick={() => setIsSettingsVisible(false)}
-            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
-              !isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${!isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+              }`}
           >
             <Image
               src="/images/user.profile/butty.stand.png"
@@ -126,11 +125,10 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             />
             Profile
           </button>
-          <button 
+          <button
             onClick={() => setIsSettingsVisible(true)}
-            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
-              isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
-            }`}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+              }`}
           >
             <Image
               src="/images/user.profile/butty.tonguecheek.png"
@@ -162,7 +160,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
           <div>
             <h3 className="text-lg font-semibold">{currentUserData.firstName} {currentUserData.lastName}</h3>
             <p className="text-sm text-gray-500">@{currentUserData.username}</p>
-            <button 
+            <button
               className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
               onClick={handleEditClick}
             >
@@ -195,17 +193,17 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
 
       {/* Account Info Section */}
       <div className="px-4 mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold">Account Info</h3>
+        <div className="relative w-full">
+          <h3 className="font-semibold">Account Info </h3>
           <Image
             src="/images/user.profile/butty.stand.png"
-            alt="Butty mascot"
-            width={24}
-            height={24}
-            className="object-cover w-25 h-full ml-15 hidden xs:block"
-            style={{ transform: "translateY(30px)" }}
+              alt="Butty mascot"
+              width={100}
+              height={70}
+              className="hidden xs:block absolute -top-8 -right-6"
           />
         </div>
+        
         <div className="bg-blue-50 p-4 rounded-lg space-y-3">
           <div className="flex items-center">
             <Image
@@ -244,18 +242,17 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       </div>
 
       {/* Auth Provider Section */}
-      <div className="px-4 mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold">Auth Provider</h3>
+      <div className="px-4 mb-4 mt-8">
+        <div className="relative w-full">
+          <h3 className="font-semibold">Auth Provider </h3>
           <Image
             src="/images/user.profile/butty.thumbsup.png"
-            alt="Butty giving thumbs up"
-            width={24}
-            height={24}
-            className="object-cover w-25 h-full ml-15 hidden xs:block"
-            style={{ transform: "translateY(30px)" }}
+              alt="Butty mascot"
+              width={100}
+              height={70}
+              className="hidden xs:block absolute -top-6 -right-8"
           />
-        </div>        
+        </div>
         <div className="bg-blue-50 p-4 rounded-lg space-y-3">
           {!currentUserData.authProviders?.length && (
             <div className="text-gray-500">No authentication providers linked</div>
@@ -299,7 +296,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             </button>
           </div>
         </div>
-      </div>      
+      </div>
       {/* Log out button */}
       <div className="mt-auto p-4 border-gray-200 border-t">
         <button
@@ -334,7 +331,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
           <Image
             src="/images/user.profile/butty.waving.png"
             alt="Butty mascot"
-            width={150}
+            width={180}
             height={150}
             className="hidden xs:block"
           />
@@ -342,7 +339,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       </div>
 
       {/* Settings Overlay */}
-      <MobileSettings 
+      <MobileSettings
         onSignOut={handleSignOut}
         isVisible={isSettingsVisible}
         onClose={() => setIsSettingsVisible(false)}
