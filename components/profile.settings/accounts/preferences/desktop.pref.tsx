@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/app/lib/auth-client';
+import { Switch } from "@/components/ui/switch";
 
 interface DesktopPreferenceProps {
     onClose: () => void;
@@ -15,6 +16,18 @@ interface DesktopPreferenceProps {
 
 export default function DesktopPreference({ onClose, onProfileClick, onShowTerms, onShowAbout }: DesktopPreferenceProps) {
     const router = useRouter();
+    const [soundEffects, setSoundEffects] = React.useState({
+        whaleSound: false,
+        buttonClicks: false,
+        muteAll: false
+    });
+
+    const handleSoundToggle = (setting: keyof typeof soundEffects) => {
+        setSoundEffects(prev => ({
+            ...prev,
+            [setting]: !prev[setting]
+        }));
+    };
 
     const handleSignOut = async () => {
         await authClient.signOut({
@@ -29,7 +42,7 @@ export default function DesktopPreference({ onClose, onProfileClick, onShowTerms
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
             <div className="bg-black/50 fixed inset-0" onClick={onClose}></div>
-            <div className="relative bg-white rounded-lg shadow-lg flex min-w-[850px] max-w-[100vw] max-h-[90vh]">
+            <div className="relative bg-blue-900 rounded-lg shadow-lg flex min-w-[850px] max-w-[100vw] max-h-[90vh]">
                 {/* Left sidebar */}
                 <div className="w-[250px] p-4 border-r border-blue-500 overflow-y-auto">
                     <h2 className="text-xl font-semibold mb-6">Settings</h2>
@@ -37,25 +50,25 @@ export default function DesktopPreference({ onClose, onProfileClick, onShowTerms
                     <nav className="space-y-1">
                         <button
                             onClick={onProfileClick}
-                            className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer"
+                            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer"
                         >
                             Account
                         </button>
 
-                        <button className="w-full py-2 text-blue-600 font-medium text-left cursor-pointer">
+                        <button className="w-full py-2 text-blue-300 font-medium text-left cursor-pointer">
                             Preferences
                         </button>
 
                         <button
                             onClick={onShowTerms}
-                            className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer"
+                            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer"
                         >
                             Terms of service
                         </button>
-                        
+
                         <button
                             onClick={onShowAbout}
-                            className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+                            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
                             About
                         </button>
                     </nav>
@@ -86,75 +99,99 @@ export default function DesktopPreference({ onClose, onProfileClick, onShowTerms
                 {/* Main content */}
                 <div className="flex-1 p-7 relative overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold text-[#1E1E1E]">THIS IS PREFERENCE PAGE</h2>
+                        <h2 className="text-xl font-semibold text-blue-300">Preferences</h2>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                             <X size={20} />
                         </button>
                     </div>
-                    <p className="text-sm text-gray-600 mb-6">
-                        Here&apos;s how we keep BaybayInscribe safe and respectful for everyone.
-                    </p>
 
-                    <div className="space-y-6">
-                        {/* Introduction */}
-                        <div className="space-y-2">
-                            <h3 className="flex items-center gap-2 font-medium">
-                                🟣 Introduction
-                            </h3>
-                            <div className="text-sm text-gray-600 pl-4 bg-neutral-white p-3 rounded-lg">
-                                By using our service, you&apos;re agreeing to these terms.
+                    {/* Language Section */}
+                    <div className="mb-8">
+                        <label className="block text-blue-300 font-semibold mb-2">Language</label>
+                        <select className="w-full bg-neutral-white border border-blue-200 rounded-lg p-2 text-blue-300">
+                            <option>System (Default)</option>
+                        </select>
+                    </div>
+
+                    {/* Sound Effects Section */}
+                    <div className="mb-8 mt-16">
+                        <h3 className="text-blue-300 font-bold mb-4">Sound Effects</h3>
+                        <div className="bg-neutral-white rounded-lg p-4 space-y-4 relative">
+                            <div className="flex items-center space-x-3 mb-4">
+                                <Switch
+                                    checked={soundEffects?.whaleSound}
+                                    onCheckedChange={() => handleSoundToggle('whaleSound')}
+                                    aria-label="Toggle whale sound"
+                                />
+                                <span className="text-blue-300">Enable Whale sound on success</span>
                             </div>
-                        </div>
 
-                        {/* User Responsibilities */}
-                        <div className="space-y-2">
-                            <h3 className="flex items-center gap-2 font-medium">
-                                🔵 User Responsibilities
-                            </h3>
-                            <div className="text-sm text-gray-600 pl-4 bg-neutral-white p-3 rounded-lg">
-                                <p>We encourage you to follow respectful rules.</p>
-                                <p>Please adhere to our community guidelines.</p>
+                            <div className="flex items-center space-x-3 mb-4">
+                                <Switch
+                                    checked={soundEffects?.buttonClicks}
+                                    onCheckedChange={() => handleSoundToggle('buttonClicks')}
+                                    aria-label="Toggle button click sounds"
+                                />
+                                <span className="text-blue-300">Enable Button Click sounds</span>
                             </div>
-                        </div>
 
-                        {/* Prohibited Behavior */}
-                        <div className="space-y-2">
-                            <h3 className="flex items-center gap-2 font-medium">
-                                🔴 Prohibited Behavior
-                            </h3>
-                            <div className="text-sm text-gray-600 pl-4 bg-neutral-white p-3 rounded-lg">
-                                Engaging in cheating, harassment, hate speech, impersonation, or any form of abusive or disruptive activity is strictly prohibited.
+                            <div className="flex items-center space-x-3">
+                                <Switch
+                                    checked={soundEffects?.muteAll}
+                                    onCheckedChange={() => handleSoundToggle('muteAll')}
+                                    aria-label="Toggle mute all sounds"
+                                />
+                                <span className="text-blue-300">Mute All sounds</span>
                             </div>
-                        </div>
-
-                        {/* Account and Data Handling */}
-                        <div className="space-y-2">
-                            <h3 className="flex items-center gap-2 font-medium">
-                                🟠 Account and Data Handling
-                            </h3>
-                            <div className="text-sm text-gray-600 pl-4 bg-neutral-white p-3 rounded-lg">
-                                Keep your account information secure. We&apos;ll notify you of changes regarding account policies and usage.
-                            </div>
-                        </div>
-
-                        {/* Termination */}
-                        <div className="space-y-2">
-                            <h3 className="flex items-center gap-2 font-medium">
-                                🟤 Termination
-                            </h3>
-                            <div className="text-sm text-gray-600 pl-4 bg-neutral-white p-3 rounded-lg">
-                                We may suspend or terminate accounts that violate our terms without prior notice.
-                            </div>
-                        </div>
-
-                        {/* Support Note */}
-                        <div className="text-sm text-gray-600 italic mt-8 mb-32">
-                            For any questions or concerns,<br />
-                            please contact support
+                            <Image
+                                src="/images/user.profile/butty.stand.png"
+                                alt="Butty mascot"
+                                width={120}
+                                height={60}
+                                className="hidden xs:block absolute -top-18 -right-8"
+                            />
                         </div>
                     </div>
 
+                    {/* Quiz Difficulty Section */}
+                    <div className="mb-8 mt-16">
+                        <h3 className="text-blue-300 font-bold mb-4">Quiz Difficulty</h3>
+                        <div className="bg-neutral-white rounded-lg p-4 space-y-4">
+                            <div className="relative w-full">
+                                <label className="flex items-start space-x-3 cursor-pointer mb-4">
+                                    <input type="radio" name="difficulty" className="mt-1" />
+                                    <div>
+                                        <div className="text-blue-300 font-medium">Balanced</div>
+                                        <div className="text-grey-300 text-sm">A mix of challenge and review</div>
+                                    </div>
+                                </label>
 
+                                <label className="flex items-start space-x-3 cursor-pointer mb-4">
+                                    <input type="radio" name="difficulty" className="mt-1" />
+                                    <div>
+                                        <div className="text-blue-300 font-medium">Easy Mode</div>
+                                        <div className="text-grey-700 text-sm">Chill, no pressure learning</div>
+                                    </div>
+                                </label>
+
+                                <label className="flex items-start space-x-3 cursor-pointer mb-4">
+                                    <input type="radio" name="difficulty" className="mt-1" />
+                                    <div>
+                                        <div className="text-blue-300 font-medium">Hardcore Mode</div>
+                                        <div className="text-grey-700 text-sm">No hints, timer on</div>
+                                    </div>
+                                </label>
+
+                                <Image
+                                    src="/images/user.profile/butty.thumbsup.png"
+                                    alt="Butty mascot"
+                                    width={120}
+                                    height={70}
+                                    className="hidden xs:block absolute -top-20 -right-15"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

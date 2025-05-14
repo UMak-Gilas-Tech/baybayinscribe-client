@@ -107,9 +107,9 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-blue-900 rounded-lg overflow-hidden">
       {/* Tabs */}
-      <div className="flex items-center justify-between border-b border-gray-200">
+      <div className="flex items-center justify-between">
         <div className="flex w-full">
           <button
             onClick={() => setIsSettingsVisible(false)}
@@ -125,6 +125,7 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             />
             Profile
           </button>
+
           <button
             onClick={() => setIsSettingsVisible(true)}
             className={`flex-1 py-3 text-center font-semibold cursor-pointer ${isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
@@ -192,19 +193,19 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       </div>
 
       {/* Account Info Section */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-4 ">
         <div className="relative w-full">
           <h3 className="font-semibold">Account Info </h3>
           <Image
             src="/images/user.profile/butty.stand.png"
-              alt="Butty mascot"
-              width={100}
-              height={70}
-              className="hidden xs:block absolute -top-8 -right-6"
+            alt="Butty mascot"
+            width={100}
+            height={70}
+            className="hidden xs:block absolute -top-8 -right-6"
           />
         </div>
-        
-        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+
+        <div className="p-4 rounded-lg space-y-3 bg-neutral-white">
           <div className="flex items-center">
             <Image
               src="/images/user.profile/phone.icon.png"
@@ -247,13 +248,13 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
           <h3 className="font-semibold">Auth Provider </h3>
           <Image
             src="/images/user.profile/butty.thumbsup.png"
-              alt="Butty mascot"
-              width={100}
-              height={70}
-              className="hidden xs:block absolute -top-6 -right-8"
+            alt="Butty mascot"
+            width={100}
+            height={70}
+            className="hidden xs:block absolute -top-6 -right-8"
           />
         </div>
-        <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+        <div className="bg-neutral-white p-4 rounded-lg space-y-3">
           {!currentUserData.authProviders?.length && (
             <div className="text-gray-500">No authentication providers linked</div>
           )}

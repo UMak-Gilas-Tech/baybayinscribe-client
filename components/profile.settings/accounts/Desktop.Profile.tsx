@@ -107,33 +107,33 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
       <div className="bg-black/50 fixed inset-0" onClick={onClose}></div>
-      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[850px] max-w-[100vw]">
+      <div className="relative bg-blue-900 rounded-lg shadow-lg flex min-w-[850px] max-w-[100vw]">
         {/* Left sidebar */}
-        <div className="w-[250px] p-4 border-r border-blue-500">
+        <div className="w-[250px] p-4 border-r border-blue-500 text-blue-300">
           <h2 className="text-xl font-semibold mb-6">Settings</h2>
 
           <nav className="space-y-1">
 
-            <button className="w-full py-2 text-blue-600 font-medium text-left cursor-pointer">
+            <button className="w-full py-2 text-blue-300 font-medium text-left cursor-pointer">
               Account
             </button>
 
             <button 
             onClick={onShowPreferences}
-            className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Preferences
             </button>
 
             <button
               onClick={onShowTerms}
-              className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer"
+              className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer"
             >
               Terms of service
             </button>
 
             <button
               onClick={onShowAbout}
-              className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+              className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               About
             </button>
           </nav>
@@ -245,7 +245,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+            <div className="bg-neutral-white p-4 rounded-lg space-y-2">
               <div className="flex items-center">
                 <Image
                   src="/images/user.profile/phone.icon.png"
@@ -299,7 +299,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+            <div className="bg-neutral-white p-4 rounded-lg space-y-3">
               {!currentUserData.authProviders?.length && (
                 <div className="text-gray-500">No authentication providers linked</div>
               )}

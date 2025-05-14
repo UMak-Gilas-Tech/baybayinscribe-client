@@ -158,7 +158,7 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
     };
 
     return (
-        <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-y-auto max-h-[90vh]">
+        <div className="w-full h-full flex flex-col bg-blue-900 rounded-lg overflow-y-auto max-h-[90vh]">
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200">
                 <div className="flex-1 py-3 text-center text-blue-600 font-semibold border-b-2 border-blue-600">

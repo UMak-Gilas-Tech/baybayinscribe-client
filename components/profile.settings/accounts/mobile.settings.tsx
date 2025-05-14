@@ -3,6 +3,7 @@
 import React from 'react';
 import { MobileTerms } from './terms/mobile.terms';
 import { MobileAbout } from './about/mobile.about';
+import { MobilePreference } from './preferences/mobile.preferences';
 
 interface MobileSettingsProps {
   onSignOut: () => void;
@@ -15,6 +16,7 @@ interface MobileSettingsProps {
 export default function MobileSettings({ onSignOut, isVisible, onClose, onProfileClick }: MobileSettingsProps) {
   const [showTerms, setShowTerms] = React.useState(false);
   const [showAbout, setShowAbout] = React.useState(false);
+  const [showPreferences, setShowPreferences] = React.useState(false);
 
   if (!isVisible) return null;
 
@@ -25,6 +27,11 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
 
   const handleAboutShow = () => {
     setShowAbout(true);
+    // Don't close settings here, let Terms component handle its own state
+  };
+
+  const handlePreferencesShow = () => {
+    setShowPreferences(true);
     // Don't close settings here, let Terms component handle its own state
   };
 
@@ -49,8 +56,9 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
           <div className="px-4 pb-4">
             <div className="text-center mb-4">
               <h3 className="text-2xl font-semibold text-blue-400">Settings</h3>
-            </div>            <div className="space-y-1 flex flex-col items-center">
-              <button 
+            </div>
+            <div className="space-y-1 flex flex-col items-center">
+              <button
                 className="w-full text-center py-3 text-blue-300 hover:text-blue-400 cursor-pointer"
                 onClick={handleAboutShow}
               >
@@ -63,7 +71,9 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
                 Terms of service
               </button>
 
-              <button className="w-full text-center py-3 text-blue-300 hover:text-blue-400 cursor-pointer">
+              <button
+                className="w-full text-center py-3 text-blue-300 hover:text-blue-400 cursor-pointer"
+                onClick={handlePreferencesShow}>
                 Preferences
               </button>
 
@@ -77,7 +87,7 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
           </div>
         </div>
       </div>
-        {showTerms && (
+      {showTerms && (
         <MobileTerms
           onClose={() => {
             setShowTerms(false);
@@ -101,6 +111,22 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
           }}
           onProfileClick={() => {
             setShowAbout(false);
+            onClose();
+            if (onProfileClick) {
+              onProfileClick();
+            }
+          }}
+        />
+      )}
+
+      {showPreferences && (
+        <MobilePreference
+          onClose={() => {
+            setShowPreferences(false);
+            onClose(); // Close settings when Terms is closed
+          }}
+          onProfileClick={() => {
+            setShowPreferences(false);
             onClose();
             if (onProfileClick) {
               onProfileClick();

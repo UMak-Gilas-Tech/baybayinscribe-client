@@ -209,23 +209,23 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2">
       <div className="bg-black/50 fixed inset-0" onClick={onClose}></div>
-      <div className="relative bg-white rounded-lg shadow-lg flex min-w-[900px] max-h-[90vh]">
+      <div className="relative bg-blue-900 rounded-lg shadow-lg flex min-w-[900px] max-h-[90vh]">
         
         {/* Left Sidebar */}
         <div className="w-[250px] p-4 border-r border-blue-500 overflow-y-auto">
           <h2 className="text-xl font-semibold mb-6">Settings</h2>
 
           <nav className="space-y-1">
-            <button className="w-full py-2 text-blue-600 font-medium text-left cursor-pointer">
+            <button className="w-full py-2 text-blue-300 font-medium text-left cursor-pointer">
               Account
             </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+            <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Preferences
             </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+            <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Terms of service
             </button>
-            <button className="w-full py-2 text-gray-700 hover:text-blue-600 text-left cursor-pointer">
+            <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               About
             </button>
           </nav>
