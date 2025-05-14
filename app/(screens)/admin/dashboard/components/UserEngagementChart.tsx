@@ -27,7 +27,7 @@ export function UserEngagementChart({
   setFilter,
 }: UserEngagementChartProps) {
   return (
-    <Card className="mt-6 w-full h-full rounded-2xl shadow-none border-grey-300 bg-neutral-white">
+    <Card className="mt-6 w-full rounded-2xl shadow-none border-grey-300 bg-neutral-white">
       <CardHeader className="pb-2 flex flex-row items-start justify-between">
         <div>
           <CardTitle className="text-blue-950 text-xl font-semibold font-sans leading-8">

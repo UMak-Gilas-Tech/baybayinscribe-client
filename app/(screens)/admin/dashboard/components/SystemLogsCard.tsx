@@ -15,10 +15,10 @@ interface SystemLogsCardProps {
 
 export function SystemLogsCard({ logs }: SystemLogsCardProps) {
   return (
-    <Card className="py-2 h-full max-h-[375px] border-grey-300 border-1 bg-[hsla(225, 65%, 52%, 0.5)] overflow-hidden">
-      <CardContent className="p-0">
-        <ScrollArea className="h-[350px] scroll-smooth">
-          <div className="flex flex-col gap-2 p-4 pb-6">
+    <Card className="py-3 h-[265px] xl:h-[408px] border-grey-300 border-1 bg-neutral-white/50 overflow-hidden">
+      <CardContent className="p-0 h-full">
+        <ScrollArea className="h-full scroll-smooth">
+          <div className="flex flex-col gap-2 p-4 pb-1">
             {logs.map((log, i) => (
               <div
                 key={i}

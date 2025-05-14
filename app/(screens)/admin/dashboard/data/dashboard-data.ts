@@ -63,23 +63,148 @@ export const systemLogsData: Log[] = [
   },
   {
     type: "warning",
-    message: "High number of login attempt is detected",
-    time: "10:24 AM 04-26-2025",
+    message: "High number of login attempts detected from IP 192.168.1.1",
+    time: "10:25 AM 04-26-2025",
   },
   {
     type: "error",
-    message: "User @Baybyein deleted its account",
-    time: "10:24 AM 04-26-2025",
+    message: "Database connection timeout - Retrying...",
+    time: "10:26 AM 04-26-2025",
   },
   {
     type: "success",
-    message: 'Success: "Lesson 4 published"',
-    time: "10:24 AM 04-26-2025",
+    message: "System backup completed successfully",
+    time: "10:27 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "User @MariaCruz updated profile settings",
+    time: "10:28 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "Storage usage above 80% threshold",
+    time: "10:29 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "Failed to process payment for user @JohnDoe",
+    time: "10:30 AM 04-26-2025",
   },
   {
     type: "success",
-    message: "Sample success message here",
-    time: "10:24 AM 04-26-2025",
+    message: "New lesson 'Basic Baybayin' published",
+    time: "10:31 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "System maintenance scheduled for 2:00 PM",
+    time: "10:32 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "Unusual activity detected in user @Admin account",
+    time: "10:33 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "API rate limit exceeded for endpoint /users",
+    time: "10:34 AM 04-26-2025",
+  },
+  {
+    type: "success",
+    message: "User @SarahLee completed all beginner lessons",
+    time: "10:35 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "New comment posted on Lesson 3",
+    time: "10:36 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "Memory usage approaching critical level",
+    time: "10:37 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "Failed to send email notification to @User123",
+    time: "10:38 AM 04-26-2025",
+  },
+  {
+    type: "success",
+    message: "System update v2.1.0 deployed successfully",
+    time: "10:39 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "New feedback submitted by @TeacherMike",
+    time: "10:40 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "Multiple failed login attempts from unknown IP",
+    time: "10:41 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "Cache synchronization failed",
+    time: "10:42 AM 04-26-2025",
+  },
+  {
+    type: "success",
+    message: "User @BaybayinMaster achieved expert level",
+    time: "10:43 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "New content moderator @Moderator1 assigned",
+    time: "10:44 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "SSL certificate expiring in 30 days",
+    time: "10:45 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "Failed to generate PDF report for @Student123",
+    time: "10:46 AM 04-26-2025",
+  },
+  {
+    type: "success",
+    message: "New language pack 'Tagalog' added successfully",
+    time: "10:47 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "User @HistoryBuff completed 100 lessons",
+    time: "10:48 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "Database query performance degraded",
+    time: "10:49 AM 04-26-2025",
+  },
+  {
+    type: "error",
+    message: "Failed to upload user avatar for @NewUser",
+    time: "10:50 AM 04-26-2025",
+  },
+  {
+    type: "success",
+    message: "New feature 'Practice Mode' enabled",
+    time: "10:51 AM 04-26-2025",
+  },
+  {
+    type: "info",
+    message: "System scan completed - No threats detected",
+    time: "10:52 AM 04-26-2025",
+  },
+  {
+    type: "warning",
+    message: "High CPU usage detected on server",
+    time: "10:53 AM 04-26-2025",
   },
 ];
 
