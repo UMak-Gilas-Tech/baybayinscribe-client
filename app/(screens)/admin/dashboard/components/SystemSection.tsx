@@ -6,11 +6,13 @@ import { systemHealthData, systemLogsData } from "../data/dashboard-data";
 interface SystemSectionProps {
   systemHealth: typeof systemHealthData;
   systemLogs: typeof systemLogsData;
+  showSkeleton?: boolean;
 }
 
 export function SystemSection({
   systemHealth,
   systemLogs,
+  showSkeleton = false,
 }: SystemSectionProps) {
   return (
     <section className="flex flex-col gap-6">
@@ -35,7 +37,7 @@ export function SystemSection({
             System-Generated Logs
           </h2>
         </header>
-        <SystemLogsCard logs={systemLogs} />
+        <SystemLogsCard logs={systemLogs} showSkeleton={showSkeleton} />
       </article>
     </section>
   );

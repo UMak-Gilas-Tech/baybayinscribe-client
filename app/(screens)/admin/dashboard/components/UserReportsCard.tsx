@@ -28,24 +28,40 @@ interface Report {
 interface UserReportsCardProps {
   reports: Report[];
   className?: string;
+  showSkeleton?: boolean;
 }
 
 export function UserReportsCard({
-  reports: initialReports,
+  reports,
   className,
+  showSkeleton = false,
 }: UserReportsCardProps) {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [reports, setReports] = useState<Report[]>(initialReports);
 
   const handleView = (report: Report) => {
     setSelectedReport(report);
     setIsDialogOpen(true);
   };
 
-  const handleDismiss = (report: Report) => {
-    setReports((prevReports) => prevReports.filter((r) => r !== report));
-    toast.success("Report dismissed successfully");
+  const handleDismiss = async (report: Report) => {
+    try {
+      // Sample implementation - in real app, this would be an API call
+      console.log(`Dismissing report: ${report.type} - ${report.name}`);
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Show success message with report details
+      toast.success(`Report dismissed: ${report.type} - ${report.name}`, {
+        description: `Reported by ${report.reporter} on ${report.date}`,
+      });
+    } catch (error) {
+      console.error("Error dismissing report:", error);
+      toast.error("Failed to dismiss report", {
+        description: "Please try again later",
+      });
+    }
   };
 
   return (
@@ -56,9 +72,9 @@ export function UserReportsCard({
         }`}
       >
         <div className="flex-1 w-full overflow-x-auto rounded-lg border border-slate-500">
-          <Table className="min-w-full ">
+          <Table className="min-w-full">
             <TableHeader>
-              <TableRow className="bg-neutral-white border-b border-grey-300 ">
+              <TableRow className="bg-neutral-white border-b border-grey-300">
                 <TableHead className="p-3 pl-4 text-blue-950 text-lg font-medium">
                   Type
                 </TableHead>
@@ -80,7 +96,36 @@ export function UserReportsCard({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.length === 0 ? (
+              {showSkeleton ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <TableRow
+                    key={i}
+                    className="border-b border-grey-300 animate-pulse"
+                  >
+                    <TableCell className="pl-4 pr-3 py-3">
+                      <div className="h-4 bg-blue-200/50 rounded w-20" />
+                    </TableCell>
+                    <TableCell className="p-3">
+                      <div className="h-4 bg-blue-200/50 rounded w-32" />
+                    </TableCell>
+                    <TableCell className="p-3">
+                      <div className="h-4 bg-blue-200/50 rounded w-48" />
+                    </TableCell>
+                    <TableCell className="p-3">
+                      <div className="h-4 bg-blue-200/50 rounded w-24" />
+                    </TableCell>
+                    <TableCell className="p-3">
+                      <div className="h-4 bg-blue-200/50 rounded w-28" />
+                    </TableCell>
+                    <TableCell className="p-3">
+                      <div className="flex gap-2">
+                        <div className="h-8 bg-blue-200/50 rounded w-16" />
+                        <div className="h-8 bg-blue-200/50 rounded w-16" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : reports.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center text-blue-100">
@@ -122,7 +167,7 @@ export function UserReportsCard({
                     <TableCell className="p-3 flex gap-2 min-w-[120px]">
                       <Button
                         size="sm"
-                        className="flex-1 px-2 py-1 bg-blue-400 rounded-md  border-2 border-blue-500 text-blue-900 text-base"
+                        className="flex-1 px-2 py-1 bg-blue-400 rounded-md border-2 border-blue-500 text-blue-900 text-base"
                         onClick={() => handleView(report)}
                       >
                         View
@@ -130,7 +175,7 @@ export function UserReportsCard({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 px-2 py-1 rounded-md  border-2 border-blue-950 text-blue-950 hover:bg-red-200 hover:text-red-900  text-base bg-transparent"
+                        className="flex-1 px-2 py-1 rounded-md border-2 border-blue-950 text-blue-950 hover:bg-red-200 hover:text-red-900 text-base bg-transparent"
                         onClick={() => handleDismiss(report)}
                       >
                         Dismiss

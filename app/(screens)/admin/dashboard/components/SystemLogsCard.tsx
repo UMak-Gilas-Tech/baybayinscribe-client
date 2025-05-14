@@ -12,13 +12,17 @@ interface Log {
 
 interface SystemLogsCardProps {
   logs: Log[];
+  showSkeleton?: boolean;
 }
 
-export function SystemLogsCard({ logs: initialLogs }: SystemLogsCardProps) {
-  const [logs, setLogs] = useState<Log[]>(initialLogs);
+export function SystemLogsCard({
+  logs,
+  showSkeleton = false,
+}: SystemLogsCardProps) {
+  const [logsState, setLogsState] = useState<Log[]>(logs);
 
   const handleRemoveLog = (index: number) => {
-    setLogs((prevLogs) => prevLogs.filter((_, i) => i !== index));
+    setLogsState((prevLogs) => prevLogs.filter((_, i) => i !== index));
     toast.success("Log removed successfully");
   };
 
@@ -27,7 +31,19 @@ export function SystemLogsCard({ logs: initialLogs }: SystemLogsCardProps) {
       <CardContent className="p-0 h-full">
         <ScrollArea className="h-full scroll-smooth">
           <div className="flex flex-col gap-2 p-4 pb-1">
-            {logs.length === 0 ? (
+            {showSkeleton ? (
+              // Skeleton loading state
+              Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 p-2 rounded bg-blue-50/50 border border-blue-100/50 w-full animate-pulse"
+                >
+                  <div className="w-4 h-4 rounded-full bg-blue-200/50" />
+                  <div className="flex-1 h-4 bg-blue-200/50 rounded" />
+                  <div className="w-16 h-3 bg-blue-200/50 rounded" />
+                </div>
+              ))
+            ) : logsState.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[200px] text-blue-100">
                 <p className="text-lg font-medium">No System Logs</p>
                 <p className="text-sm text-blue-200/80">
@@ -35,7 +51,7 @@ export function SystemLogsCard({ logs: initialLogs }: SystemLogsCardProps) {
                 </p>
               </div>
             ) : (
-              logs.map((log, i) => (
+              logsState.map((log, i) => (
                 <div
                   key={i}
                   className="group flex items-center gap-2 p-2 rounded bg-blue-50 border border-blue-100 w-full relative hover:bg-blue-400/15 transition-all duration-200 ease-in-out hover:shadow-sm hover:scale-[1.01] hover:-translate-y-0.5"
