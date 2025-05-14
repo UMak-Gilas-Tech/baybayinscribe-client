@@ -46,7 +46,12 @@ export default function AdminDashboardContent() {
       </div>
 
       {/* User-Generated Flag & Reports */}
-      <UserReportsCard reports={userReportsData} />
+      <div>
+        <h2 className="text-blue-950 text-2xl font-semibold font-sans leading-loose text-left">
+          User-Generated Flag & Reports
+        </h2>
+        <UserReportsCard reports={userReportsData} />
+      </div>
     </div>
   );
 }

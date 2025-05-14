@@ -219,25 +219,68 @@ export interface Report {
 
 export const userReportsData: Report[] = [
   {
-    type: "Lesson",
-    name: "Baybayin Kudlit",
-    issue: "Confusing Instruction",
-    reporter: "@Miga",
-    date: "04/26/2025",
+    type: "Content",
+    name: "Basic Baybayin Lesson 3",
+    issue:
+      "The pronunciation guide for 'Ka' is incorrect. It shows 'Ga' instead of 'Ka' in the audio examples.",
+    reporter: "@MariaCruz",
+    date: "2024-03-26 10:24 AM",
   },
   {
-    type: "General",
-    name: "—",
-    issue: "Bug Report",
-    reporter: "@Ja_mal",
-    date: "04/26/2025",
+    type: "Technical",
+    name: "Practice Writing Tool",
+    issue:
+      "The stroke recognition is not working properly for complex characters. It fails to recognize 'Ng' when written in cursive style.",
+    reporter: "@BaybayinMaster",
+    date: "2024-03-26 09:15 AM",
   },
   {
-    type: "Quiz",
-    name: "Baybayin Kudlit Quiz",
-    issue: "Incorrect Answer",
-    reporter: "@Jamantoin3t",
-    date: "04/26/2025",
+    type: "Content",
+    name: "History of Baybayin",
+    issue:
+      "There's a historical inaccuracy in the timeline. The Spanish colonization period is listed as 1521-1898, but Baybayin was still used until early 1900s.",
+    reporter: "@HistoryBuff",
+    date: "2024-03-25 03:45 PM",
+  },
+  {
+    type: "Technical",
+    name: "Mobile App",
+    issue:
+      "The app crashes when trying to save progress in offline mode. Error occurs specifically when the device has less than 20% battery.",
+    reporter: "@MobileUser123",
+    date: "2024-03-25 02:30 PM",
+  },
+  {
+    type: "Content",
+    name: "Advanced Writing Exercises",
+    issue:
+      "The exercise 'Combining Characters' has incorrect answers marked as correct. Specifically in the 'Ma' + 'Ya' combination.",
+    reporter: "@TeacherMike",
+    date: "2024-03-25 11:20 AM",
+  },
+  {
+    type: "Technical",
+    name: "AI Translator",
+    issue:
+      "The AI translator is incorrectly translating modern Tagalog words into Baybayin. It's using ancient forms for modern terms.",
+    reporter: "@LinguistPro",
+    date: "2024-03-24 04:15 PM",
+  },
+  {
+    type: "Content",
+    name: "Cultural Context Module",
+    issue:
+      "The section about Baybayin in different regions lacks information about the Visayan variants. Should include more about the different styles.",
+    reporter: "@CulturalExpert",
+    date: "2024-03-24 01:30 PM",
+  },
+  {
+    type: "Technical",
+    name: "Progress Tracking",
+    issue:
+      "The progress bar is not updating correctly after completing lessons. Shows 100% completion even when some exercises are incomplete.",
+    reporter: "@Student123",
+    date: "2024-03-23 09:45 AM",
   },
 ];
 

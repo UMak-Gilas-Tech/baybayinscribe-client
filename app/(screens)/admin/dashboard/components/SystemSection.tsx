@@ -16,8 +16,8 @@ export function SystemSection({
     <section className="flex flex-col gap-6">
       <article>
         <header className="flex xl:flex-row gap-2 items-center mb-2">
-          <figure className="p-1 bg-blue-700/30 rounded-xl inline-flex justify-start items-center">
-            <HeartPulse strokeWidth={1.5} className="w-9 h-9" />
+          <figure className="p-1.5 bg-blue-700/30 rounded-xl inline-flex justify-start items-center">
+            <HeartPulse strokeWidth={1.5} className="w-7 h-7" />
           </figure>
           <h2 className="text-blue-950 text-2xl font-semibold font-sans leading-loose text-left">
             System Health
@@ -27,9 +27,9 @@ export function SystemSection({
       </article>
 
       <article>
-        <header className="flex xl:flex-row gap-2 items-center">
-          <figure className="p-1 bg-blue-700/30 rounded-xl inline-flex justify-start items-center">
-            <ListIcon strokeWidth={1.5} className="w-9 h-9" />
+        <header className="flex xl:flex-row gap-2 items-center mb-2">
+          <figure className="p-1.5 bg-blue-700/30 rounded-xl inline-flex justify-start items-center">
+            <ListIcon strokeWidth={1.5} className="w-7 h-7" />
           </figure>
           <h2 className="text-blue-950 text-2xl font-semibold font-sans leading-loose text-left">
             System-Generated Logs
