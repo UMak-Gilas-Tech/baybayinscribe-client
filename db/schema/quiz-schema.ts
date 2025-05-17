@@ -8,6 +8,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { user } from "./auth-schema";
 
 export const quizDifficultyEnum = pgEnum("quiz_difficulty", [
   "Easy",
@@ -17,6 +18,7 @@ export const quizDifficultyEnum = pgEnum("quiz_difficulty", [
 
 export const QuizSchema = pgTable("quiz", {
   id: uuid("id").primaryKey(),
+  created_by: text("created_by").references(() => user.id),
 });
 
 export const metadata = pgTable("metadata", {
@@ -25,6 +27,7 @@ export const metadata = pgTable("metadata", {
     .references(() => QuizSchema.id, { onDelete: "cascade" }),
   quiz_name: text("quiz_name").notNull(),
   description: text("description"),
+  is_public: boolean("is_public").default(false),
   difficulty: quizDifficultyEnum("difficulty").notNull(),
   category: text("category").notNull(),
   time_limit: integer("time_limit").notNull(),

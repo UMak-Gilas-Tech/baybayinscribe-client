@@ -5,7 +5,7 @@ import {
   metadata,
   quiz_question,
 } from "../../../db/schema/quiz-schema";
-import db from "../../../db";
+import db from "@/db/drizzle";
 import { Quiz } from "../../../types/type.quiz";
 
 export const dynamic = "force-static";
@@ -13,8 +13,13 @@ export const dynamic = "force-static";
 async function saveQuizToDB(quiz: Quiz) {
   const quizId = crypto.randomUUID();
 
+  console.log(quiz)
+
   // Insert master quiz record
-  await db.insert(QuizSchema).values({ id: quizId });
+  await db.insert(QuizSchema).values({ 
+    id: quizId,
+    created_by: "" // Add a default created_by value or pass from the request
+  });
 
   // Insert quiz metadata record
   await db.insert(metadata).values({

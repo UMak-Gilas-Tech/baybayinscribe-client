@@ -1,8 +1,12 @@
-"use server"
+"use server";
 
 import { NextResponse } from "next/server";
-import db from "../../../../../db";
-import { QuizSchema, metadata, quiz_question } from "../../../../../db/schema/quiz-schema";
+import db from "@/db/drizzle";
+import {
+  QuizSchema,
+  metadata,
+  quiz_question,
+} from "@/db/schema/quiz-schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(
@@ -24,7 +28,7 @@ export async function GET(
   // Execute metadata and question queries concurrently
   const [metadataRecords, questions] = await Promise.all([
     db.select().from(metadata).where(eq(metadata.quiz_id, quiz_id)).limit(1),
-    db.select().from(quiz_question).where(eq(quiz_question.quiz_id, quiz_id))
+    db.select().from(quiz_question).where(eq(quiz_question.quiz_id, quiz_id)),
   ]);
   const meta = metadataRecords.length ? metadataRecords[0] : null;
 
