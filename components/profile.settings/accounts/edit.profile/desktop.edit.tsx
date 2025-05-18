@@ -84,7 +84,7 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           profilePicture: "File size too large. Maximum size is 4MB."
         }));
         return;
-      }      // Create temporary URL for preview
+      } // Create temporary URL for preview
       setProfileImage(URL.createObjectURL(file));
 
       try {
