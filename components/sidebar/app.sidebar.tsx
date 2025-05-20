@@ -2,15 +2,14 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
-  SquareTerminal,
+  Languages,
+  ScanText,
+  PencilRuler,
+  BotMessageSquare,
+  BookOpenText,
+  ListTodo,
+  UserCog,
   Settings2,
 } from "lucide-react"
 
@@ -38,51 +37,41 @@ const data = {
       logo: GalleryVerticalEnd,
       plan: "User Role Here",
     },
-    {
-      name: "Username 2 Here",
-      logo: AudioWaveform,
-      plan: "Usere Role 2 Here",
-    },
-    {
-      name: "Username 3 Here",
-      logo: Command,
-      plan: "User Role 3 Here",
-    },
   ],
   navMain: [
     {
-      title: "Text AI (Fil To Baybayin)",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Text to Baybayin",
+      url: "/transliterator",
+      icon: Languages,
     },
     {
-      title: "Scanner AI",
-      url: "#",
-      icon: Bot,
+      title: "Baybayin Scanner",
+      url: "/ai/vision",
+      icon: ScanText,
       isActive: true,
     },
     {
-      title: "Sketch",
-      url: "#",
-      icon: BookOpen,
+      title: "Baybayin Sketch",
+      url: "/ai/sketch",
+      icon: PencilRuler,
     },
 
     {
-      title: "Chat AI",
-      url: "#",
-      icon: Settings2,
+      title: "Baybayin Chat",
+      url: "/ai/chat",
+      icon: BotMessageSquare,
     },
   ],
   projects: [
     {
-      name: "Learning",
+      name: "Lessons",
       url: "#",
-      icon: Frame,
+      icon: BookOpenText,
     },
     {
-      name: "AI Quiz",
+      name: "Quiz",
       url: "#",
-      icon: PieChart,
+      icon: ListTodo,
     },
   ],
 }
@@ -133,19 +122,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const projects1 = [
     {
-      name: "Edit Profile",
+      name: "Profile",
       action: openProfileModal,
-      icon: Frame,
+      icon: UserCog,
     },
     {
-      name: "App Settings",
+      name: "Settings",
       url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "General",
-      url: "/testdrive",
-      icon: Map,
+      icon: Settings2,
     },
   ];
   

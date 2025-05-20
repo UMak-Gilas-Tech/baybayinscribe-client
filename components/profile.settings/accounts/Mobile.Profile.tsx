@@ -272,84 +272,50 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
         </div>
       </div>
 
-      {/* Auth Provider Section */}
-      <div className="px-4 mb-4 mt-8">
-        <div className="relative w-full">
-          <h3 className="font-semibold">Auth Provider </h3>
-          <Image
-            src="/images/user.profile/butty.thumbsup.png"
-            alt="Butty mascot"
-            width={100}
-            height={70}
-            className="hidden xs:block absolute -top-6 -right-8"
-          />
-        </div>
-        <div className="bg-neutral-white p-4 rounded-lg space-y-3">
-          {!currentUserData.authProviders?.length && (
-            <div className="text-gray-500">No authentication providers linked</div>
-          )}
-          {currentUserData.authProviders?.map((provider, index) => (
-            <div key={`${provider.name}-${index}`} className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Image
-                  src={`/images/user.profile/${provider.name.toLowerCase()}.icon.account.png`}
-                  alt={provider.name}
-                  width={20}
-                  height={20}
-                  className="mr-3"
+      {/* Delete Account*/}
+      <div className="mt-2 p-2">
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="flex items-center text-red-600 hover:text-red-500 py-2 cursor-pointer">
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6H5H21"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-                <span>{provider.name} Linked</span>
-              </div>
-              <button className="text-red-600 text-sm">Unlink</button>
-            </div>
-          ))}
-
-          {/* Delete Account*/}
-          <div className="mt-2">
-            <Dialog>
+                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Delete Account
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Account</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete your account? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-3">
+              <button onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Yes, delete my account"}
+              </button>
               <DialogTrigger asChild>
-                <button className="flex items-center text-red-600 hover:text-red-500 py-2 cursor-pointer">
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 6H5H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Delete Account
+                <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+                  No, nevermind
                 </button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Delete Account</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to delete your account? This action cannot be undone.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex justify-end gap-3">
-                  <button onClick={handleDeleteAccount}
-                    disabled={isDeleting}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50"
-                  >
-                    {isDeleting ? "Deleting..." : "Yes, delete my account"}
-                  </button>
-                  <DialogTrigger asChild>
-                    <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
-                      No, nevermind
-                    </button>
-                  </DialogTrigger>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       {/* Log out button */}
       <div className="mt-auto p-4 border-gray-200 border-t">

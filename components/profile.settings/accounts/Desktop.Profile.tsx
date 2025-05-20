@@ -124,6 +124,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
     }
   };
 
+
   if (isEditing && !onEdit) {
     return (
       <DesktopEditProfile
@@ -257,7 +258,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
 
           {/* User Profile */}
           <div className="flex items-center mb-4">
-            <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
+            <div className="h-20 w-20 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <Image
                 src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
                 alt="User Profile"
@@ -284,7 +285,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
           </div>
 
           {/* Account Info */}
-          <div className="mb-6 mt-6">
+          <div className="mb-6 mt-20">
             <div className="flex justify-between items-center">
               <div className="relative w-full">
                 <h3 className="font-semibold">Account Info</h3>
@@ -337,42 +338,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
             </div>
           </div>
 
-          {/* Auth Provider */}
-          <div className="mb-6 mt-16">
-            <div className="flex justify-between items-center mb-1">
-              <div className="relative w-full">
-                <h3 className="font-semibold">Auth Provider </h3>
-                <Image
-                  src="/images/user.profile/butty.thumbsup.png"
-                  alt="Butty mascot"
-                  width={120}
-                  height={70}
-                  className="hidden xs:block absolute -top-8 -right-12"
-                />
-              </div>
-            </div>
 
-            <div className="bg-neutral-white p-4 rounded-lg space-y-3">
-              {!currentUserData.authProviders?.length && (
-                <div className="text-gray-500">No authentication providers linked</div>
-              )}
-              {currentUserData.authProviders?.map((provider, index) => (
-                <div key={`${provider.name}-${index}`} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Image
-                      src={`/images/user.profile/${provider.name.toLowerCase()}.icon.account.png`}
-                      alt={provider.name}
-                      width={20}
-                      height={20}
-                      className="mr-3"
-                    />
-                    <span>{provider.name} Linked</span>
-                  </div>
-                  <button className="text-red-600 text-sm">Unlink</button>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* Butty mascot at bottom */}
           <div className="absolute bottom-0 right-0">

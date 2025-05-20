@@ -26,7 +26,7 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild tooltip={item.name}>
-              <a href={item.url} className="flex items-center">
+              <a href={item.url} className="flex items-center cursor-pointer">
                 <item.icon className="shrink-0" /> {/* Icon */}
                 <span className="ml-2 group-data-[collapsible=icon]:hidden">
                   {item.name}
@@ -52,7 +52,7 @@ export function NavProjects1({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Profile/Settings</SidebarGroupLabel>
+      <SidebarGroupLabel>Settings</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
@@ -60,7 +60,7 @@ export function NavProjects1({
               {item.action ? (
                 <button
                   onClick={item.action}
-                  className="flex items-center"
+                  className="flex items-center cursor-pointer"
                 >
                   <item.icon className="shrink-0" />
                   <span className="ml-2 group-data-[collapsible=icon]:hidden">
@@ -68,7 +68,7 @@ export function NavProjects1({
                   </span>
                 </button>
               ) : (
-                <a href={item.url} className="flex items-center">
+                <a href={item.url} className="flex items-center cursor-pointer">
                   <item.icon className="shrink-0" />
                   <span className="ml-2 group-data-[collapsible=icon]:hidden">
                     {item.name}
