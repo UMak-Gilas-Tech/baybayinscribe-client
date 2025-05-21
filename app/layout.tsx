@@ -47,6 +47,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Toaster richColors />
         <SidebarProvider>
           {!isLoginPage && (
             <div className="flex flex-col h-screen">

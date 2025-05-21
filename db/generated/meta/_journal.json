@@ -29,6 +29,20 @@
       "when": 1747463098897,
       "tag": "0003_careful_nicolaos",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1747535146757,
+      "tag": "0004_brief_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747536456982,
+      "tag": "0005_even_echo",
+      "breakpoints": true
     }
   ]
 }

@@ -11,10 +11,14 @@ type LearningResourceStore = {
 
   createLesson: (
     lessonName: string,
-    lessonDescription: string
-  ) => Promise<void>;
-  getLesson: (lessonId: string) => Promise<void>;
-  getLessons: () => Promise<void>;
+    lessonDescription: string,
+    created_by: string,
+    isLessonVisible?: boolean
+  ) => Promise<LearningResource | any>;
+  getLesson: (
+    lessonId: string
+  ) => Promise<(LearningResource & { file?: any }) | any>;
+  getLessons: (userId: string) => Promise<void>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
 };
@@ -26,7 +30,12 @@ export const useLearningResourceStore = create<LearningResourceStore>(
     error: undefined,
     status: "Idle",
 
-    createLesson: async (lessonName, lessonDescription) => {
+    createLesson: async (
+      lessonName,
+      lessonDescription,
+      created_by,
+      isLessonVisible
+    ) => {
       set({ status: "Loading" });
       try {
         const lessonCreateRequest = await fetch("/api/lessons/create", {
@@ -34,6 +43,8 @@ export const useLearningResourceStore = create<LearningResourceStore>(
           body: JSON.stringify({
             title: lessonName,
             description: lessonDescription,
+            created_by: created_by,
+            is_visible: isLessonVisible,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -45,31 +56,48 @@ export const useLearningResourceStore = create<LearningResourceStore>(
         }
 
         set({ status: "Loaded" });
+
+        return await lessonCreateRequest.json();
       } catch (error) {
         set({ error: (error as Error).message, status: "Error" });
       }
     },
     getLesson: async (lessonId) => {
       set({ status: "Loading" });
-
-      const lessonGetRequest = await fetch(`/api/lessons/${lessonId}`);
-      if (!lessonGetRequest.ok) {
-        set({ error: "Lesson not found" });
-        return;
+      try {
+        const lessonGetRequest = await fetch(`/api/lessons/${lessonId}`);
+        if (!lessonGetRequest.ok) {
+          set({ error: "Lesson not found", status: "Error" });
+          return;
+        }
+        const lessonData = await lessonGetRequest.json();
+        console.log("Lesson data:", lessonData);
+        set({ lesson: lessonData, status: "Loaded" });
+        return lessonData;
+      } catch (error) {
+        set({ error: (error as Error).message, status: "Error" });
       }
-      const lessonData = await lessonGetRequest.json();
-      set({ lesson: lessonData, status: "Loaded" });
     },
-    getLessons: async () => {
+    getLessons: async (userId) => {
       set({ status: "Loading" });
-
-      const lessonsGetAll = await fetch("/api/lessons/getAll");
-      if (!lessonsGetAll.ok) {
-        set({ error: "Failed to fetch lessons" });
-        return;
+      try {
+        const lessonsGetAll = await fetch("/api/lessons/my", {
+          method: "POST",
+          body: JSON.stringify({ userId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!lessonsGetAll.ok) {
+          set({ error: "Failed to fetch lessons", status: "Error" });
+          return;
+        }
+        const lessonsData = await lessonsGetAll.json();
+        set({ lessons: lessonsData, status: "Loaded" });
+        return lessonsData;
+      } catch (error) {
+        set({ error: (error as Error).message, status: "Error" });
       }
-      const lessonsData = await lessonsGetAll.json();
-      set({ lessons: lessonsData, status: "Loaded" });
     },
     updateLesson: async (lesson) => {
       set({ status: "Loading" });

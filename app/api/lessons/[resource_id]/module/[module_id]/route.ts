@@ -11,5 +11,7 @@ export async function GET(
   const result = await useModuleStore
     .getState()
     .getModule(resource_id, module_id);
+
+    console.log("Module data:", result);
   return NextResponse.json(result, { status: 200 });
 }

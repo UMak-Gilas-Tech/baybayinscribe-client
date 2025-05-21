@@ -4,6 +4,7 @@ import { file } from "./file-schema";
 export const learningResource = pgTable("learning_resource", {
   id: uuid("id").primaryKey(),
   title: text("title").notNull(),
+  created_by: text("created_by").notNull(),
   description: text("description").notNull(),
   is_visible: boolean("is_visible").notNull().default(false),
   createdAt: timestamp("created_at").notNull(),

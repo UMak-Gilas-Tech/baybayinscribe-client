@@ -1,9 +1,12 @@
+import axios from "@/lib/axios";
+import { Status } from "@/types/type.loading";
 import { create } from "zustand";
 
 interface ModuleState {
-  // current module data, extend the type as needed
   module?: any;
+  modules?: any[];
   error?: string;
+  status?: Status;
   getModule: (resourceId: string, moduleId: string) => Promise<void>;
   createModule: (params: {
     resourceId: string;
@@ -32,17 +35,18 @@ interface ModuleState {
 
 export const useModuleStore = create<ModuleState>((set) => ({
   module: null,
+  modules: [],
   error: undefined,
+  status: undefined,
   getModule: async (resourceId, moduleId) => {
     try {
-      const res = await fetch(`/api/lessons/${resourceId}/module/${moduleId}`);
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      set({ module: data, error: undefined });
+      set({ status: "Loading" });
+      const res = await axios.post(`lessons/${resourceId}/module/${moduleId}`);
+      const data = res.data;
+      console.log("Module data:", data);
+      set({ module: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
   createModule: async ({
@@ -52,6 +56,7 @@ export const useModuleStore = create<ModuleState>((set) => ({
     file,
   }) => {
     try {
+      set({ status: "Loading" });
       const formData = new FormData();
       formData.append("module_title", module_title);
       formData.append("module_description", module_description);
@@ -59,70 +64,59 @@ export const useModuleStore = create<ModuleState>((set) => ({
         formData.append("file", file);
       }
 
-      const res = await fetch(`/api/lessons/${resourceId}/module/create`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      set({ module: data, error: undefined });
+      const res = await axios.post(
+        `lessons/${resourceId}/module/create`,
+        formData
+      );
+      const data = res.data;
+      set({ module: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
   deleteModule: async ({ resourceId, moduleId }) => {
     try {
-      const res = await fetch(
-        `/api/lessons/${resourceId}/module/${moduleId}/delete`,
-        {
-          method: "DELETE",
-        }
+      set({ status: "Loading" });
+      await axios.delete(
+        `lessons/${resourceId}/module/${moduleId}/delete`
       );
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      set({ module: null, error: undefined });
+      set({ module: null, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
   getModules: async (resourceId) => {
     try {
-      const res = await fetch(`/api/lessons/${resourceId}/modules`);
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      set({ module: data, error: undefined });
+      set({ status: "Loading" });
+      const res = await axios.get(`lessons/${resourceId}/modules`);
+      const data = res.data;
+      set({ modules: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
   updateModuleFile: async ({ resourceId, moduleId, file, existingFileId }) => {
     try {
-      // assemble form data. Send file and, if provided, the existing file id.
+      set({ status: "Loading" });
       const formData = new FormData();
       formData.append("file", file);
       if (existingFileId) {
         formData.append("existingFileId", existingFileId);
       }
 
-      const res = await fetch(
-        `/api/lessons/${resourceId}/module/${moduleId}/update`,
+      const res = await axios.put(
+        `lessons/${resourceId}/module/${moduleId}/update`,
+        formData,
         {
-          method: "PUT",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      set({ module: data, error: undefined });
+      const data = res.data;
+      set({ module: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
   updateModuleContent: async ({
@@ -132,24 +126,24 @@ export const useModuleStore = create<ModuleState>((set) => ({
     module_description,
   }) => {
     try {
+      set({ status: "Loading" });
       const formData = new FormData();
       formData.append("module_title", module_title);
       formData.append("module_description", module_description);
 
-      const res = await fetch(
-        `/api/lessons/${resourceId}/module/${moduleId}/update`,
+      const res = await axios.patch(
+        `lessons/${resourceId}/module/${moduleId}/update`,
+        formData,
         {
-          method: "PATCH",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      set({ module: data, error: undefined });
+      const data = res.data;
+      set({ module: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
-      set({ error: e.message });
+      set({ error: e.message, status: "Error" });
     }
   },
 }));

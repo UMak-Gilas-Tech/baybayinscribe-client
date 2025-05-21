@@ -115,7 +115,7 @@ export function ResponsiveNav() {
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-semibold text-blue-400">
-                GUIDE TO BAYBAYIN
+                Baybayin Lessons
               </h1>
             </div>
             <div className="text-gray-400">
