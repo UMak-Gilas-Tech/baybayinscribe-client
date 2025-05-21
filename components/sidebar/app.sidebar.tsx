@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   AudioWaveform,
   BookOpen,
@@ -12,17 +12,17 @@ import {
   PieChart,
   SquareTerminal,
   Settings2,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "./nav.main"
-import { NavProjects1, NavProjects } from "./nav.projects"
-import { TeamSwitcher } from "./team.switcher"
+import { NavMain } from "./nav.main";
+import { NavProjects1, NavProjects } from "./nav.projects";
+import { TeamSwitcher } from "./team.switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "../ui/sidebar"
+} from "../ui/sidebar";
 
 // This is sample data.
 const data = {
@@ -51,7 +51,7 @@ const data = {
   navMain: [
     {
       title: "Text AI (Fil To Baybayin)",
-      url: "#",
+      url: "/transliterator",
       icon: SquareTerminal,
     },
     {
@@ -62,23 +62,23 @@ const data = {
       items: [
         {
           title: "Web Cam",
-          url: "#",
+          url: "/ai/vision",
         },
         {
           title: "Upload Image",
-          url: "#",
+          url: "/ai/vision",
         },
       ],
     },
     {
       title: "Sketch",
-      url: "#",
+      url: "/ai/sketch",
       icon: BookOpen,
     },
 
     {
       title: "Chat AI",
-      url: "#",
+      url: "/ai/chat",
       icon: Settings2,
     },
   ],
@@ -98,7 +98,7 @@ const data = {
   projects1: [
     {
       name: "Edit Profile",
-      url: "#",
+      url: "/signedinscreen",
       icon: Frame,
     },
     {
@@ -112,7 +112,7 @@ const data = {
       icon: Map,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -127,5 +127,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
