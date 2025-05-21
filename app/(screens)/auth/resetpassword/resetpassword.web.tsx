@@ -169,7 +169,7 @@ const ResetPasswordWeb = () => {
               <button
                 type="submit"
                 disabled={status === "loading" || !token}
-                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition ${
+                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer ${
                   (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

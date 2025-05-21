@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 
 const LoginMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,13 +13,28 @@ const LoginMobile = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [validationError, setValidationError] = useState("");
 
-  
+  const loginSchema = z.object({
+    email: z.string().email({ message: "Invalid email address." }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  });
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoginError(""); // reset error before attempt
-
+    setValidationError("");
+    // If both fields are empty
+    if (!email && !password) {
+      setValidationError("Enter email and password credentials");
+      return;
+    }
+    // Zod validation
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setValidationError(result.error.errors[0].message);
+      return;
+    }
     try {
       await authClient.signIn.email({
         email,
@@ -178,10 +194,11 @@ const LoginMobile = () => {
                 </span>
               </div>
 
+              {validationError && <p className="text-red-500 mb-4">{validationError}</p>}
               {loginError && <p className="text-red-500 mb-4">{loginError}</p>}
               <button
                 type="submit"
-                className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition"
+                className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer"
               >
                 Sign in
               </button>
@@ -197,7 +214,7 @@ const LoginMobile = () => {
             {/* Social Login */}
             <div className="flex justify-center gap-12">
               <button 
-                className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md"
+                className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md cursor-pointer"
                 onClick={handleFacebookSignIn}
               >
                 <Image
@@ -208,7 +225,7 @@ const LoginMobile = () => {
                 />
               </button>
               <button 
-                className="flex items-center justify-center"
+                className="flex items-center justify-center cursor-pointer"
                 onClick={handleGoogleSignIn}
               >
                 <Image
