@@ -304,12 +304,12 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             <DialogFooter className="flex justify-end gap-3">
               <button onClick={handleDeleteAccount}
                 disabled={isDeleting}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50"
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
                 {isDeleting ? "Deleting..." : "Yes, delete my account"}
               </button>
               <DialogTrigger asChild>
-                <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">
+                <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 cursor-pointer">
                   No, nevermind
                 </button>
               </DialogTrigger>
@@ -319,33 +319,56 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
       </div>
       {/* Log out button */}
       <div className="mt-auto p-4 border-gray-200 border-t">
-        <button
-          onClick={handleSignOut}
-          className="flex items-center text-gray-700 py-2 hover:text-blue-600 cursor-pointer"
-        >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path d="M16 17L21 12L16 7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path d="M21 12H9"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Log out
-        </button>
-
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              className="flex items-center text-gray-700 py-2 hover:text-blue-600 cursor-pointer"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path d="M16 17L21 12L16 7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path d="M21 12H9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Log out
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Log out</DialogTitle>
+              <DialogDescription>
+                Do you want to log out of your session?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-3">
+              <button
+                onClick={handleSignOut}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+              >
+                Yes, Log me out
+              </button>
+              <DialogTrigger asChild>
+                <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 cursor-pointer">
+                  No, don&apos;t log me out
+                </button>
+              </DialogTrigger>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         {/* Butty mascot at bottom */}
         <div className="absolute bottom-0 right-0">
           <Image
