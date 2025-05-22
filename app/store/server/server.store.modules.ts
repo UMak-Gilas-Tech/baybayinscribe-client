@@ -127,13 +127,13 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
     return moduleData;
   },
   updateModule: async (module_id, updateData) => {
-    let fileId = updateData.existingFileId;
-    if (updateData.file && updateData.resource_id) {
-      if (!fileId) {
-        // Create new file entry
-        fileId = crypto.randomUUID();
+    try {
+      let fileId = updateData.existingFileId;
+      if (updateData.file && updateData.resource_id) {
+        // Always upload a new file and update the module to point to it
+        const newFileId = crypto.randomUUID();
         const uploadResponse = await put(
-          `learning_resources/${updateData.resource_id}/modules/` + fileId,
+          `learning_resources/${updateData.resource_id}/modules/` + newFileId,
           updateData.file.stream(),
           {
             access: "public",
@@ -143,43 +143,35 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
         const fileUrl = uploadResponse?.downloadUrl || null;
         if (!fileUrl) throw new Error("File upload failed");
         await db.insert(FileSchema).values({
-          id: fileId,
+          id: newFileId,
           name: updateData.file.name,
           url: fileUrl,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        // Also update the module's module_id to point to the new file
+        // Update the module's module_id to point to the new file
         await db
           .update(learningResourceModule)
-          .set({ module_id: fileId, updatedAt: new Date() })
+          .set({ module_id: newFileId, updatedAt: new Date() })
           .where(eq(learningResourceModule.id, module_id));
-      } else {
-        // Update existing file
-        const uploadResponse = await put(fileId, updateData.file.stream(), {
-          access: "public",
-          allowOverwrite: true,
-        });
-        const fileUrl = uploadResponse?.downloadUrl || null;
-        if (!fileUrl) throw new Error("File upload failed");
-        await db
-          .update(FileSchema)
-          .set({ url: fileUrl })
-          .where(eq(FileSchema.id, fileId));
+        fileId = newFileId;
       }
+      const fieldsToUpdate: any = { updatedAt: new Date() };
+      if (updateData.module_name)
+        fieldsToUpdate.module_name = updateData.module_name;
+      if (updateData.module_description)
+        fieldsToUpdate.module_description = updateData.module_description;
+      const updatedModule = await db
+        .update(learningResourceModule)
+        .set(fieldsToUpdate)
+        .where(eq(learningResourceModule.id, module_id))
+        .returning()
+        .then((data: any[]) => data[0]);
+      return updatedModule;
+    } catch (error) {
+      console.error("Error updating module:", error);
+      throw error;
     }
-    const fieldsToUpdate: any = { updatedAt: new Date() };
-    if (updateData.module_name)
-      fieldsToUpdate.module_name = updateData.module_name;
-    if (updateData.module_description)
-      fieldsToUpdate.module_description = updateData.module_description;
-    const updatedModule = await db
-      .update(learningResourceModule)
-      .set(fieldsToUpdate)
-      .where(eq(learningResourceModule.id, module_id))
-      .returning()
-      .then((data: any[]) => data[0]);
-    return updatedModule;
   },
   deleteModule: async (module_id) => {
     await db

@@ -62,7 +62,6 @@ export async function POST(
       .filter((row) => row.learning_resource_module)
       .map(async (row) => {
         let is_finished = false;
-        console.log(row, userId)
         if (userId && row.learning_resource_module) {
           const progress = await db
             .select()
@@ -77,9 +76,10 @@ export async function POST(
               )
             );
 
-            console.log(row.learning_resource_module.id);
           is_finished = progress.length > 0;
         }
+
+        console.log(row.file)
         return {
           ...row.learning_resource_module,
           file: row.file || null,
@@ -93,8 +93,7 @@ export async function POST(
     learning_resource_module: modules,
   };
 
-  console.log("Getting Lessons...");
-
+  console.log("Lesson data:", lesson);
   return NextResponse.json(lesson, {
     headers: { "Content-Type": "application/json" },
   });

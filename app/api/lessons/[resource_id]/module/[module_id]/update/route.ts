@@ -25,6 +25,8 @@ export async function PUT(
       existingFileId,
       resource_id,
     });
+
+    
     return NextResponse.json(updatedModule, { status: 200 });
   } catch (error) {
     console.error("Error updating module:", error);

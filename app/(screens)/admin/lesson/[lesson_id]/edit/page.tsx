@@ -200,7 +200,22 @@ const CreateLesson = () => {
       // Always select and load the first module after modules load
       setCurrentModuleIndex(0);
       setCurrentModule(updatedModules[0]);
-      loadMarkdown(updatedModules[0]);
+      // Load markdown for the first module if it exists
+      if (updatedModules[0]?.file && updatedModules[0].file.url) {
+        fetch(updatedModules[0].file.url).then(async (res) => {
+          if (res.ok) {
+            const text = await res.text();
+            setMarkdown(text);
+            setInitialMarkdown(text);
+          } else {
+            setMarkdown("");
+            setInitialMarkdown("");
+          }
+        });
+      } else {
+        setMarkdown("");
+        setInitialMarkdown("");
+      }
     } else {
       setCurrentModuleIndex(0);
       setCurrentModule(null);
@@ -214,7 +229,7 @@ const CreateLesson = () => {
       const lessonModule = modules[currentModuleIndex];
       if (lessonModule) {
         setCurrentModule(lessonModule);
-        console.log(lessonModule, lessonModule.file)
+        console.log(lessonModule.file)
         if (lessonModule.file && lessonModule.file.url) {
           fetch(lessonModule.file.url).then(async (res) => {
             if (res.ok) {
@@ -343,6 +358,8 @@ const CreateLesson = () => {
       toast.error("Module or file not selected");
       return;
     }
+
+    console.log("Module File Reference: ", currentModule)
     await moduleStore.updateModuleFile({
       resourceId: lessonResourceDetails.id,
       moduleId: currentModule.id,
@@ -429,10 +446,20 @@ const CreateLesson = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="w-1/2 flex flex-row justify-between h-full bg-transparent shadow-lg border-2 border-white rounded-lg cursor-pointer hover:bg-white">
-                  <span className="text-black">
-                    {modules[currentModuleIndex]?.module_name ||
-                      "Lesson Modules"}
-                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-black truncate">
+                        {modules[currentModuleIndex]?.module_name ||
+                          "Lesson Modules"}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>
+                        {modules[currentModuleIndex]?.module_name ||
+                          "Lesson Modules"}
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
                   <ChevronDown className="text-black" />
                 </Button>
               </DropdownMenuTrigger>
@@ -444,7 +471,7 @@ const CreateLesson = () => {
                     <DropdownMenuItem
                       key={mod.id || idx}
                       onClick={() => setCurrentModuleIndex(idx)}
-                      className={idx === currentModuleIndex ? "font-bold" : ""}
+                      className={`truncate w-full ${idx === currentModuleIndex ? "font-bold" : ""}`}
                     >
                       {  `${idx + 1}. ${mod.module_name}` || `Module ${idx + 1}`}
                     </DropdownMenuItem>
