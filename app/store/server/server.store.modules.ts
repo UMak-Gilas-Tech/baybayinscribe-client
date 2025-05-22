@@ -36,6 +36,7 @@ interface ModuleStore {
     }
   ) => Promise<Module>;
   deleteModule: (module_id: string) => Promise<{ message: string }>;
+  markModuleFinishedServer: (params: { moduleId: string }) => Promise<void>;
 }
 
 export const useModuleStore = create<ModuleStore>((set, get) => ({
@@ -43,10 +44,6 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
     const result = await db
       .select()
       .from(learningResourceModule)
-      .leftJoin(
-        FileSchema,
-        eq(learningResourceModule.id, FileSchema.learning_resource_id)
-      )
       .where(
         and(
           eq(learningResourceModule.module_id, module_id),
@@ -54,7 +51,14 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
         )
       );
 
-    console.log("Module data:", result);
+    (result[0] as any).file = result[0].module_id
+      ? await db
+          .select()
+          .from(FileSchema)
+          .where(eq(FileSchema.id, result[0].module_id as string))
+      : null;
+
+    console.log("Module data:", result[0]);
 
     return result;
   },
@@ -182,5 +186,11 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
       .delete(learningResourceModule)
       .where(eq(learningResourceModule.id, module_id));
     return { message: "Module deleted successfully" };
+  },
+  markModuleFinishedServer: async ({ moduleId }) => {
+    await db
+      .update(learningResourceModule)
+      .set({ is_finished: true, updatedAt: new Date() })
+      .where(eq(learningResourceModule.module_id, moduleId));
   },
 }));

@@ -31,6 +31,7 @@ interface ModuleState {
     module_title: string;
     module_description: string;
   }) => Promise<void>;
+  markModuleFinished: (params: { lessonId: string; moduleId: string; userId: string }) => Promise<boolean>;
 }
 
 export const useModuleStore = create<ModuleState>((set) => ({
@@ -41,7 +42,7 @@ export const useModuleStore = create<ModuleState>((set) => ({
   getModule: async (resourceId, moduleId) => {
     try {
       set({ status: "Loading" });
-      const res = await axios.post(`lessons/${resourceId}/module/${moduleId}`);
+      const res = await axios.get(`lessons/${resourceId}/module/${moduleId}`);
       const data = res.data;
       console.log("Module data:", data);
       set({ module: data, error: undefined, status: "Loaded" });
@@ -144,6 +145,18 @@ export const useModuleStore = create<ModuleState>((set) => ({
       set({ module: data, error: undefined, status: "Loaded" });
     } catch (e: any) {
       set({ error: e.message, status: "Error" });
+    }
+  },
+  markModuleFinished: async ({ lessonId, moduleId, userId }) => {
+    try {
+      set({ status: "Loading" });
+      await axios.post(`/lessons/${lessonId}/module/${moduleId}/finish`, { userId });
+      set({ status: "Loaded", error: undefined });
+      return true;
+    } catch (e: any) {
+      set({ error: e.message, status: "Error" });
+      console.error("Error marking module as finished:", e);
+      return false;
     }
   },
 }));

@@ -22,3 +22,14 @@ export const learningResourceModule = pgTable("learning_resource_module", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const learningResourceProgress = pgTable("learning_resource_progress", {
+  id: uuid("id").primaryKey(),
+  learning_resource_module_id: uuid("learning_resource_module_id").references(
+    () => learningResourceModule.id
+  ),
+  user_id: text("user_id").notNull(),
+  progress: text("progress").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});

@@ -7,7 +7,7 @@ export async function GET(
   _: Request,
   params: { params: { resource_id: string; module_id: string } }
 ) {
-  const { resource_id, module_id } = params.params;
+  const { resource_id, module_id } = await params.params;
   const result = await useModuleStore
     .getState()
     .getModule(resource_id, module_id);

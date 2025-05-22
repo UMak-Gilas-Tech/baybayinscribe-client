@@ -1,6 +1,6 @@
 "use server"
 
-import db from "@/db";
+import db from "@/db/drizzle";
 import { quiz_answer_question } from "@/db/schema/quiz-schema";
 
 export async function POST(request: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import db from "../../../../db";
-import { metadata, quiz_question, QuizSchema } from "../../../../db/schema/quiz-schema";
+import db from "@/db/drizzle";
+import { metadata, quiz_question, QuizSchema } from "@/db/schema/quiz-schema";
 import { eq } from "drizzle-orm";
 
 export const dynamic = "force-static";
