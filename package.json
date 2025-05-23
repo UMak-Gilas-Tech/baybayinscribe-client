@@ -12,8 +12,8 @@
     "sync": "npx cap sync",
     "android": "npx cap run android",
     "ios": "npx cap run ios",
-    "mm dev": "npx drizzle-kit generate --config=drizzle-dev.config.ts",
-    "m dev": "npx drizzle-kit generate --config=drizzle-dev.config.ts"
+    "mm": "npx drizzle-kit generate",
+    "m": "npx drizzle-kit push"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.1",
