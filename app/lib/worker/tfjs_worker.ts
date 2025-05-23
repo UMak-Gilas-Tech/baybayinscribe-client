@@ -6,7 +6,7 @@ importScripts(
   "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9"
 );
 
-self.onmessage = async function (event) {
+self.onmessage = async function () {
   tflite.setWasmPath(
     "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/wasm/"
   );
