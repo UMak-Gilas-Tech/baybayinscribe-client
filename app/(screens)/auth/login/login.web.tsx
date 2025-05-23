@@ -5,22 +5,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+});
 
 const LoginWeb = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
-
+  const [validationError, setValidationError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-
     setLoginError(""); // reset error before attempt
-
-
+    setValidationError("");
+    // If both fields are empty
+    if (!email && !password) {
+      setValidationError("Enter email and password credentials");
+      return;
+    }
+    // Zod validation
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setValidationError(result.error.errors[0].message);
+      return;
+    }
     try {
       await authClient.signIn.email({
         email,
@@ -61,10 +74,8 @@ const LoginWeb = () => {
     }
   };
 
-
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-
 
       {/* Vector SVG Design */}
       <svg
@@ -85,7 +96,6 @@ const LoginWeb = () => {
         />
       </svg>
 
-
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center z-10"
@@ -95,11 +105,8 @@ const LoginWeb = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "left center",
           minHeight: "600px",
-
-
         }}
       ></div>
-
 
       {/* Whale Design */}
       <div className="absolute z-20" style={{
@@ -110,8 +117,6 @@ const LoginWeb = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-
-
       }}>
         <Image
           src="/images/butty.login.png"
@@ -130,15 +135,12 @@ const LoginWeb = () => {
         BAYBAYINSCRIBE
       </h1>
 
-
       {/* Left Section */}
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0">
       </div>
 
-
       {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
-
 
         {/* Login Form */}
         <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-white z-30 relative" style=
@@ -148,30 +150,27 @@ const LoginWeb = () => {
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Login</h2>
           <p className="text-sm font-bold text-gray-600 mb-6">Log through your social media account to continue</p>
 
-
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
             <button
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
               onClick={() => handleFacebookSignIn()}
             >
               <span className="font-medium">Facebook</span>
             </button>
             <button
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
               onClick={() => handleGoogleSignIn()}
             >
               <span className="font-medium">Google</span>
             </button>
           </div>
 
-
           <div className="flex items-center my-6">
             <hr className="flex-grow" />
             <span className="px-2 text-sm font-bold text-grey-200">Enter your details below to login</span>
             <hr className="flex-grow" />
           </div>
-
 
           {/* Login Form */}
           <form onSubmit={handleLogin}>
@@ -201,16 +200,16 @@ const LoginWeb = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {validationError && <p className="text-red-500 mb-4">{validationError}</p>}
             {loginError && <p className="text-red-500 mb-4">{loginError}</p>}
             <button
               type="submit"
-              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
+              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer"
             >
               Login
             </button>
           </form>
         </div>
-
 
         {/* Footer Links */}
         <div className="w-full max-w-md mt-4 text-sm text-center text-white z-30" style=
@@ -233,6 +232,5 @@ const LoginWeb = () => {
     </div>
   );
 };
-
 
 export default LoginWeb;

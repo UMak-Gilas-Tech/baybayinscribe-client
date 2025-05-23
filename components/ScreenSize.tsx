@@ -29,6 +29,8 @@ export function ScreenSize() {
     if (width >= 1024) return 'lg';
     if (width >= 768) return 'md';
     if (width >= 640) return 'sm';
+    if (width >= 470) return 'base';  
+    if (width >= 320) return 'xs';
     return 'base';
   };
 

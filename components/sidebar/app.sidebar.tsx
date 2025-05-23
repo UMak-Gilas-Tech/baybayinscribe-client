@@ -2,15 +2,14 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
-  SquareTerminal,
+  Languages,
+  ScanText,
+  PencilRuler,
+  BotMessageSquare,
+  BookOpenText,
+  ListTodo,
+  UserCog,
   Settings2,
 } from "lucide-react"
 
@@ -23,6 +22,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "../ui/sidebar"
+import ProfileModal from "@/components/profile.settings/accounts/modal.profile"
 
 // This is sample data.
 const data = {
@@ -37,95 +37,124 @@ const data = {
       logo: GalleryVerticalEnd,
       plan: "User Role Here",
     },
-    {
-      name: "Username 2 Here",
-      logo: AudioWaveform,
-      plan: "Usere Role 2 Here",
-    },
-    {
-      name: "Username 3 Here",
-      logo: Command,
-      plan: "User Role 3 Here",
-    },
   ],
   navMain: [
     {
-      title: "Text AI (Fil To Baybayin)",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Text to Baybayin",
+      url: "/transliterator",
+      icon: Languages,
     },
     {
-      title: "Scanner AI",
-      url: "#",
-      icon: Bot,
+      title: "Baybayin Scanner",
+      url: "/ai/vision",
+      icon: ScanText,
       isActive: true,
-      items: [
-        {
-          title: "Web Cam",
-          url: "#",
-        },
-        {
-          title: "Upload Image",
-          url: "#",
-        },
-      ],
     },
     {
-      title: "Sketch",
-      url: "#",
-      icon: BookOpen,
+      title: "Baybayin Sketch",
+      url: "/ai/sketch",
+      icon: PencilRuler,
     },
 
     {
-      title: "Chat AI",
-      url: "#",
-      icon: Settings2,
+      title: "Baybayin Chat",
+      url: "/ai/chat",
+      icon: BotMessageSquare,
     },
   ],
   projects: [
     {
-      name: "Learning",
-      url: "/auth/login",
-      icon: Frame,
+      name: "Lessons",
+      url: "#",
+      icon: BookOpenText,
     },
     {
-      name: "AI Quiz",
+      name: "Quiz",
       url: "#",
-      icon: PieChart,
-    },
-  ],
-
-  projects1: [
-    {
-      name: "Edit Profile",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "App Settings",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "General",
-      url: "#",
-      icon: Map,
+      icon: ListTodo,
     },
   ],
 }
 
+type UserData = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  dateOfBirth?: string;
+  provider?: string;
+  contactNumber?: string;
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  
+  const openProfileModal = () => setIsProfileModalOpen(true);
+  const closeProfileModal = () => setIsProfileModalOpen(false);
+
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/user.information", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        } else {
+          console.error("Failed to fetch user data");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const projects1 = [
+    {
+      name: "Profile",
+      action: openProfileModal,
+      icon: UserCog,
+    },
+    {
+      name: "Settings",
+      url: "#",
+      icon: Settings2,
+    },
+  ];
+  
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavProjects1 projects={data.projects1} />
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher teams={data.teams} />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={data.navMain} />
+          <NavProjects projects={data.projects} />
+          <NavProjects1 projects={projects1} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Profile Modal */}
+      {!isLoading && userData && (
+        <ProfileModal 
+          isOpen={isProfileModalOpen} 
+          onClose={closeProfileModal}
+          userData={userData}
+        />
+      )}
+    </>
   )
 }
