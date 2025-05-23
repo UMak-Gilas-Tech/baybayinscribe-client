@@ -11,7 +11,7 @@ import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
 import { ScreenSize } from "../components/ScreenSize";
 import { siteConfig } from "./metadata";
-
+import Background from "@/components/background";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
