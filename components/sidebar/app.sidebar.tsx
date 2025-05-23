@@ -9,8 +9,7 @@ import {
   BookOpenText,
   ListTodo,
   UserCog,
-  Settings2,
-} from "lucide-react";
+}
 
 import { NavMain } from "./nav.main";
 import { NavProjects1, NavProjects } from "./nav.projects";
