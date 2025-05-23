@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Languages,
   ScanText,
@@ -9,10 +9,11 @@ import {
   BookOpenText,
   ListTodo,
   UserCog,
-} from "lucide-react"
+}
 
-import { NavMain } from "./nav.main"
-import { NavProjects1, NavProjects } from "./nav.projects"
+import { NavMain } from "./nav.main";
+import { NavProjects1, NavProjects } from "./nav.projects";
+
 import {
   Sidebar,
   SidebarContent,

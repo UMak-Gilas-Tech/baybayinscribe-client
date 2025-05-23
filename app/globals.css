@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
-
+@plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -57,7 +57,7 @@
   --color-grey-600: hsl(20, 20%, 97%);
   --color-grey-500: hsl(225, 25%, 94%);
   --color-grey-400: hsl(233, 21%, 85%);
-  --color-grey-300: hsl(224, 45%, 10%);
+  --color-grey-300: hsla(230, 18%, 50%);
   --color-grey-200: hsl(231, 15%, 45%);
   --color-grey-100: hsl(231, 15%, 20%);
   --color:var(--color-neutral-black): hsl(224, 45%, 10%);
@@ -66,6 +66,68 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+ 
+  --font-baybayin: "Baybayin Simple TAWBID";
+}
+
+@theme {
+  --animate-shake: shake 0.5s ease-out 1;
+  /* Added heartbeat animation */
+  --animate-heartbeat: heartbeat 1.5s ease-in-out infinite;
+
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    10% {
+      transform: translateX(-5px);
+    }
+    20% {
+      transform: translateX(5px);
+    }
+    30% {
+      transform: translateX(-5px);
+    }
+    40% {
+      transform: translateX(5px);
+    }
+    50% {
+      transform: translateX(-5px);
+    }
+    60% {
+      transform: translateX(5px);
+    }
+    70% {
+      transform: translateX(-5px);
+    }
+    80% {
+      transform: translateX(5px);
+    }
+    90% {
+      transform: translateX(-5px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes heartbeat {
+    0% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.4);
+    }
+    50% {
+      transform: scale(1);
+    }
+    75% {
+      transform: scale(1.4);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
 }
 
 :root {
@@ -151,6 +213,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    @apply bg-[#f0f0f0];
   }
 }
 

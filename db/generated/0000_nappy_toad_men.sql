@@ -37,6 +37,21 @@ CREATE TABLE "user" (
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
+CREATE TABLE "user_information" (
+	"user_id" text PRIMARY KEY NOT NULL,
+	"username" varchar(30) NOT NULL,
+	"first_name" varchar(30) NOT NULL,
+	"last_name" varchar(30) NOT NULL,
+	"contact_number" varchar(15) NOT NULL,
+	"date_of_birth" date NOT NULL,
+	"profile_picture_url" text,
+	"agreed_to_terms" boolean NOT NULL,
+	"wants_notifications" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "user_information_username_unique" UNIQUE("username")
+);
+--> statement-breakpoint
 CREATE TABLE "verification" (
 	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
@@ -46,22 +61,6 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE "file" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"name" uuid NOT NULL,
-	"url" text NOT NULL,
-	"created_at" timestamp NOT NULL,
-	"updated_at" timestamp NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "learning_resource" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"title" text NOT NULL,
-	"file_id" uuid,
-	"created_at" timestamp NOT NULL,
-	"updated_at" timestamp NOT NULL
-);
---> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "learning_resource" ADD CONSTRAINT "learning_resource_file_id_file_id_fk" FOREIGN KEY ("file_id") REFERENCES "public"."file"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "user_information" ADD CONSTRAINT "user_information_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
