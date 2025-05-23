@@ -14,19 +14,22 @@ export type LearningResourceStore = {
     lessonDescription: string,
     created_by: string,
     isLessonVisible?: boolean
-  ) => Promise<LearningResource | any>;
+  ) => Promise<LearningResource | Record<string, unknown>>;
   getLesson: (
     lessonId: string,
     userId?: string
-  ) => Promise<(LearningResource & { file?: any }) | any>;
+  ) => Promise<
+    | (LearningResource & { file?: Record<string, unknown> })
+    | Record<string, unknown>[]
+  >;
   getLessons: (userId: string) => Promise<void>;
-  getAllLessons: () => Promise<LearningResource[] | any>;
+  getAllLessons: () => Promise<LearningResource[] | Record<string, unknown>[]>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
 };
 
 export const useLearningResourceStore = create<LearningResourceStore>(
-  (set, get) => ({
+  (set) => ({
     lessons: undefined,
     lesson: undefined,
     error: undefined,
@@ -48,22 +51,19 @@ export const useLearningResourceStore = create<LearningResourceStore>(
         });
         set({ status: "Loaded" });
         return response.data;
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
     getLesson: async (lessonId, userId) => {
       set({ status: "Loading" });
       try {
-        const response = await axios.post(
-          `/lessons/${lessonId}`,
-          { userId }
-        );
+        const response = await axios.post(`/lessons/${lessonId}`, { userId });
         console.log("Lesson data:", response.data);
         set({ lesson: response.data, status: "Loaded" });
         return response.data;
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
     getLessons: async (userId) => {
@@ -72,8 +72,8 @@ export const useLearningResourceStore = create<LearningResourceStore>(
         const response = await axios.post("/lessons/my", { userId });
         set({ lessons: response.data, status: "Loaded" });
         return response.data;
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
     updateLesson: async (lesson) => {
@@ -81,8 +81,8 @@ export const useLearningResourceStore = create<LearningResourceStore>(
       try {
         await axios.put(`/lessons/${lesson.id}/update`, lesson);
         set({ status: "Loaded" });
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
     deleteLesson: async (lessonId) => {
@@ -90,8 +90,8 @@ export const useLearningResourceStore = create<LearningResourceStore>(
       try {
         await axios.delete(`/lessons/${lessonId}/delete`);
         set({ status: "Loaded" });
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
     getAllLessons: async () => {
@@ -100,8 +100,8 @@ export const useLearningResourceStore = create<LearningResourceStore>(
         const response = await axios.get("lessons/all");
         set({ lessons: response.data, status: "Loaded" });
         return response.data;
-      } catch (error: any) {
-        set({ error: error.message, status: "Error" });
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
     },
   })

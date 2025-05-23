@@ -115,8 +115,10 @@ export default function ViewModule() {
         <div className="prose prose-lg max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkParse, remarkBaybayin]}
-            children={markdown}
-          />
+            
+          >
+            {markdown}
+          </ReactMarkdown>
         </div>
         <div className="mt-12">
           <Button

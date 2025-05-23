@@ -7,16 +7,13 @@ import React, {
   useRef,
 } from "react";
 import { toast } from "sonner";
-import mockQuiz from "../../../../../mock/quiz.mock.json";
 import {
   Quiz,
   QuizQuestion,
-  QuestionType,
   ModifiedQuizAnswerQuestion,
 } from "../../../../../types/type.quiz";
 import useQuizStore from "@/app/store/store.quiz";
-import { useInferenceStore } from "@/app/store/store.inference";
-import { quiz_answer_question } from "@/db/schema/quiz-schema";
+import { useInferenceStore, InferenceState } from "@/app/store/store.inference";
 
 // Added type alias to make id optional in the inferred type.
 
@@ -27,7 +24,7 @@ type QuizTakeContextType = {
   progress: number;
   currentQuestion: QuizQuestion | undefined;
   health?: number;
-  inference?: any;
+  inference?: InferenceState;
   setProgress: React.Dispatch<React.SetStateAction<number>>;
   onSubmit: () => void;
   subscribeToSubmit: (callback: () => void) => void;
@@ -134,7 +131,7 @@ export const QuizTakeProvider: React.FC<{
         health,
         answerHistory,
         quiz,
-        inference: inference as any,
+        inference: inference,
         setHealth,
         onTimerEnd,
         setProgress,

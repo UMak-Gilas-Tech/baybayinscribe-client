@@ -8,7 +8,6 @@ import { file as FileSchema } from "@/db/schema/file-schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { user } from "@/db/schema/auth-schema";
-import { less } from "@tensorflow/tfjs-core";
 export const dynamic = "force-static";
 
 export async function POST(
@@ -54,7 +53,7 @@ export async function POST(
     .where(eq(user.id, lessonRow.created_by))
     .then((u) => u[0] || null);
 
-  (lessonRow.created_by as any) = userInfo;
+  (lessonRow.created_by as unknown) = userInfo;
 
   // Build modules array (resolve files, etc.)
   const modules = await Promise.all(

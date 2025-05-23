@@ -41,6 +41,7 @@ const validationSchema = z.object({
     .min(1, { message: "Please select the correct answer." }),
 });
 
+// eslint-disable-next-line react/display-name
 export const MultipleChoice = forwardRef(
   (
     { onSubmit, onSelectionUpdate, existingEntries }: MultipleChoiceProps,

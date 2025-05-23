@@ -5,6 +5,7 @@ import { useQuizTakeContext } from "@/app/(screens)/quiz/take/[quiz_id]/QuizTake
 
 interface QuizPlayerStatisticsProps {
   duration?: number;
+  stopTimer?: boolean;
   onTimerEnd?: () => void;
 }
 
@@ -39,6 +40,16 @@ const QuizPlayerStatistics = ({
   const memoizedOnTimerEnd = useCallback(() => {
     onTimerEnd();
   }, [onTimerEnd]);
+
+  useEffect(() => {
+    if (quizTakeContext.health === 0) {
+      setTimeRemaining(0);
+      return;
+    }
+    if (timeRemaining <= 0) {
+      memoizedOnTimerEnd();
+    }
+  }, []);
 
   useEffect(() => {
     if (quizTakeContext.health === 0) {

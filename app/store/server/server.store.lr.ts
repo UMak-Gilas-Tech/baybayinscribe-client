@@ -16,14 +16,14 @@ type ServerLrStore = {
     lessonDescription: string,
     created_by: string,
     isLessonVisible?: boolean,
-  ) => Promise<typeof learningResource.$inferSelect | any>;
+  ) => Promise<typeof learningResource.$inferSelect | Record<string, string>>;
   getLesson: (lessonId: string) => Promise<LearningResource>;
   getLessons: () => Promise<void>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
 };
 
-export const useServerLrStore = create<ServerLrStore>((set, get) => ({
+export const useServerLrStore = create<ServerLrStore>((set) => ({
   lesson: {} as LearningResource,
   lessons: [],
   error: undefined,

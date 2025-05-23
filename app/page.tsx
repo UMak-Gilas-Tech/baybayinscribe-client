@@ -1,6 +1,5 @@
 "use client";
-import SignedinScreen from "./signedinscreen/page";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { LearningMaterialsNav } from "../components/sidebar/learning-materials/nav";
 import { ResponsiveNav } from "../components/sidebar/learning-materials/mobile.nav";
 import { useLearningResourceStore } from "@/app/store/store.lr";
@@ -20,7 +19,6 @@ export default function Home() {
   const [isSmallScreen, setIsSmallScreen] = useState(
     typeof window !== "undefined" ? window.innerWidth < 640 : true
   );
-  const lessonsStore = useLearningResourceStore();
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handleResize = () => {

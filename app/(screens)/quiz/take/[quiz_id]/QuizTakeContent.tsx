@@ -9,12 +9,10 @@ import { QuestionHolderComponent } from "../../../../../components/quiz/Question
 import Identification from "../../../../../components/quiz/fields/Identification";
 import MultipleChoice from "../../../../../components/quiz/fields/MultipleChoice";
 import baybayifyWord from "../../../../../lib/baybayify";
-import LoadingSpinner from "../../../../../components/shared/LoadingSpinner";
 import QuizDoneDialog from "../../../../../components/quiz/dialog/QuizDoneDialog";
 import { useQuizTakeContext } from "./QuizTakeContext";
 import { useRouter } from "next/navigation";
 import useQuizStore from "@/app/store/store.quiz";
-import { uuid } from "drizzle-orm/pg-core";
 
 export const SubmitButton = () => {
   const { onSubmit } = useQuizTakeContext();
@@ -40,14 +38,14 @@ export const QuizTakeContent = () => {
             (a) => a.id === q.id
           )
       );
-      unanswered.forEach((q) => {
+      unanswered.forEach(() => {
         quizContext.recordAnswer({
-          quiz_question_id: quizContext.currentQuestion?.id!,
-                  is_correct: false,
-                  user_answer: "Unanswered",
-                  attempt: 0,
-                  answered_at: new Date(),
-                  quiz_id: quizContext.quizId!
+          quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+          is_correct: false,
+          user_answer: "Unanswered",
+          attempt: 0,
+          answered_at: new Date(),
+          quiz_id: quizContext.quizId ?? ""
         });
       });
       dumpedRef.current = true;
@@ -78,146 +76,171 @@ export const QuizTakeContent = () => {
     }, 0);
   };
 
+  // Helper to determine if quiz is done
+  const isQuizDone =
+    quizContext.quiz &&
+    (quizContext.progress >= quizContext.quiz.questions.length || quizContext.health === 0);
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100">
       <div className="flex flex-col h-screen w-full lg:px-20 md:px-14 px-10">
-        <div className="flex flex-col">
-          {quizContext.quiz && quizContext.currentQuestion ? (
-            <QuizPlayerStatistics
-              duration={quizContext.quiz.metadata.time_limit}
-              onTimerEnd={() => {
-                quizContext.setHealth((h) => h - 1);
-                toast.error("Time's up!");
-                quizContext.recordAnswer({
-                  quiz_question_id: quizContext.currentQuestion?.id!,
-                  is_correct: false,
-                  user_answer: "Unanswered",
-                  attempt: 0,
-                  answered_at: new Date(),
-                  quiz_id: quizContext.quizId!
-                });
-                setTimeout(
-                  () => quizContext.setProgress((val) => val + 1),
-                  1000
-                );
-              }}
-            />
-          ) : null}
-          {quizContext.currentQuestion &&
-          (quizContext.currentQuestion.type === QuestionType.IDT ||
-            quizContext.currentQuestion.type === QuestionType.MCQ) ? (
-            <QuestionHolderComponent
-              questionHighlight={{
-                mainQuestion: quizContext.currentQuestion.question!,
-                isBaybayin: quizContext.currentQuestion.language === "Baybayin",
-                text: quizContext.currentQuestion.display_text
-                  ? baybayifyWord(quizContext.currentQuestion.display_text)
-                  : undefined,
-              }}
-            />
-          ) : null}
-        </div>
+        {/* Only show quiz content if not done */}
+        {!isQuizDone && (
+          <>
+            <div className="flex flex-col">
+              {quizContext.quiz && quizContext.currentQuestion ? (
+                <QuizPlayerStatistics
+                  duration={quizContext.quiz.metadata.time_limit}
+                  onTimerEnd={() => {
+                    quizContext.setHealth((h) => h - 1);
+                    toast.error("Time's up!");
+                    quizContext.recordAnswer({
+                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+                      is_correct: false,
+                      user_answer: "Unanswered",
+                      attempt: 0,
+                      answered_at: new Date(),
+                      quiz_id: quizContext.quizId ?? ""
+                    });
+                    if (quizContext.health === 0) return;
+                    setTimeout(
+                      () => quizContext.setProgress((val) => val + 1),
+                      1000
+                    );
+                  }}
+                />
+              ) : null}
+              {quizContext.currentQuestion &&
+              (
+                quizContext.currentQuestion.type === QuestionType.IDT ||
+                quizContext.currentQuestion.type === "quiz" ||
+                quizContext.currentQuestion.type === QuestionType.MCQ ||
+                quizContext.currentQuestion.type === "multipleChoice"
+              ) ? (
+                <QuestionHolderComponent
+                  questionHighlight={{
+                    mainQuestion: quizContext.currentQuestion.question!,
+                    isBaybayin: quizContext.currentQuestion.language === "Baybayin",
+                    text: quizContext.currentQuestion.display_text
+                      ? baybayifyWord(quizContext.currentQuestion.display_text)
+                      : undefined,
+                  }}
+                />
+              ) : null}
+            </div>
 
-        {quizContext.currentQuestion &&
-        quizContext.currentQuestion.description &&
-        quizContext.currentQuestion.type === QuestionType.SKT ? (
-          <SketchpadComponent
-            key={quizContext.currentQuestion.question_number}
-            characters={(quizContext.currentQuestion.character as string)!}
-            question={quizContext.currentQuestion.description}
-            inference={quizContext.inference}
-            onDrawingSubmit={(result, isCorrect) => {
-              quizContext.recordAnswer({
-                  quiz_question_id: quizContext.currentQuestion?.id!,
-                  is_correct: isCorrect,
-                  user_answer: result,
-                  attempt: 0,
-                  answered_at: new Date(),
-                  quiz_id: quizContext.quizId!
-              });
-              if (isCorrect) toast.success("Correct!");
-              else {
-                quizContext.setHealth((health) => health - 1);
-                toast.error("Incorrect!");
-              }
-              setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
-            }}
-          />
-        ) : null}
-        {quizContext.currentQuestion && quizContext.quiz ? (
-          <div className="w-full flex items-center justify-center py-10">
-            <Progress
-              className="w-full md:w-3/4 lg:w-1/2"
-              value={
-                (quizContext.progress / quizContext.quiz.questions.length) * 100
-              } // converted to percentage
-              max={100} // progress is now out of 100
-            />
-          </div>
-        ) : null}
-        {quizContext.currentQuestion &&
-        quizContext.currentQuestion.type === QuestionType.MCQ ? (
-          <MultipleChoice
-            key={quizContext.currentQuestion.question_number}
-            options={[
-              ...(quizContext.currentQuestion.options as string[])!.map(
-                (option) => ({
-                  label: option,
-                  isCorrect:
-                    quizContext.currentQuestion!.correct_answer === option,
-                })
-              ),
-            ]}
-            onAnswer={(selected, isCorrect) => {
-              quizContext.recordAnswer({
-                  quiz_question_id: quizContext.currentQuestion?.id!,
-                  is_correct: isCorrect,
-                  user_answer: selected.label,
-                  attempt: 0,
-                  answered_at: new Date(),
-                  quiz_id: quizContext.quizId!
-              });
-              if (!isCorrect) quizContext.setHealth((h) => h - 1);
-              setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
-            }}
-          />
-        ) : null}
-        {quizContext.currentQuestion &&
-        quizContext.currentQuestion.type === QuestionType.SKT ? (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
-            <SubmitButton />
-          </div>
-        ) : null}
-        {quizContext.currentQuestion &&
-        quizContext.currentQuestion.type === QuestionType.IDT ? (
-          <Identification
-            correctAnswer={quizContext.currentQuestion.correct_answer!}
-            onAnswer={(userAnswer, isCorrect) => {
-              quizContext.recordAnswer({
-                  quiz_question_id: quizContext.currentQuestion?.id!,
-                  is_correct: isCorrect,
-                  user_answer: userAnswer,
-                  attempt: 0,
-                  answered_at: new Date(),
-                  quiz_id: quizContext.quizId!
-              });
-              if (isCorrect) toast.success("Correct!");
-              else {
-                quizContext.setHealth((h) => h - 1);
-                toast.error("Incorrect!");
-              }
-              setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
-            }}
-          />
-        ) : null}
+            {quizContext.currentQuestion &&
+            quizContext.currentQuestion.description &&
+            (
+              quizContext.currentQuestion.type === QuestionType.SKT ||
+              quizContext.currentQuestion.type === "sketch"
+            ) ? (
+              <SketchpadComponent
+                key={quizContext.currentQuestion.question_number}
+                characters={(quizContext.currentQuestion.character as string)!}
+                question={quizContext.currentQuestion.description}
+                inference={quizContext.inference}
+                onDrawingSubmit={(result, isCorrect) => {
+                  quizContext.recordAnswer({
+                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+                      is_correct: isCorrect,
+                      user_answer: result,
+                      attempt: 0,
+                      answered_at: new Date(),
+                      quiz_id: quizContext.quizId ?? ""
+                  });
+                  if (isCorrect) toast.success("Correct!");
+                  else {
+                    quizContext.setHealth((health) => health - 1);
+                    toast.error("Incorrect!");
+                  }
+                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                }}
+              />
+            ) : null}
+            {quizContext.currentQuestion && quizContext.quiz ? (
+              <div className="w-full flex items-center justify-center py-10">
+                <Progress
+                  className="w-full md:w-3/4 lg:w-1/2"
+                  value={
+                    (quizContext.progress / quizContext.quiz.questions.length) * 100
+                  } // converted to percentage
+                  max={100} // progress is now out of 100
+                />
+              </div>
+            ) : null}
+            {quizContext.currentQuestion &&
+            (
+              quizContext.currentQuestion.type === QuestionType.MCQ ||
+              quizContext.currentQuestion.type === "multipleChoice"
+            ) ? (
+              <MultipleChoice
+                key={quizContext.currentQuestion.question_number}
+                options={[
+                  ...(quizContext.currentQuestion.options as string[])!.map(
+                    (option, index) => ({
+                      label: option,
+                      isCorrect:
+                        parseInt(quizContext.currentQuestion!.correct_answer ?? "0") === index,
+                    })
+                  ),
+                ]}
+                onAnswer={(selected, isCorrect) => {
+                  quizContext.recordAnswer({
+                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+                      is_correct: isCorrect,
+                      user_answer: selected.label,
+                      attempt: 0,
+                      answered_at: new Date(),
+                      quiz_id: quizContext.quizId ?? ""
+                  });
+                  if (!isCorrect) quizContext.setHealth((h) => h - 1);
+                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                }}
+              />
+            ) : null}
+            {quizContext.currentQuestion &&
+            (
+              quizContext.currentQuestion.type === QuestionType.SKT ||
+              quizContext.currentQuestion.type === "sketch"
+            ) ? (
+              <div className="flex flex-col items-center justify-center w-full gap-4">
+                <SubmitButton />
+              </div>
+            ) : null}
+            {quizContext.currentQuestion &&
+            (
+              quizContext.currentQuestion.type === QuestionType.IDT ||
+              quizContext.currentQuestion.type === "quiz"
+            ) ? (
+              <Identification
+                correctAnswer={quizContext.currentQuestion.correct_answer!}
+                onAnswer={(userAnswer, isCorrect) => {
+                  quizContext.recordAnswer({
+                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+                      is_correct: isCorrect,
+                      user_answer: userAnswer,
+                      attempt: 0,
+                      answered_at: new Date(),
+                      quiz_id: quizContext.quizId ?? ""
+                  });
+                  if (isCorrect) toast.success("Correct!");
+                  else {
+                    quizContext.setHealth((h) => h - 1);
+                    toast.error("Incorrect!");
+                  }
+                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                }}
+              />
+            ) : null}
+          </>
+        )}
       </div>
 
-      {quizContext.currentQuestion && (
+      {/* Show QuizDoneDialog only when quiz is done */}
+      {isQuizDone && (
         <QuizDoneDialog
-          isOpen={
-            quizContext.currentQuestion?.question_number ===
-              quizContext.quiz?.questions.length || quizContext.health === 0
-          }
+          isOpen={true}
           scoreEarned={calculateScore()}
           correctAnswers={
             quizContext.answerHistory.filter((a) => a.is_correct).length

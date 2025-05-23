@@ -21,7 +21,7 @@ interface InferenceWebcamProps {
   showScannerGrid?: boolean;
 }
 
-interface InferenceWebcamHandle {
+export interface InferenceWebcamHandle {
   setCameraFacing: (mode: string) => void;
   setCameraDevice: (deviceId: string) => void;
 }
@@ -39,6 +39,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
     const secondFileInputRef = useRef<HTMLInputElement>(null);
     const currentStream = useRef<MediaStream | null>(null);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [usingLocal, setUsingLocal] = useState(true);
     const [facingMode, setFacingMode] = useState("environment");
     const [cameraDevice, setCameraDeviceState] = useState<string | null>(null);
@@ -119,7 +120,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
     }, [inference.localInferenceResult]);
 
     const startWebcam = () => {
-      const videoConstraints: any = cameraDevice
+      const videoConstraints = cameraDevice
         ? { deviceId: { exact: cameraDevice } }
         : { facingMode: facingMode };
       const constraints = {
@@ -213,7 +214,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                 </div>
                 <div className="flex flex-col gap-2 *:text-center *:text-xl">
                   <span className="text-white">
-                    Got a Baybayin Image? Let's scan it!
+                    Got a Baybayin Image? Let&apos;s scan it!
                   </span>
                   <span className="text-white">
                     Accepts image formats: PNG, JPG (max 5 MB)

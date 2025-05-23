@@ -30,10 +30,10 @@ export type SketchInputsProps = {
 };
 
 export const SketchInputs = forwardRef(
-  (
+  function SketchInputsComponent(
     { onSubmit, onOptionsUpdate, onChange, existingEntries }: SketchInputsProps,
     ref
-  ) => {
+  ) {
     const [options, setOptions] = useState<string[]>([""]);
     const [description, setDescription] = useState("");
     const isMounted = useRef(false);

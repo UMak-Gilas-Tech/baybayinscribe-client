@@ -37,7 +37,7 @@ const validationSchema = z.object({
 });
 
 export const QuizInput = forwardRef(
-  ({ onSubmit, existingEntries, onChange }: QuizInputProps, ref) => {
+  function QuizInputComponent({ onSubmit, existingEntries, onChange }: QuizInputProps, ref) {
     const [question, setQuestion] = useState<string>("");
     const [display_text, setdisplay_text] = useState<string>("");
     const [correct_answer, setAnswer] = useState<string>("");

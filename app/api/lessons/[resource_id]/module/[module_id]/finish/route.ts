@@ -1,6 +1,5 @@
 import db from "@/db/drizzle";
 import {
-  learningResourceModule,
   learningResourceProgress,
 } from "@/db/schema/learning-resources";
 import { and, eq } from "drizzle-orm";
@@ -11,7 +10,7 @@ export async function POST(
   { params }: { params: { resource_id: string; module_id: string } }
 ) {
   try {
-    const { resource_id, module_id } = await params;
+    const { module_id } = await params;
     const body = await request.json();
 
     const { userId } = body;

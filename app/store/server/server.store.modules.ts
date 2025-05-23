@@ -16,11 +16,8 @@ interface Module {
 }
 
 interface ModuleStore {
-  getModule: (
-    resource_id: string,
-    module_id: string
-  ) => Promise<Module[] | any>;
-  getModules: (resource_id: string) => Promise<Module[] | any>;
+  getModule: (resource_id: string, module_id: string) => Promise<Module[]>;
+  getModules: (resource_id: string) => Promise<Module[]>;
   createModule: (
     resource_id: string,
     title: string,
@@ -39,7 +36,7 @@ interface ModuleStore {
   markModuleFinishedServer: (params: { moduleId: string }) => Promise<void>;
 }
 
-export const useModuleStore = create<ModuleStore>((set, get) => ({
+export const useModuleStore = create<ModuleStore>(() => ({
   getModule: async (resource_id: string, module_id: string) => {
     const result = await db
       .select()
@@ -51,12 +48,14 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
         )
       );
 
-    (result[0] as any).file = result[0].module_id
-      ? await db
-          .select()
-          .from(FileSchema)
-          .where(eq(FileSchema.id, result[0].module_id as string))
-      : null;
+    if (result[0]) {
+      (result[0] as Record<string, unknown>).file = result[0].module_id
+        ? await db
+            .select()
+            .from(FileSchema)
+            .where(eq(FileSchema.id, result[0].module_id as string))
+        : null;
+    }
 
     console.log("Module data:", result[0]);
 
@@ -71,7 +70,7 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
 
     // For each module, fetch its file and append it
     const modulesWithFiles = await Promise.all(
-      modules.map(async (module: any) => {
+      modules.map(async (module) => {
         let file = null;
         if (module.module_id) {
           const files = await db
@@ -111,7 +110,7 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
       });
     }
     const newModuleId = crypto.randomUUID();
-    const moduleData = await db
+    const moduleDataArr = await db
       .insert(learningResourceModule)
       .values({
         id: newModuleId,
@@ -122,13 +121,12 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      .returning()
-      .then((data: any[]) => data[0]);
+      .returning();
+    const moduleData = moduleDataArr[0];
     return moduleData;
   },
   updateModule: async (module_id, updateData) => {
     try {
-      let fileId = updateData.existingFileId;
       if (updateData.file && updateData.resource_id) {
         // Always upload a new file and update the module to point to it
         const newFileId = crypto.randomUUID();
@@ -154,19 +152,18 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
           .update(learningResourceModule)
           .set({ module_id: newFileId, updatedAt: new Date() })
           .where(eq(learningResourceModule.id, module_id));
-        fileId = newFileId;
       }
-      const fieldsToUpdate: any = { updatedAt: new Date() };
+      const fieldsToUpdate: Partial<Module> = { updatedAt: new Date() };
       if (updateData.module_name)
         fieldsToUpdate.module_name = updateData.module_name;
       if (updateData.module_description)
         fieldsToUpdate.module_description = updateData.module_description;
-      const updatedModule = await db
+      const updatedModuleArr = await db
         .update(learningResourceModule)
         .set(fieldsToUpdate)
         .where(eq(learningResourceModule.id, module_id))
-        .returning()
-        .then((data: any[]) => data[0]);
+        .returning();
+      const updatedModule = updatedModuleArr[0];
       return updatedModule;
     } catch (error) {
       console.error("Error updating module:", error);

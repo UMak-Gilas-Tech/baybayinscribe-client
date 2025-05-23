@@ -50,7 +50,7 @@ export type QuizStore = {
   loadMyQuizzes: (userId: string) => void;
 };
 
-const useQuizStore = create<QuizStore>((set, get) => ({
+const useQuizStore = create<QuizStore>((set) => ({
   status: "Idle",
   quizAnswerUploadStatus: "Idle",
   answerHistory: undefined,
@@ -64,8 +64,8 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: any) {
-      set({ error: "Couldn't load quiz. Try again!", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: "Couldn't load quiz. Try again: " + error, status: "Error" });
     }
   },
   saveQuiz: async (quiz) => {
@@ -77,8 +77,8 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
   loadQuizDetails: async (quiz_id: string) => {
@@ -90,19 +90,19 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } & { questions: (typeof quiz_question.$inferSelect)[] } =
         quizResponse.data;
       set({ quiz_details: quiz, status: "Loaded" });
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
   submitQuizAnswers: async (quiz_id: string, answers) => {
     set({ status: "Loading" });
     try {
-      const response = await axios.post(`/quiz/answers/save/`, {
+      await axios.post(`/quiz/answers/save/`, {
         answers: answers,
       });
       // Optional: set response or further handling here.
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
   loadQuizAnswerHistory: async (quiz_id: string) => {
@@ -115,14 +115,16 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
-  saveLocalQuizProgress: (answer: typeof quiz_answer_question.$inferSelect) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  saveLocalQuizProgress: (_: typeof quiz_answer_question.$inferSelect) => {
     // implement saveLocalQuizProgress functionality
   },
-  loadLocalQuizProgress: (quiz_id: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loadLocalQuizProgress: (_: string) => {
     // implement loadLocalQuizProgress functionality
   },
   loadAllLocalQuizProgress: () => {
@@ -138,8 +140,8 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
   loadMyQuizzes: async (userId: string) => {
@@ -152,8 +154,8 @@ const useQuizStore = create<QuizStore>((set, get) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: any) {
-      set({ error: error.message || "Error", status: "Error" });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
 }));

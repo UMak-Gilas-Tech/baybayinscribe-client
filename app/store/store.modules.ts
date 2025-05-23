@@ -1,10 +1,11 @@
 import axios from "@/lib/axios";
 import { Status } from "@/types/type.loading";
 import { create } from "zustand";
+import { LearningResourceModule } from "@/types/type.lessons";
 
 interface ModuleState {
-  module?: any;
-  modules?: any[];
+  module?: LearningResourceModule | null;
+  modules?: LearningResourceModule[];
   error?: string;
   status?: Status;
   getModule: (resourceId: string, moduleId: string) => Promise<void>;
@@ -46,8 +47,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       const data = res.data;
       console.log("Module data:", data);
       set({ module: data, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   createModule: async ({
@@ -71,8 +72,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       );
       const data = res.data;
       set({ module: data, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   deleteModule: async ({ resourceId, moduleId }) => {
@@ -82,8 +83,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
         `lessons/${resourceId}/module/${moduleId}/delete`
       );
       set({ module: null, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   getModules: async (resourceId) => {
@@ -92,8 +93,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       const res = await axios.get(`lessons/${resourceId}/modules`);
       const data = res.data;
       set({ modules: data, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   updateModuleFile: async ({ resourceId, moduleId, file, existingFileId }) => {
@@ -116,8 +117,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       );
       const data = res.data;
       set({ module: data, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   updateModuleContent: async ({
@@ -143,8 +144,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       );
       const data = res.data;
       set({ module: data, error: undefined, status: "Loaded" });
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
     }
   },
   markModuleFinished: async ({ lessonId, moduleId, userId }) => {
@@ -153,8 +154,8 @@ export const useModuleStore = create<ModuleState>((set) => ({
       await axios.post(`/lessons/${lessonId}/module/${moduleId}/finish`, { userId });
       set({ status: "Loaded", error: undefined });
       return true;
-    } catch (e: any) {
-      set({ error: e.message, status: "Error" });
+    } catch (e: unknown) {
+      set({ error: (e as Error).message, status: "Error" });
       console.error("Error marking module as finished:", e);
       return false;
     }

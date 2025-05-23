@@ -1,13 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  quizRelations,
-  QuizSchema,
-  metadata,
-  quiz_question,
-  quizDifficultyEnum,
-} from "../../../../../db/schema/quiz-schema";
+
 import { useParams, useRouter } from "next/navigation";
 import useQuizStore from "@/app/store/store.quiz";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";

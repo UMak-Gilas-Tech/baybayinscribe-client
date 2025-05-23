@@ -3,12 +3,12 @@
 import db from "@/db/drizzle";
 import {
   quiz_answer_question,
-  quiz_question,
   QuizSchema,
 } from "@/db/schema/quiz-schema";
 import { asc, eq } from "drizzle-orm";
 
 export async function GET(
+   
   request: Request,
   params: { params: { quiz_id: string } }
 ) {

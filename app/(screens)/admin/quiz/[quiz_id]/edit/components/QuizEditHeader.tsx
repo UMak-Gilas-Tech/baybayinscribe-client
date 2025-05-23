@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { QuizFormCard } from "./QuizFormCard";
 import { useQuizContext } from "../context/useQuizContext";
-import { Quiz, QuizDifficulty } from "@/types/type.quiz";
+import { QuizDifficulty } from "@/types/type.quiz";
 
 // Define schema with Quiz Topic field
 const quizSchema = z.object({
@@ -102,6 +102,7 @@ export const QuizFormHeader = ({
       quiz_id: quizInformation.quiz_id,
       created_at: quizInformation.created_at,
       updated_at: quizInformation.updated_at,
+      is_public: quizInformation.is_public,
     });
   }, [
     title,

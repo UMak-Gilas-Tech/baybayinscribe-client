@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkParse from "remark-parse";
 
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,6 @@ import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import { authClient } from "@/app/lib/auth-client";
-import { learningResource } from "@/db/schema/learning-resources";
 import { useModuleStore } from "@/app/store/store.modules";
 import {
   DropdownMenu,
@@ -65,21 +64,6 @@ type EditorMenuButtonProps = {
 
 const LessonEditorContext = createContext<LessonEditorContextType | null>(null);
 
-const useLessonEditor = () => {
-  const ctx = useContext(LessonEditorContext);
-  if (!ctx)
-    throw new Error("useEditorContext must be used within EditorProvider");
-  return ctx;
-};
-
-const EditorLoading = () => {
-  return (
-    <div className="absolute h-full w-full backdrop-blur-lg grid place-items-center z-50">
-      <LoadingSpinner />
-    </div>
-  );
-};
-
 const EditorMenuButton = (props: EditorMenuButtonProps) => {
   return (
     <>
@@ -109,12 +93,6 @@ const EditorMenuButton = (props: EditorMenuButtonProps) => {
   );
 };
 
-export function exportMarkdownFile(markdown: string, filename = "lesson.md") {
-  const file = new Blob([markdown], { type: "text/markdown" });
-  const uri = URL.createObjectURL(file);
-  return { file, uri, filename };
-}
-
 const CreateLesson = () => {
   const router = useRouter();
   const params = useParams();
@@ -133,10 +111,13 @@ const CreateLesson = () => {
   const [openAddModuleDialog, setOpenAddModuleDialog] = useState(false);
   const [openEditModuleDialog, setOpenEditModuleDialog] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [lessonResourceDetails, setResourceDetails] = useState<any>(undefined);
 
   const [modules, setModules] = useState<any[]>([]);
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [currentModule, setCurrentModule] = useState<any>(null);
 
   useEffect(() => {
@@ -370,19 +351,19 @@ const CreateLesson = () => {
     toast.success("Module file updated");
   };
 
-  const handleDeleteModule = async () => {
-    if (!lessonResourceDetails?.id || !currentModule?.id) {
-      toast.error("Module not selected");
-      return;
-    }
-    await moduleStore.deleteModule({
-      resourceId: lessonResourceDetails.id,
-      moduleId: currentModule.id,
-    });
-    await fetchModules();
-    setCurrentModuleIndex(0);
-    toast.success("Module deleted");
-  };
+  // const handleDeleteModule = async () => {
+  //   if (!lessonResourceDetails?.id || !currentModule?.id) {
+  //     toast.error("Module not selected");
+  //     return;
+  //   }
+  //   await moduleStore.deleteModule({
+  //     resourceId: lessonResourceDetails.id,
+  //     moduleId: currentModule.id,
+  //   });
+  //   await fetchModules();
+  //   setCurrentModuleIndex(0);
+  //   toast.success("Module deleted");
+  // };
 
   const uploadMarkdown = async () => {
     if (!currentModule?.id) {
@@ -577,7 +558,7 @@ const CreateLesson = () => {
               ? {
                   lessonName: lessonResourceDetails.title ?? "",
                   lessonDescription: lessonResourceDetails.description ?? "",
-                  isLessonVisible: lessonResourceDetails.is_visible ?? false,
+                  isLessonVisible: Boolean(lessonResourceDetails.is_visible) ?? false,
                 }
               : undefined
           }

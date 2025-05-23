@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-static";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const quizData = await db
       .select({

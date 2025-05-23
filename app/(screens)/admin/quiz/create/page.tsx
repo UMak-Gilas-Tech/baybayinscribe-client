@@ -50,8 +50,8 @@ export default function CreateQuizPage() {
       setSuccess(response.data.message || "Quiz created successfully");
       setQuizData({ quiz_name: "", topic: "", description: "", difficulty: "Easy", question_count: "" });
       router.push(`/quiz/view/${response.data.quizId}`);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Something went wrong");
+    } catch (err: unknown) {
+      setError((err as Error).message || "Something went wrong");
     } finally {
       setLoading(false);
     }

@@ -146,10 +146,10 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json(savedQuiz);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API error:", error);
     return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
+      { error: (error as Error).message || "Internal Server Error" },
       { status: 500 }
     );
   }

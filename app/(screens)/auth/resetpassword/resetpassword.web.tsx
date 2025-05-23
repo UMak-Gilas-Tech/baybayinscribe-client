@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ResetPasswordWeb = () => {
+const ResetPasswordWebInner = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -182,5 +182,11 @@ const ResetPasswordWeb = () => {
     </div>
   );
 };
+
+const ResetPasswordWeb = () => (
+  <Suspense>
+    <ResetPasswordWebInner />
+  </Suspense>
+);
 
 export default ResetPasswordWeb;

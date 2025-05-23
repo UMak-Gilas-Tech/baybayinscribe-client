@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -10,8 +10,9 @@ import { LearningResource } from "@/types/type.lessons";
 import { authClient } from "@/app/lib/auth-client";
 
 const MyLessonsPage = () => {
-  const [lessons, setLessons] = React.useState<LearningResource | any>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [lessons, setLessons] = React.useState<LearningResource[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>("");
 
   const learningResourceStore = useLearningResourceStore();
@@ -34,7 +35,7 @@ const MyLessonsPage = () => {
 
   useEffect(() => {
     console.log(learningResourceStore.lessons);
-    if (learningResourceStore.status === "Loaded") {
+    if (learningResourceStore.status === "Loaded" && learningResourceStore.lessons) {
       setLessons(learningResourceStore.lessons);
     } else if (learningResourceStore.status === "Error") {
       setError(learningResourceStore.error);

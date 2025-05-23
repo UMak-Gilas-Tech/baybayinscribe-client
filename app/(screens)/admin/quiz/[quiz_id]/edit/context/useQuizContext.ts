@@ -1,4 +1,4 @@
-import useQuizStore, { QuizStore } from "@/app/store/store.quiz";
+import { QuizStore } from "@/app/store/store.quiz";
 import { QuizMetadata, QuizQuestion } from "@/types/type.quiz";
 import { createContext, Dispatch, useContext } from "react";
 

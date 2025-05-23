@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { generateQuiz } from "@/lib/genai";
 import { QuizDifficulty, QuizQuestion, QuizMetadata } from "@/types/type.quiz";
-import axios from "@/lib/axios";
 import useQuizStore from "@/app/store/store.quiz";
 import { useParams, useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
@@ -35,11 +34,13 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 type FieldType = "multipleChoice" | "sketch" | "quiz";
+ 
 type Field = { id: string; type: FieldType; data: any };
 
 // Define prop types for MemoizedField
 interface MemoizedFieldProps {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFieldData: (id: string, newData: any) => void;
   removeField: (id: string) => void;
 }
@@ -186,7 +187,7 @@ const EditQuizScreenInner = () => {
       setIsPublic(quiz.metadata.is_public || false);
       setFields(
         quiz.questions.map((question, index) => {
-          let data: any = { ...question, question_number: index + 1 };
+          const data: any = { ...question, question_number: index + 1 };
           // Map correct_answer to correctAnswer for MCQ
           if (question.type === "MCQ" || question.type === "multipleChoice") {
             data.correctAnswer =
@@ -194,7 +195,6 @@ const EditQuizScreenInner = () => {
           }
           // Map correct_answer to answer for IDT/quiz
           if (question.type === "IDT" || question.type === "quiz") {
-            // @ts-ignore
             data.correct_answer = question.correct_answer || "";
             data.display_text = question.display_text || "";
           }
@@ -292,9 +292,9 @@ const EditQuizScreenInner = () => {
       SKT: "sketch",
       IDT: "quiz",
     };
-    const aiFields = quizGenerationResult.questions.map((question, index) => {
+    const aiFields = quizGenerationResult.questions.map((question) => {
       const fieldType: FieldType = typeMap[question.type] || "quiz";
-      let data: any = { ...question };
+      const data: any = { ...question };
       // Map correct_answer to correctAnswer for MCQ
       if (fieldType === "multipleChoice") {
         data.correctAnswer = question.correct_answer || "";

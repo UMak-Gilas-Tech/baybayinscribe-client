@@ -64,6 +64,7 @@ const MultipleChoice = ({ options = [], onAnswer }: MultipleChoiceProps) => {
     <div className="w-full p-2 sm:p-4 rounded-lg lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 flex flex-col gap-4">
       {options ? (
         options.map((option, index) => {
+          console.log(option)
           let result: "default" | "correct" | "wrong" = "default";
           if (selectedIndex !== null) {
             if (index === selectedIndex) {

@@ -4,7 +4,6 @@ import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
 import TopNavbar from "../components/sidebar/Navbar";
-import Background from "@/components/background";
 import { Toaster } from "sonner";
 
 import "./globals.css";

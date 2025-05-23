@@ -3,9 +3,17 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import { authClient } from "@/app/lib/auth-client";
+import { LearningResource, LearningResourceModule } from "@/types/type.lessons";
 
 type LessonContextType = {
-  lesson: any;
+  lesson: {
+    learning_resource: LearningResource;
+    is_visible: boolean;
+    learning_resource_module: (LearningResourceModule & {
+      is_finished: boolean;
+    })[];
+    file?: Record<string, unknown>;
+  };
   status: string;
   error: string | null;
   setLessonId: (id: string) => void;
@@ -13,10 +21,10 @@ type LessonContextType = {
 
 const LessonContext = createContext<LessonContextType | undefined>(undefined);
 
-export const LessonProvider: React.FC<{ lessonId: string; children: React.ReactNode }> = ({
-  lessonId,
-  children,
-}) => {
+export const LessonProvider: React.FC<{
+  lessonId: string;
+  children: React.ReactNode;
+}> = ({ lessonId, children }) => {
   const [currentLessonId, setCurrentLessonId] = useState<string>(lessonId);
   const lesson = useLearningResourceStore((s) => s.lesson);
   const status = useLearningResourceStore((s) => s.status);
@@ -36,8 +44,17 @@ export const LessonProvider: React.FC<{ lessonId: string; children: React.ReactN
 
   const setLessonId = (id: string) => setCurrentLessonId(id);
 
+  const defaultLesson = {
+    learning_resource: {} as LearningResource,
+    is_visible: false,
+    learning_resource_module: [],
+    file: undefined
+  };
+
   return (
-    <LessonContext.Provider value={{ lesson, status, error, setLessonId }}>
+    <LessonContext.Provider
+      value={{ lesson: lesson || defaultLesson, status, error: error || null, setLessonId }}
+    >
       {children}
     </LessonContext.Provider>
   );
@@ -45,6 +62,7 @@ export const LessonProvider: React.FC<{ lessonId: string; children: React.ReactN
 
 export const useLessonContext = () => {
   const ctx = useContext(LessonContext);
-  if (!ctx) throw new Error("useLessonContext must be used within a LessonProvider");
+  if (!ctx)
+    throw new Error("useLessonContext must be used within a LessonProvider");
   return ctx;
 };

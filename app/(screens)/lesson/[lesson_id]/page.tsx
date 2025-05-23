@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,32 +15,19 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useLessonContext } from "../LessonContext";
-import { CheckCircle2, Lock, FileText, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCircle2, Lock, FileText } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type FileType = {
   id: string;
   name: string;
   url: string;
   type: string;
-};
-
-type ModuleType = {
-  module_id: string;
-  module_name: string;
-  module_description: string;
-  file?: FileType | null;
-};
-
-type LessonType = {
-  id: string;
-  title: string;
-  description: string;
-  created_by: string;
-  is_visible: boolean;
-  created_at: string;
-  updated_at: string;
-  learning_resource_module: ModuleType[];
 };
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
@@ -56,7 +43,6 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 }
 
 function LessonContent() {
-  const { lesson_id } = useParams<{ lesson_id: string }>();
   const { lesson, status, error } = useLessonContext();
   const router = useRouter();
 
@@ -88,8 +74,12 @@ function LessonContent() {
 
   const modules = (lesson.learning_resource_module || [])
     .slice()
-    .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  const completedCount = modules.filter((m: any) => m.is_finished).length;
+    .sort(
+      (a, b) =>
+        new Date((a).createdAt).getTime() -
+        new Date((b).createdAt).getTime()
+    );
+  const completedCount = modules.filter((m) => m.is_finished).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
@@ -102,19 +92,26 @@ function LessonContent() {
                   <CardTitle className="text-4xl font-extrabold tracking-tight flex items-center gap-3">
                     {lesson.learning_resource.title}
                     {lesson.is_visible ? (
-                      <Badge className="bg-green-500 text-white px-2 py-1 rounded-md text-xs">Public</Badge>
+                      <Badge className="bg-green-500 text-white px-2 py-1 rounded-md text-xs">
+                        Public
+                      </Badge>
                     ) : (
-                      <Badge className="bg-orange-400 text-white px-2 py-1 rounded-md text-xs">Private</Badge>
+                      <Badge className="bg-orange-400 text-white px-2 py-1 rounded-md text-xs">
+                        Private
+                      </Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="mt-2 text-lg text-muted-foreground">
-                    {lesson.learning_resource.description ?? "No description available."}
+                    {lesson.learning_resource.description ??
+                      "No description available."}
                   </CardDescription>
                 </div>
                 <div className="flex flex-col md:items-end gap-1">
                   <span className="text-xs text-muted-foreground">
                     Updated{" "}
-                    {new Date(lesson.learning_resource.createdAt).toLocaleDateString()}
+                    {new Date(
+                      lesson.learning_resource.createdAt
+                    ).toLocaleDateString()}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     Created by{" "}
@@ -125,7 +122,9 @@ function LessonContent() {
                   <span className="text-xs text-muted-foreground">
                     Created at{" "}
                     <span className="font-medium text-foreground">
-                      {new Date(lesson.learning_resource.createdAt).toLocaleDateString()}
+                      {new Date(
+                        lesson.learning_resource.createdAt
+                      ).toLocaleDateString()}
                     </span>
                   </span>
                 </div>
@@ -138,7 +137,10 @@ function LessonContent() {
                   Progress:
                 </span>
                 <span className="font-semibold text-foreground text-sm">
-                  {completedCount}/{modules.length} modules completed. {completedCount == modules.length ? "Congratulations, you completed the course!" : ""}
+                  {completedCount}/{modules.length} modules completed.{" "}
+                  {completedCount == modules.length
+                    ? "Congratulations, you completed the course!"
+                    : ""}
                 </span>
               </div>
               <ProgressBar value={completedCount} max={modules.length} />
@@ -169,7 +171,13 @@ function LessonContent() {
             )}
             {(() => {
               let firstUnfinishedFound = false;
-              return modules.map((mod: any, idx: number) => {
+              return modules.map((mod: {
+                module_id: string;
+                module_name: string;
+                module_description: string;
+                file?: FileType | null;
+                is_finished?: boolean;
+              }) => {
                 let canView = false;
                 if (!mod.is_finished && !firstUnfinishedFound) {
                   canView = true;
@@ -192,7 +200,10 @@ function LessonContent() {
                           <TooltipTrigger asChild>
                             <div className="rounded-full bg-muted p-2">
                               {mod.is_finished ? (
-                                <CheckCircle2 className="text-green-500" size={24} />
+                                <CheckCircle2
+                                  className="text-green-500"
+                                  size={24}
+                                />
                               ) : canView ? (
                                 <FileText className="text-blue-500" size={24} />
                               ) : (
@@ -214,14 +225,15 @@ function LessonContent() {
                         {mod.file && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Badge variant="outline" className="ml-auto flex items-center gap-1">
+                              <Badge
+                                variant="outline"
+                                className="ml-auto flex items-center gap-1"
+                              >
                                 <FileText size={14} />
                                 File
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              {mod.file.name}
-                            </TooltipContent>
+                            <TooltipContent>{mod.file.name}</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -237,7 +249,9 @@ function LessonContent() {
                             size="sm"
                             className="mt-4 w-full group-hover:scale-105 transition-transform font-semibold"
                             onClick={() =>
-                              router.push(`${lesson.learning_resource.id}/${mod.module_id}/view`)
+                              router.push(
+                                `${lesson.learning_resource.id}/${mod.module_id}/view`
+                              )
                             }
                           >
                             View Module
