@@ -1,4 +1,3 @@
-
 import {
 	pgTable,
 	text,
@@ -13,7 +12,11 @@ export const user = pgTable("user", {
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull(),
-	image: text("image"), // profile picture
+	role: text("role").notNull().default('user'), 
+	banned: boolean("banned").notNull().default(false), 
+	banReason: text("ban_reason"), 
+	banExpires: date("ban_expires"), 
+	image: text("image"), 
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
   });
@@ -74,11 +77,20 @@ export const user = pgTable("user", {
 	updatedAt: timestamp("updated_at"),
   });
   
+  export const jwks = pgTable("jwks", {
+	id: text("id").primaryKey(),
+	publicKey: text("public_key").notNull(),
+	privateKey: text("private_key").notNull(),
+	createdAt: timestamp("created_at").notNull(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  });
+  
   export const schema = {
 	user,
 	userInformation,
 	session,
 	account,
 	verification,
+	jwks,
   };
   
