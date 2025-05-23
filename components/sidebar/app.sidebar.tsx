@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   GalleryVerticalEnd,
   Languages,
@@ -11,11 +11,11 @@ import {
   ListTodo,
   UserCog,
   Settings2,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "./nav.main"
-import { NavProjects1, NavProjects } from "./nav.projects"
-import { TeamSwitcher } from "./team.switcher"
+import { NavMain } from "./nav.main";
+import { NavProjects1, NavProjects } from "./nav.projects";
+import { TeamSwitcher } from "./team.switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -74,7 +74,7 @@ const data = {
       icon: ListTodo,
     },
   ],
-}
+};
 
 type UserData = {
   firstName: string;

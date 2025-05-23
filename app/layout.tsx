@@ -35,7 +35,8 @@ export default function RootLayout({
     pathname === "/auth/profpic" ||
     pathname === "/auth/terms" ||
     pathname === "/auth/forgotpassword" ||
-    pathname === "/auth/resetpassword";
+    pathname === "/auth/resetpassword" ||
+    pathname === "/admin/forbidden";
 
   return (
     <html lang="en">
@@ -56,8 +57,9 @@ export default function RootLayout({
 
               <div className="flex flex-1 overflow-hidden">
                 <AppSidebar className="sticky top-0 h-screen z-20" />
-                <main className="flex-1 overflow-auto z-0 h-full">
+                <main className="flex-1 overflow-auto z-0 h-full bg-blue-900">
                   {children}
+                  <Background />
                 </main>
               </div>
             </div>
