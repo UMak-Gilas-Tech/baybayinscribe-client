@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import db from "@/db";
+import db from "@/db/drizzle";
 import { metadata, quiz_question, QuizSchema } from "@/db/schema/quiz-schema";
 import { eq } from "drizzle-orm";
 
 export const dynamic = "force-static";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const quizData = await db
       .select({

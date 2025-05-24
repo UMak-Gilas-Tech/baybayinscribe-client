@@ -5,15 +5,16 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { resource_id: string } }
+  context: Promise<{ params: { resource_id: string } }>
 ) {
   try {
-    const { resource_id } = params;
+    const resolvedContext = await context;
+    const resource_id = resolvedContext.params.resource_id;
     if (!resource_id) {
       return new Response("Resource ID is required", { status: 400 });
     }
 
-    const moduleData = await useServerLrStore
+    await useServerLrStore
       .getState()
       .deleteLesson(resource_id);
 

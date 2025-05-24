@@ -5,9 +5,11 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const title = formData.get("title")?.toString();
-    const description = formData.get("description")?.toString();
+    const body = await request.json();
+    const title = body.title?.toString();
+    const description = body.description?.toString();
+    const created_by = body.created_by?.toString();
+    const is_visible = !!body.is_visible;
 
     if (!title || !description) {
       return new Response(
@@ -22,9 +24,11 @@ export async function POST(request: Request) {
     }
 
     const lessonsState = useServerLrStore.getState();
-    await lessonsState.createLesson(title, description);
+    const lesson = await lessonsState.createLesson(title, description, created_by, is_visible);
 
-    return NextResponse.json("Lesson created successfully", { status: 201 });
+    console.log("Lesson created:", lesson);
+
+    return NextResponse.json(lesson, { status: 201 });
   } catch (error) {
     console.error("Error creating lesson:", error);
     return new Response(JSON.stringify({ error: "Failed to create lesson" }), {

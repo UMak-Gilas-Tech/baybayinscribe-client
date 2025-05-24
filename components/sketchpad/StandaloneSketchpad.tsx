@@ -3,7 +3,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { Pencil, Undo, Trash, ChevronDown, InfoIcon } from "lucide-react";
 import {
   useInferenceStore,
-  InferenceStatus,
   InferenceState,
 } from "@/app/store/store.inference";
 import { baybayinToLatin } from "@/lib/baybayify";

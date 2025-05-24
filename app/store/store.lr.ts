@@ -1,9 +1,9 @@
+import axios from "@/lib/axios";
 import { LearningResource } from "@/types/type.lessons";
 import { Status } from "@/types/type.loading";
-import { get } from "http";
 import { create } from "zustand";
 
-type LearningResourceStore = {
+export type LearningResourceStore = {
   lesson?: LearningResource;
   lessons: LearningResource[] | undefined;
   error: string | undefined;
@@ -11,105 +11,96 @@ type LearningResourceStore = {
 
   createLesson: (
     lessonName: string,
-    lessonDescription: string
-  ) => Promise<void>;
-  getLesson: (lessonId: string) => Promise<void>;
-  getLessons: () => Promise<void>;
+    lessonDescription: string,
+    created_by: string,
+    isLessonVisible?: boolean
+  ) => Promise<LearningResource | Record<string, unknown>>;
+  getLesson: (
+    lessonId: string,
+    userId?: string
+  ) => Promise<
+    | (LearningResource & { file?: Record<string, unknown> })
+    | Record<string, unknown>[]
+  >;
+  getLessons: (userId: string) => Promise<void>;
+  getAllLessons: () => Promise<LearningResource[] | Record<string, unknown>[]>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
 };
 
 export const useLearningResourceStore = create<LearningResourceStore>(
-  (set, get) => ({
+  (set) => ({
     lessons: undefined,
     lesson: undefined,
     error: undefined,
     status: "Idle",
 
-    createLesson: async (lessonName, lessonDescription) => {
+    createLesson: async (
+      lessonName,
+      lessonDescription,
+      created_by,
+      isLessonVisible
+    ) => {
       set({ status: "Loading" });
       try {
-        const lessonCreateRequest = await fetch("/api/lessons/create", {
-          method: "POST",
-          body: JSON.stringify({
-            title: lessonName,
-            description: lessonDescription,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
+        const response = await axios.post("/lessons/create", {
+          title: lessonName,
+          description: lessonDescription,
+          created_by: created_by,
+          is_visible: isLessonVisible,
         });
-
-        if (!lessonCreateRequest.ok) {
-          throw new Error("Failed to create lesson");
-        }
-
         set({ status: "Loaded" });
-      } catch (error) {
+        return response.data;
+      } catch (error: unknown) {
         set({ error: (error as Error).message, status: "Error" });
       }
     },
-    getLesson: async (lessonId) => {
+    getLesson: async (lessonId, userId) => {
       set({ status: "Loading" });
-
-      const lessonGetRequest = await fetch(`/api/lessons/${lessonId}`);
-      if (!lessonGetRequest.ok) {
-        set({ error: "Lesson not found" });
-        return;
+      try {
+        const response = await axios.post(`/lessons/${lessonId}`, { userId });
+        console.log("Lesson data:", response.data);
+        set({ lesson: response.data, status: "Loaded" });
+        return response.data;
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
-      const lessonData = await lessonGetRequest.json();
-      set({ lesson: lessonData, status: "Loaded" });
     },
-    getLessons: async () => {
+    getLessons: async (userId) => {
       set({ status: "Loading" });
-
-      const lessonsGetAll = await fetch("/api/lessons/getAll");
-      if (!lessonsGetAll.ok) {
-        set({ error: "Failed to fetch lessons" });
-        return;
+      try {
+        const response = await axios.post("/lessons/my", { userId });
+        set({ lessons: response.data, status: "Loaded" });
+        return response.data;
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
       }
-      const lessonsData = await lessonsGetAll.json();
-      set({ lessons: lessonsData, status: "Loaded" });
     },
     updateLesson: async (lesson) => {
       set({ status: "Loading" });
       try {
-        const lessonUpdateRequest = await fetch(
-          `/api/lessons/${lesson.id}/update`,
-          {
-            method: "PUT",
-            body: JSON.stringify(lesson),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!lessonUpdateRequest.ok) {
-          throw new Error("Failed to update lesson");
-        }
-
+        await axios.put(`/lessons/${lesson.id}/update`, lesson);
         set({ status: "Loaded" });
-      } catch (error) {
+      } catch (error: unknown) {
         set({ error: (error as Error).message, status: "Error" });
       }
     },
     deleteLesson: async (lessonId) => {
       set({ status: "Loading" });
       try {
-        const lessonDeleteRequest = await fetch(
-          `/api/lessons/${lessonId}/delete`,
-          {
-            method: "DELETE",
-          }
-        );
-
-        if (!lessonDeleteRequest.ok) {
-          throw new Error("Failed to delete lesson");
-        }
-
+        await axios.delete(`/lessons/${lessonId}/delete`);
         set({ status: "Loaded" });
-      } catch (error) {
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
+      }
+    },
+    getAllLessons: async () => {
+      set({ status: "Loading" });
+      try {
+        const response = await axios.get("lessons/all");
+        set({ lessons: response.data, status: "Loaded" });
+        return response.data;
+      } catch (error: unknown) {
         set({ error: (error as Error).message, status: "Error" });
       }
     },

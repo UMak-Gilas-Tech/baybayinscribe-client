@@ -1,5 +1,4 @@
 import baybayifyWord, {
-  baybayifySymbol,
   baybayinToLatin,
 } from "@/lib/baybayify";
 import React, { useState } from "react";

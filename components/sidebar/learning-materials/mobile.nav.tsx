@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { FileIcon, ChevronRight } from "lucide-react";
+import { useHomeContext } from "@/app/page";
 
 interface NavItemProps {
   title: string;
@@ -68,6 +69,12 @@ function QuizItem({ title, description, href }: NavItemProps) {
 }
 
 export function ResponsiveNav() {
+  const homeContext = useHomeContext();
+
+  useEffect(() => {
+    homeContext.lessonsStore.getState().getAllLessons();
+  }, []);
+
   const guides = [
     {
       title: "Baybayin vowels",
@@ -115,7 +122,7 @@ export function ResponsiveNav() {
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-semibold text-blue-400">
-                GUIDE TO BAYBAYIN
+                Baybayin Lessons
               </h1>
             </div>
             <div className="text-gray-400">

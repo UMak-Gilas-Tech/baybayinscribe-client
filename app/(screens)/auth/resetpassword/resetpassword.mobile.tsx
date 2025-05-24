@@ -164,7 +164,7 @@ const ResetPasswordMobile = () => {
                 <button
                   type="submit"
                   disabled={status === "loading" || !token}
-                  className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition ${
+                  className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
                     (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >

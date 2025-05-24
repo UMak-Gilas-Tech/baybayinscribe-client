@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown.menu";
 import { Popover } from "@/components/ui/popover";
@@ -23,7 +23,9 @@ import { TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import ButtyTextBubble from "@/public/images/ButtyTextBubble.png";
 import ButtyRead from "@/public/images/ButtyRead.png";
-import InferenceWebcam from "@/components/InferenceWebcam";
+import InferenceWebcam, {
+  InferenceWebcamHandle,
+} from "@/components/InferenceWebcam";
 import BaybayinLatin from "@/components/baybayin_latin";
 import {
   InferenceResult,
@@ -113,8 +115,7 @@ const WebcamConfig = ({
 };
 
 const VisionScreen = () => {
-  const webcamRef = useRef<any>(null);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const webcamRef = useRef<InferenceWebcamHandle | null>(null);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
 
   const [detectedBaybayinText, setDetectedBaybayinText] = useState<
@@ -126,6 +127,8 @@ const VisionScreen = () => {
   const [history, setHistory] = useState<InferenceResultHistory[] | undefined>(
     undefined
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [seenText, setSeenText] = useState(false);
   useEffect(() => {
     // load history

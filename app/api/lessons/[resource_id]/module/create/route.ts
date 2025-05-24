@@ -8,7 +8,7 @@ export async function POST(
 	params: { params: { resource_id: string } }
 ) {
 	try {
-		const { resource_id } = params.params;
+		const { resource_id } = await params.params;
 		const formData = await request.formData();
 		const file = formData.get("file") as File | null;
 		const title = formData.get("module_title")?.toString();

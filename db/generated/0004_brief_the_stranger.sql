@@ -1,0 +1,1 @@
+ALTER TABLE "learning_resource" ADD COLUMN "created_by" uuid NOT NULL;

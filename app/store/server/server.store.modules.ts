@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import db from "@/db";
+import db from "@/db/drizzle";
 import { and, eq } from "drizzle-orm";
 import { learningResourceModule } from "@/db/schema/learning-resources";
 import { file as FileSchema } from "@/db/schema/file-schema";
@@ -17,6 +17,7 @@ interface Module {
 
 interface ModuleStore {
   getModule: (resource_id: string, module_id: string) => Promise<Module[]>;
+  getModules: (resource_id: string) => Promise<Module[]>;
   createModule: (
     resource_id: string,
     title: string,
@@ -32,9 +33,10 @@ interface ModuleStore {
     }
   ) => Promise<Module>;
   deleteModule: (module_id: string) => Promise<{ message: string }>;
+  markModuleFinishedServer: (params: { moduleId: string }) => Promise<void>;
 }
 
-export const useModuleStore = create<ModuleStore>((set, get) => ({
+export const useModuleStore = create<ModuleStore>(() => ({
   getModule: async (resource_id: string, module_id: string) => {
     const result = await db
       .select()
@@ -45,7 +47,46 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
           eq(learningResourceModule.learning_resource_id, resource_id)
         )
       );
+
+    if (result[0]) {
+      (result[0] as Record<string, unknown>).file = result[0].module_id
+        ? await db
+            .select()
+            .from(FileSchema)
+            .where(eq(FileSchema.id, result[0].module_id as string))
+        : null;
+    }
+
+    console.log("Module data:", result[0]);
+
     return result;
+  },
+  getModules: async (resource_id: string) => {
+    // Get all modules for the resource
+    const modules = await db
+      .select()
+      .from(learningResourceModule)
+      .where(eq(learningResourceModule.learning_resource_id, resource_id));
+
+    // For each module, fetch its file and append it
+    const modulesWithFiles = await Promise.all(
+      modules.map(async (module) => {
+        let file = null;
+        if (module.module_id) {
+          const files = await db
+            .select()
+            .from(FileSchema)
+            .where(eq(FileSchema.id, module.module_id));
+          file = files[0] || null;
+        }
+        return {
+          ...module,
+          file,
+        };
+      })
+    );
+
+    return modulesWithFiles;
   },
   createModule: async (resource_id, title, description, file = null) => {
     let fileDataUuid: string | null = null;
@@ -69,7 +110,7 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
       });
     }
     const newModuleId = crypto.randomUUID();
-    const moduleData = await db
+    const moduleDataArr = await db
       .insert(learningResourceModule)
       .values({
         id: newModuleId,
@@ -80,42 +121,65 @@ export const useModuleStore = create<ModuleStore>((set, get) => ({
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      .returning()
-      .then((data) => data[0]);
+      .returning();
+    const moduleData = moduleDataArr[0];
     return moduleData;
   },
   updateModule: async (module_id, updateData) => {
-    if (updateData.file && updateData.resource_id) {
-      const fileId = updateData.existingFileId;
-      if (!fileId) throw new Error("File Reference does not exist.");
-      const uploadResponse = await put(fileId, updateData.file.stream(), {
-        access: "public",
-        allowOverwrite: true,
-      });
-      const fileUrl = uploadResponse?.downloadUrl || null;
-      if (!fileUrl) throw new Error("File upload failed");
-      await db
-        .update(FileSchema)
-        .set({ url: fileUrl })
-        .where(eq(FileSchema.id, fileId));
+    try {
+      if (updateData.file && updateData.resource_id) {
+        // Always upload a new file and update the module to point to it
+        const newFileId = crypto.randomUUID();
+        const uploadResponse = await put(
+          `learning_resources/${updateData.resource_id}/modules/` + newFileId,
+          updateData.file.stream(),
+          {
+            access: "public",
+            allowOverwrite: true,
+          }
+        );
+        const fileUrl = uploadResponse?.downloadUrl || null;
+        if (!fileUrl) throw new Error("File upload failed");
+        await db.insert(FileSchema).values({
+          id: newFileId,
+          name: updateData.file.name,
+          url: fileUrl,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        // Update the module's module_id to point to the new file
+        await db
+          .update(learningResourceModule)
+          .set({ module_id: newFileId, updatedAt: new Date() })
+          .where(eq(learningResourceModule.id, module_id));
+      }
+      const fieldsToUpdate: Partial<Module> = { updatedAt: new Date() };
+      if (updateData.module_name)
+        fieldsToUpdate.module_name = updateData.module_name;
+      if (updateData.module_description)
+        fieldsToUpdate.module_description = updateData.module_description;
+      const updatedModuleArr = await db
+        .update(learningResourceModule)
+        .set(fieldsToUpdate)
+        .where(eq(learningResourceModule.id, module_id))
+        .returning();
+      const updatedModule = updatedModuleArr[0];
+      return updatedModule;
+    } catch (error) {
+      console.error("Error updating module:", error);
+      throw error;
     }
-    const fieldsToUpdate: any = { updatedAt: new Date() };
-    if (updateData.module_name)
-      fieldsToUpdate.module_name = updateData.module_name;
-    if (updateData.module_description)
-      fieldsToUpdate.module_description = updateData.module_description;
-    const updatedModule = await db
-      .update(learningResourceModule)
-      .set(fieldsToUpdate)
-      .where(eq(learningResourceModule.id, module_id))
-      .returning()
-      .then((data) => data[0]);
-    return updatedModule;
   },
   deleteModule: async (module_id) => {
     await db
       .delete(learningResourceModule)
       .where(eq(learningResourceModule.id, module_id));
     return { message: "Module deleted successfully" };
+  },
+  markModuleFinishedServer: async ({ moduleId }) => {
+    await db
+      .update(learningResourceModule)
+      .set({ is_finished: true, updatedAt: new Date() })
+      .where(eq(learningResourceModule.module_id, moduleId));
   },
 }));

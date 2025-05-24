@@ -124,7 +124,7 @@ const TermsServicesMobile = () => {
           <button
             type="button"
             disabled={isSubmitting}
-            className={`w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition ${
+            className={`w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
               isSubmitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
             onClick={handleSubmit}

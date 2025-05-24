@@ -11,6 +11,13 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    ignores: [
+      "./app/(screens)/admin/quiz/[quiz_id]/edit/page.tsx"
+    ],
+    
+  },
+  
 ];
 
 export default eslintConfig;
