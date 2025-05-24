@@ -12,12 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 export type QuizInputProps = {
   onSubmit?: (data: {
     question: string;
-    display_text: string;
+    answer: string;
     correct_answer: string;
   }) => void;
   onChange?: (data: {
     question: string;
-    display_text: string;
+    answer: string;
     correct_answer: string;
   }) => void;
   existingEntries?: {
@@ -33,13 +33,13 @@ const validationSchema = z.object({
   display_text: z
     .string()
     .min(1, { message: "Baybayin character is required." }),
-  answer: z.string().min(1, { message: "Answer is required." }),
+  correct_answer: z.string().min(1, { message: "Answer is required." }),
 });
 
 export const QuizInput = forwardRef(
   function QuizInputComponent({ onSubmit, existingEntries, onChange }: QuizInputProps, ref) {
     const [question, setQuestion] = useState<string>("");
-    const [display_text, setdisplay_text] = useState<string>("");
+    const [answer, setdisplay_text] = useState<string>("");
     const [correct_answer, setAnswer] = useState<string>("");
 
     useEffect(() => {
@@ -52,7 +52,7 @@ export const QuizInput = forwardRef(
     }, [existingEntries]);
 
     const handleSubmit = async () => {
-      const data = { question, display_text, correct_answer };
+      const data = { question, answer, correct_answer };
       try {
         await validationSchema.parseAsync(data);
         onSubmit?.(data);
@@ -70,19 +70,19 @@ export const QuizInput = forwardRef(
     const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newVal = e.currentTarget.value;
       setQuestion(newVal);
-      onChange?.({ question: newVal, display_text, correct_answer: correct_answer });
+      onChange?.({ question: newVal, answer, correct_answer: correct_answer });
     };
 
     const handleBaybayinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newVal = e.currentTarget.value;
       setdisplay_text(newVal);
-      onChange?.({ question, display_text: newVal, correct_answer: correct_answer });
+      onChange?.({ question, answer: newVal, correct_answer: correct_answer });
     };
 
     const handleAnswerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newVal = e.currentTarget.value;
       setAnswer(newVal);
-      onChange?.({ question, display_text, correct_answer: newVal });
+      onChange?.({ question, answer, correct_answer: newVal });
     };
 
     return (
@@ -100,7 +100,7 @@ export const QuizInput = forwardRef(
           <Input
             placeholder="Enter the Baybayin character to guess"
             className="border-black"
-            value={display_text}
+            value={answer}
             onChange={handleBaybayinChange}
           />
           {/* Input for Answer */}

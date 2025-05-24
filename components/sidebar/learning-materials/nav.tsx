@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useHomeContext } from "@/app/page";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLearningResourceStore } from "@/app/store/store.lr";
+import useQuizStore from "@/app/store/store.quiz";
 
 interface NavCardProps {
   title: string;
@@ -136,38 +138,68 @@ function QuizCard({
   );
 }
 
+// Add NoContentCard for empty state
+function NoContentCard({ message }: { message: string }) {
+  return (
+    <div className="w-full flex-shrink-0">
+      <div className="h-44 flex flex-col items-center justify-center bg-gradient-to-br from-[#f0f4fa] to-[#e9f5f2] rounded-lg border border-dashed border-blue-200 shadow-inner px-8 py-6">
+        <div className="mb-4">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 48 48"
+            fill="none"
+            className="mx-auto"
+          >
+            <circle cx="24" cy="24" r="24" fill="#e0e7ef" />
+            <path
+              d="M16 32h16M24 16v8M24 28h.01"
+              stroke="#7ba6d9"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <div className="text-[#1e3e59] font-semibold text-base mb-2">
+          {message}
+        </div>
+        <div className="text-gray-500 text-xs text-center max-w-xs">
+          {message.includes("lesson")
+            ? "Start by adding your first lesson to help others learn Baybayin!"
+            : "No quizzes available yet. Check back soon or create a new quiz to get started!"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function LearningMaterialsNav() {
-  const homeContext = useHomeContext();
+  const lessonsStatus = useLearningResourceStore((state) => state.status);
+  const lessons = useLearningResourceStore((state) => state.lessons);
+  const getAllLessons = useLearningResourceStore(
+    (state) => state.getAllLessons
+  );
 
+  const quizzesStatus = useQuizStore((state) => state.status);
+  const quizzes = useQuizStore((state) => state.quizzes);
+  const loadAllQuiz = useQuizStore((state) => state.loadAllQuiz);
+
+  // Load lessons and quizzes on mount if not loaded
   useEffect(() => {
-    if (
-      !homeContext.lessonsStore.getState().lessons &&
-      homeContext.lessonsStore.getState().status === "Loaded"
-    )
-      return;
-
-    homeContext.lessonsStore.getState().getAllLessons();
+    if (lessonsStatus !== "Loaded" && lessonsStatus !== "Loading") {
+      getAllLessons();
+    }
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    if (
-      !homeContext.quizStore.getState().quizzes &&
-      homeContext.quizStore.getState().status === "Loaded"
-    )
-      return;
-
-    homeContext.quizStore.getState().loadAllQuiz();
+    if (quizzesStatus !== "Loaded" && quizzesStatus !== "Loading") {
+      loadAllQuiz();
+    }
+    // eslint-disable-next-line
   }, []);
 
-  // Determine loading state for lessons and quizzes
-  const lessonsLoading =
-    homeContext.lessonsStore.getState().status !== "Loaded" ||
-    !homeContext.lessonsStore.getState().lessons;
-  const quizzesLoading =
-    homeContext.quizStore.getState().status !== "Loaded" ||
-    !homeContext.quizStore.getState().quizzes;
-
-  // Skeleton card for loading state
   function SkeletonCard() {
     return (
       <div className="w-56 flex-shrink-0">
@@ -186,17 +218,26 @@ export function LearningMaterialsNav() {
   }
 
   return (
-    <div className="p-4 space-y-4 flex flex-col items-center justify-center">
+    <div className="p-4 space-y-4 w-full flex flex-col">
       <div className="mb-8 w-full">
-        <h2 className="text-lg font-semibold mb-3 mt-8 text-[#1e3e59] uppercase">
-          Guide to Baybayin
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">
+            Guide to Baybayin
+          </h2>
+
+          <Link
+            href="/lesson/all"
+            className="text-xs text-[#1e3e59] font-semibold bg-[#e9f5f2] hover:bg-[#d1e7dd] rounded-md px-4 py-2 transition-colors"
+          >
+            See more
+          </Link>
+        </div>
         <div className="overflow-x-auto w-full">
           <div
             className="flex pb-2 space-x-10"
             style={{ width: "max-content" }}
           >
-            {lessonsLoading ? (
+            {lessonsStatus === "Loading" ? (
               <>
                 <SkeletonCard />
                 <SkeletonCard />
@@ -205,28 +246,33 @@ export function LearningMaterialsNav() {
               </>
             ) : (
               <>
-                {homeContext.lessonsStore.getState().lessons?.map((lesson) => (
-                  <div key={lesson.title} className="w-56 flex-shrink-0">
-                    <GuideCard
-                      title={lesson.title}
-                      description={lesson.description}
-                      href={`/lesson/${lesson.id}`}
-                      // image={lesson.image}
-                    />
-                  </div>
-                ))}
-                {(homeContext.lessonsStore.getState().lessons &&
-                  homeContext.lessonsStore.getState().lessons!.length <= 3) && (
-                  <div className="w-56 flex-shrink-0">
-                    <GuideCard
-                      title="Coming Soon"
-                      description="New Baybayin lesson on the way. Stay tuned!"
-                      href="#"
-                      image="/images/baybayin.comingsoon.png"
-                      isComingSoon={true}
-                    />
-                  </div>
+                {lessons != undefined && lessons.length > 0 ? (
+                  lessons.map((lesson) => (
+                    <div key={lesson.title} className="w-56 flex-shrink-0">
+                      <GuideCard
+                        title={lesson.title}
+                        description={lesson.description}
+                        href={`/lesson/${lesson.id}`}
+                        // image={lesson.image}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <NoContentCard message="No lessons yet" />
                 )}
+                {lessons != undefined &&
+                  lessons.length <= 3 &&
+                  lessons.length > 0 && (
+                    <div className="w-56 flex-shrink-0">
+                      <GuideCard
+                        title="Coming Soon"
+                        description="New Baybayin lesson on the way. Stay tuned!"
+                        href="#"
+                        image="/images/baybayin.comingsoon.png"
+                        isComingSoon={true}
+                      />
+                    </div>
+                  )}
               </>
             )}
           </div>
@@ -234,15 +280,24 @@ export function LearningMaterialsNav() {
       </div>
 
       <div className="mb-6 w-full">
-        <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">
-          AI Quiz
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">
+            Baybayin Quizzes and Challenges
+          </h2>
+
+          <Link
+            href="/quiz/all"
+            className="text-xs text-[#1e3e59] font-semibold bg-[#e9f5f2] hover:bg-[#d1e7dd] rounded-md px-4 py-2 transition-colors"
+          >
+            See more
+          </Link>
+        </div>
         <div className="overflow-x-auto">
           <div
             className="flex pb-2 mt-4 space-x-10"
             style={{ width: "max-content" }}
           >
-            {quizzesLoading ? (
+            {quizzesStatus === "Loading" ? (
               <>
                 <SkeletonCard />
                 <SkeletonCard />
@@ -251,28 +306,38 @@ export function LearningMaterialsNav() {
               </>
             ) : (
               <>
-                {homeContext.quizStore.getState().quizzes?.map((quiz) => (
-                  <div key={quiz.metadata.quiz_id} className="w-56 flex-shrink-0">
-                    <QuizCard
-                      title={quiz.metadata.quiz_name}
-                      description={quiz.metadata.description ?? "No Description"}
-                      href={`/quiz/${quiz.metadata.quiz_id}/view`}
-                      // image={quiz.image}
-                    />
-                  </div>
-                ))}
-                {(homeContext.quizStore.getState().quizzes &&
-                  homeContext.quizStore.getState().quizzes!.length <= 3) && (
-                  <div className="w-56 flex-shrink-0">
-                    <GuideCard
-                      title="Coming Soon"
-                      description="New Baybayin Quizzes are on their way. Stay tuned!"
-                      href="#"
-                      image="/images/baybayin.comingsoon.png"
-                      isComingSoon={true}
-                    />
-                  </div>
+                {quizzes && quizzes.length > 0 ? (
+                  quizzes.map((quiz) => (
+                    <div
+                      key={quiz.metadata.quiz_id}
+                      className="w-56 flex-shrink-0"
+                    >
+                      <QuizCard
+                        title={quiz.metadata.quiz_name}
+                        description={
+                          quiz.metadata.description ?? "No Description"
+                        }
+                        href={`/quiz/${quiz.metadata.quiz_id}/view`}
+                        // image={quiz.image}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <NoContentCard message="No quizzes yet" />
                 )}
+                {quizzes != undefined &&
+                  quizzes.length <= 3 &&
+                  quizzes.length > 0 && (
+                    <div className="w-56 flex-shrink-0">
+                      <GuideCard
+                        title="Coming Soon"
+                        description="New Baybayin Quizzes are on their way. Stay tuned!"
+                        href="#"
+                        image="/images/baybayin.comingsoon.png"
+                        isComingSoon={true}
+                      />
+                    </div>
+                  )}
               </>
             )}
           </div>

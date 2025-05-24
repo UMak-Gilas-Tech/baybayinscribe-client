@@ -14,8 +14,7 @@ export async function POST(
   request: Request,
   { params }: { params: { resource_id: string } }
 ) {
-  console.log("API handler HIT");
-  const resource_id = params.resource_id;
+  const resource_id = await params.resource_id;
   console.log("resource_id param:", resource_id);
 
   if (!resource_id) {

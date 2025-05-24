@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const TermsServicesWeb = () => {
   const [agree, setAgree] = useState(false);
   const [wantsNotifications, setWantsNotifications] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleCheckboxChange = () => {
@@ -26,6 +28,7 @@ const TermsServicesWeb = () => {
     }
 
     setIsSubmitting(true);
+    setIsLoading(true);
 
     try {
       // Save the notification preference
@@ -52,6 +55,7 @@ const TermsServicesWeb = () => {
       router.push("/auth/login");
     } finally {
       setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -151,12 +155,12 @@ const TermsServicesWeb = () => {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            disabled={isSubmitting || isLoading}
+            className={`w-4/5 py-3 mb-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition cursor-pointer relative ${
+              isSubmitting || isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {isSubmitting ? "Processing..." : "Finish Registration"}
+            {isLoading ? <LoadingSpinner loadingText="Finishing..." /> : "Finish Registration"}
           </button>
         </div>
       </div>

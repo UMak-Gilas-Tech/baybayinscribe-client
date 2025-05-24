@@ -35,12 +35,5 @@ export async function POST(request: Request) {
     })
   );
 
-  if (quizzesWithQuestions.length === 0) {
-    return NextResponse.json(
-      { message: "No quizzes found for this user." },
-      { status: 404 }
-    );
-  }
-
   return NextResponse.json(quizzesWithQuestions, { status: 200 });
 }

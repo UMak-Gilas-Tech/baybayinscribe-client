@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const TermsServicesMobile = () => {
   const [agree, setAgree] = useState(false);
   const [wantsNotifications, setWantsNotifications] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleCheckboxChange = () => {
@@ -26,6 +28,7 @@ const TermsServicesMobile = () => {
     }
 
     setIsSubmitting(true);
+    setIsLoading(true);
 
     try {
       // Save the notification preference
@@ -52,6 +55,7 @@ const TermsServicesMobile = () => {
       router.push("/auth/login");
     } finally {
       setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -123,13 +127,13 @@ const TermsServicesMobile = () => {
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             type="button"
-            disabled={isSubmitting}
-            className={`w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            disabled={isSubmitting || isLoading}
+            className={`w-full py-3 mt-8 bg-[#837EFF] text-white text-base md:text-xl lg:text-base font-semibold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative ${
+              isSubmitting || isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
             onClick={handleSubmit}
           >
-            {isSubmitting ? "Processing..." : "Finish Registration"}
+            {isLoading ? <LoadingSpinner loadingText="Finishing..." /> : "Finish Registration"}
           </button>
         </div>
       </div>

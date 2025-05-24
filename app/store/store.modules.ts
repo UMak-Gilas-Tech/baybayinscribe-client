@@ -68,7 +68,12 @@ export const useModuleStore = create<ModuleState>((set) => ({
 
       const res = await axios.post(
         `lessons/${resourceId}/module/create`,
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       const data = res.data;
       set({ module: data, error: undefined, status: "Loaded" });
