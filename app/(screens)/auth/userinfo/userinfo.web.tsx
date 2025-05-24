@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const UserInfoWeb = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const UserInfoWeb = () => {
   });
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -65,6 +67,8 @@ const UserInfoWeb = () => {
       }
     }
     
+    setIsLoading(true);
+
     try {
       const res = await fetch("/api/user.information", {
         method: "POST",
@@ -82,6 +86,8 @@ const UserInfoWeb = () => {
     } catch (err) {
       console.error(err);
       setError("Something went wrong.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,8 +213,8 @@ const UserInfoWeb = () => {
 
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer">
-              Continue
+            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative" disabled={isLoading}>
+              {isLoading ? <LoadingSpinner loadingText="Saving..." /> : "Continue"}
             </button>
           </form>
         </div>

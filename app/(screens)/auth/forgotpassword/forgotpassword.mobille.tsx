@@ -2,15 +2,18 @@
 
 import React, { useState } from "react";
 import { authClient } from "../../../lib/auth-client";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const ForgotPasswordMobile = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setIsLoading(true);
 
     try {
       const emailCheckResponse = await fetch(`/api/auth/check.email?email=${encodeURIComponent(email)}`);
@@ -19,6 +22,7 @@ const ForgotPasswordMobile = () => {
       if (!emailCheckData.exists) {
         setStatus("error");
         setErrorMessage("Email not found. Please check your email or register a new account.");
+        setIsLoading(false);
         return;
       }
 
@@ -28,15 +32,18 @@ const ForgotPasswordMobile = () => {
       }, {
         onSuccess: () => {
           setStatus("success");
+          setIsLoading(false);
         },
         onError: (ctx) => {
           setStatus("error");
           setErrorMessage(ctx.error?.message || "Something went wrong. Please try again.");
+          setIsLoading(false);
         }
       });
     } catch {
       setStatus("error");
       setErrorMessage("Failed to send reset link. Please try again later.");
+      setIsLoading(false);
     }
   };
  
@@ -98,10 +105,12 @@ const ForgotPasswordMobile = () => {
             
               <button
                 type="submit"
-                className="w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer"
-                disabled={status === "loading"}
+                className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative ${
+                  status === "loading" || isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={status === "loading" || isLoading}
               >
-                {status === "loading" ? "Sending..." : "Send Reset Link"}
+                {isLoading ? <LoadingSpinner loadingText="Sending..." /> : "Send Reset Link"}
               </button>
             </form>
           )}

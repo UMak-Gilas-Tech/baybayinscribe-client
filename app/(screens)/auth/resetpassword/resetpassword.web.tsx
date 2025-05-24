@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const ResetPasswordWebInner = () => {
   const router = useRouter();
@@ -13,6 +14,7 @@ const ResetPasswordWebInner = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -43,6 +45,7 @@ const ResetPasswordWebInner = () => {
     }
 
     setStatus("loading");
+    setIsLoading(true);
 
     try {
       await authClient.resetPassword({
@@ -51,6 +54,7 @@ const ResetPasswordWebInner = () => {
       }, {
         onSuccess: () => {
           setStatus("success");
+          setIsLoading(false);
           // Redirect to login page after 2 seconds
           setTimeout(() => {
             router.push("/auth/login");
@@ -59,11 +63,13 @@ const ResetPasswordWebInner = () => {
         onError: (ctx) => {
           setStatus("error");
           setErrorMessage(ctx.error?.message || "Failed to reset password. Please try again.");
+          setIsLoading(false);
         }
       });
     } catch{
       setStatus("error");
       setErrorMessage("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -168,12 +174,12 @@ const ResetPasswordWebInner = () => {
               
               <button
                 type="submit"
-                disabled={status === "loading" || !token}
-                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer ${
-                  (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
+                disabled={status === "loading" || !token || isLoading}
+                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative ${
+                  (status === "loading" || !token || isLoading) ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {status === "loading" ? "Resetting..." : "Reset Password"}
+                {isLoading ? <LoadingSpinner loadingText="Resetting..." /> : "Reset Password"}
               </button>
             </form>
           )}
