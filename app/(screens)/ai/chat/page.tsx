@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useAiStore } from "@/app/store/store.ai";
 import AppLogo from "@/public/images/BaybayInscribe-AppIcon.png";
-import { SendIcon } from "lucide-react";
+import { SendIcon, ChevronLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import { parseSentence } from "@/lib/parse_baybayin";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import remarkParse from "remark-parse";
+import remarkBaybayin from "@/app/lib/remark-baybayin";
 
 type ChatBubbleProps = {
   text: string;
@@ -14,8 +16,16 @@ type ChatBubbleProps = {
 };
 
 const ChatPageHeader = () => {
+  const router = useRouter();
   return (
     <div className="bg-[#e7ecfe] w-full h-20 border-b-2 border-black flex flex-row items-center justify-start px-4 gap-4">
+      <button
+        className="p-2 rounded-full hover:bg-[#d3ddfd] transition-colors"
+        onClick={() => router.back()}
+        aria-label="Back"
+      >
+        <ChevronLeft size={28} className="text-[#122254]" />
+      </button>
       <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
         <img
           src={AppLogo.src}
@@ -70,21 +80,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
         ></span>
 
         <Markdown
-          components={{
-            // wrap each paragraph
-            p({ children, ...rest }) {
-              // flatten children to plain string
-              const raw = React.Children.toArray(children)
-                .map((c) => (typeof c === "string" ? c : ""))
-                .join("");
-              return <p {...rest}>{parseSentence(raw)}</p>;
-            },
-            // catch any remaining text nodes
-            text({ children }) {
-              const raw = (children as Array<string>)[0] as string;
-              return <>{parseSentence(raw)}</>;
-            },
-          }}
+          remarkPlugins={[remarkParse, remarkBaybayin]}
         >
           {displayText}
         </Markdown>
@@ -234,7 +230,7 @@ const ChatPage = () => {
           });
           idx++;
         }
-      }, 250);
+      }, 80); // was 250, now 80ms for faster loading
     }
     if (status === "Error") {
       setAnimating(false);
