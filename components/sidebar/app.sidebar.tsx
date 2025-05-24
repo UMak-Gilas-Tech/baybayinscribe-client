@@ -28,7 +28,6 @@ import {
   SidebarHeader,
   SidebarRail,
   useSidebar,
-  SidebarSeparator,
 } from "../ui/sidebar";
 import ProfileModal from "@/components/profile.settings/accounts/modal.profile";
 import Image from "next/image";
@@ -223,7 +222,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>
           {!isLoading && userData ? (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 overflow-hidden">
               <div className="flex-shrink-0">
                 <Image
                   src={
@@ -267,12 +266,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {isAdminRoute ? (
             <>
               <NavMain
+                extraSpacing={false}
                 items={adminNavGroups[0].items}
                 label={adminNavGroups[0].label}
                 labelClassName="text-base font-medium text-blue-400 mb-1"
-                extraSpacing
               />
-              <SidebarSeparator />
               <NavMain
                 items={adminNavGroups[1].items.map((item) =>
                   item.isLogout ? { ...item, onClick: handleAdminLogout } : item
