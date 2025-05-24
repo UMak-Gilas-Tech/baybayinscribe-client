@@ -490,7 +490,7 @@ export function UserTable({ users }: { users?: User[] }) {
       const updated = userList.find((u) => u.email === selectedUser.email);
       if (updated) setSelectedUser(updated);
     }
-  }, [userList, drawerOpen]);
+  }, [userList, drawerOpen, selectedUser]);
 
   // Mock action handlers
   const handleDelete = (user: User) => {

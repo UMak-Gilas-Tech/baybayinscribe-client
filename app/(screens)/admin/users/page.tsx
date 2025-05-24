@@ -14,7 +14,7 @@ export default function UserManagement() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [lastSynced, setLastSynced] = useState<Date>(new Date());
-  const [userList, setUserList] = useState(
+  const [userList] = useState(
     mockUsers.map((user) => ({
       ...user,
       status:
@@ -70,11 +70,7 @@ export default function UserManagement() {
           status={status}
           onStatusChange={(newStatus) => setStatus(newStatus)}
         />
-        <UserTable
-          users={paginatedUsers}
-          userList={userList}
-          onUserListChange={setUserList}
-        />
+        <UserTable users={paginatedUsers} />
         <TablePagination
           totalItems={filteredUsers.length}
           currentPage={currentPage}
