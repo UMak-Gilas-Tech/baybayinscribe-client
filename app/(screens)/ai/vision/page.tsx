@@ -31,7 +31,6 @@ import {
   InferenceResult,
   InferenceResultHistory,
 } from "@/types/type.inference";
-import { useInferenceStore } from "@/app/store/store.inference";
 
 interface WebcamConfigProps {
   onSelectCamera: (deviceId: string) => void;
@@ -128,7 +127,6 @@ const VisionScreen = () => {
   const [history, setHistory] = useState<InferenceResultHistory[] | undefined>(
     undefined
   );
-  const inferenceStatus = useInferenceStore((s) => s.status);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [seenText, setSeenText] = useState(false);
@@ -189,32 +187,6 @@ const VisionScreen = () => {
   const handleSelectCamera = (deviceId: string) => {
     webcamRef.current?.setCameraDevice(deviceId);
   };
-
-  // Loading/warming up skeleton
-  if (
-    inferenceStatus === 1 || // LOADING
-    inferenceStatus === 2    // WARMING_UP
-  ) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-screen bg-white">
-        <div className="animate-pulse flex flex-col items-center gap-8">
-          <div className="rounded-xl bg-gray-200 h-72 w-[32rem] mb-4" />
-          <div className="flex flex-row gap-4 w-full">
-            <div className="rounded-lg bg-gray-200 h-10 w-40" />
-            <div className="rounded-lg bg-gray-200 h-10 w-40" />
-            <div className="rounded-lg bg-gray-200 h-10 w-40" />
-          </div>
-          <div className="rounded-lg bg-gray-200 h-16 w-[32rem] mt-8" />
-          <div className="rounded-full bg-gray-200 h-24 w-24 mt-8" />
-        </div>
-        <div className="mt-8 text-lg text-gray-600 font-semibold">
-          {inferenceStatus === 1
-            ? "Loading AI Model..."
-            : "Warming up AI Model..."}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-row h-full w-full gap-10 p-10">

@@ -5,7 +5,7 @@ import { create } from "zustand";
 import { LABELS } from "@/constants";
 
 import { InferenceResult } from "@/types/type.inference";
-
+import { InferenceEngine, CVImage } from "inferencejs";
 
 // import { InferenceEngine } from "@tensorflow/tfjs-tflite";
 // TODO: Replace with correct import or implementation for InferenceEngine
