@@ -70,7 +70,7 @@ export const useLearningResourceStore = create<LearningResourceStore>(
       set({ status: "Loading" });
       try {
         const response = await axios.post("/lessons/my", { userId });
-        set({ lessons: response.data, status: "Loaded" });
+        set({ lessons: response.data ?? [], status: "Loaded" });
         return response.data;
       } catch (error: unknown) {
         set({ error: (error as Error).message, status: "Error" });

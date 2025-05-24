@@ -27,7 +27,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -194,11 +193,13 @@ function ConfirmActionDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-row gap-3 justify-end mt-4">
-          <DialogClose asChild>
-            <button className="px-4 py-2 rounded-md border border-blue-400 bg-neutral-white text-blue-300 font-medium hover:underline cursor-pointer transition-colors">
-              Cancel
-            </button>
-          </DialogClose>
+          <button
+            className="px-4 py-2 rounded-md border border-blue-400 bg-neutral-white text-blue-300 font-medium hover:underline cursor-pointer transition-colors"
+            type="button"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </button>
           <button
             className={`px-4 py-2 rounded-md font-semibold transition-colors ${confirmClass}`}
             onClick={() => {
