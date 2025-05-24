@@ -19,7 +19,7 @@ import {
   Trash,
 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,13 +31,31 @@ import {
 import { toast } from "sonner";
 
 interface User {
+  id: string;
   email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  birthDate: string;
-  contact: string;
-  status: "Active" | "Banned";
+  role: string;
+  banned: boolean;
+  banReason?: string | null;
+  banExpires?: Date | null;
+  userInformation?: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    contactNumber: string;
+    profilePictureUrl?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface UserTableProps {
+  users: User[];
+  onDelete: (userId: string) => Promise<void>;
+  onReset: (userId: string) => Promise<void>;
+  onClear: (userId: string) => Promise<void>;
+  onBan: (userId: string) => Promise<void>;
+  onUnban: (userId: string) => Promise<void>;
 }
 
 const TABLE_HEADERS = [
@@ -51,23 +69,21 @@ const TABLE_HEADERS = [
   "Action",
 ] as const;
 
-const StatusBadge = ({ status }: { status: User["status"] }) => (
+const StatusBadge = ({ banned }: { banned: User["banned"] }) => (
   <div
     className={`
       h-6 flex items-center justify-center rounded-sm
       text-sm font-medium leading-tight px-2
-      ${
-        status === "Active"
-          ? "bg-green-100 text-green-900"
-          : "bg-danger-100 text-danger-600"
+      ${!banned
+        ? "bg-green-100 text-green-900"
+        : "bg-danger-100 text-danger-600"
       }
     `}
   >
-    {status}
+    {!banned ? "Active" : "Banned"}
   </div>
 );
 
-// Minimal VisuallyHidden component
 const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
   <span
     style={{
@@ -89,6 +105,10 @@ const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
 import { DrawerTitle } from "@/components/ui/drawer";
 
 function UserInfoSection({ user }: { user: User }) {
+  const formattedBirthDate = user.userInformation?.dateOfBirth
+    ? new Date(user.userInformation.dateOfBirth).toLocaleDateString()
+    : 'N/A';
+
   return (
     <div className="flex flex-row gap-6 min-w-[320px]">
       <div className="rounded-full bg-blue-500 w-[100px] h-[100px] flex items-center justify-center">
@@ -96,30 +116,36 @@ function UserInfoSection({ user }: { user: User }) {
       </div>
       <div className="flex flex-col gap-1 justify-center">
         <span className="text-xl font-semibold text-blue-950 leading-tight flex items-center gap-3">
-          {user.firstName} {user.lastName}
-          <StatusBadge status={user.status} />
+          {user.userInformation?.firstName} {user.userInformation?.lastName}
+          <StatusBadge banned={user.banned} />
         </span>
         <span className="text-base text-blue-400">{user.email}</span>
-        <span className="text-base text-blue-400">{user.contact}</span>
+        <span className="text-base text-blue-400">{user.userInformation?.contactNumber}</span>
         <span className="text-base text-blue-400">
-          Date of Birth: {user.birthDate}
+          {formattedBirthDate !== 'N/A' ? `Date of Birth: ${formattedBirthDate}` : 'Birth Date: N/A'}
         </span>
       </div>
     </div>
   );
 }
 
-function UserMetaSection() {
+function UserMetaSection({ user }: { user: User }) {
+  const formattedRegisteredDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'N/A';
+
+  const formattedLastLoginDate = user.updatedAt
+    ? new Date(user.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'N/A';
+
   return (
     <div className="flex flex-col gap-2 items-end min-w-[200px]">
-      <span className="text-lg font-semibold text-blue-400">@JuwanDlckruz</span>
+      <span className="text-lg font-semibold text-blue-400">@{user.userInformation?.username || 'N/A'}</span>
       <span className="text-base text-blue-950 font-semibold">
-        <span className="text-blue-500 font-normal">Registered:</span> March 12,
-        2025
+        <span className="text-blue-500 font-normal">Registered:</span> {formattedRegisteredDate}
       </span>
       <span className="text-base text-blue-950 font-semibold">
-        <span className="text-blue-500 font-normal">Last Login:</span> April 12,
-        2025
+        <span className="text-blue-500 font-normal">Last Login:</span> {formattedLastLoginDate}
       </span>
       <DrawerClose asChild>
         <button className="absolute top-4 right-4 text-blue-400 hover:text-blue-700 transition-colors text-2xl font-bold cursor-pointer">
@@ -204,7 +230,6 @@ function ConfirmActionDialog({
             className={`px-4 py-2 rounded-md font-semibold transition-colors ${confirmClass}`}
             onClick={() => {
               onConfirm();
-              onOpenChange(false);
             }}
             disabled={loading}
           >
@@ -225,22 +250,38 @@ function DrawerActions({
   onUnban,
 }: {
   user: User;
-  onDelete: (user: User) => void;
-  onReset: (user: User) => void;
-  onClear: (user: User) => void;
-  onBan: (user: User) => void;
-  onUnban: (user: User) => void;
+  onDelete: (userId: string) => Promise<void>;
+  onReset: (userId: string) => Promise<void>;
+  onClear: (userId: string) => Promise<void>;
+  onBan: (userId: string) => Promise<void>;
+  onUnban: (userId: string) => Promise<void>;
 }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleAction = async (action: () => Promise<void>, dialogSetter: (open: boolean) => void) => {
+    setLoading(true);
+    try {
+      await action();
+      dialogSetter(false);
+    } catch (error: unknown) {
+      console.error("Action failed:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`Action failed: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-row gap-4 justify-start">
-      {/* Reset Password */}
       <Button
         variant="outline"
         className="border-blue-400 text-blue-400 bg-transparent hover:bg-blue-900 hover:text-blue-500 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
         onClick={() => setResetOpen(true)}
+        disabled={loading}
       >
         <KeyRound className="size-4" />
         Reset Password
@@ -252,15 +293,16 @@ function DrawerActions({
         description={
           "A password reset link will be sent to the user's registered email address. Continue? (The link sent will expire in 30 minutes)"
         }
-        confirmLabel="Send Reset Link"
+        confirmLabel={loading ? "Sending..." : "Send Reset Link"}
         confirmClass="bg-blue-500 text-blue-900 hover:bg-blue-400 border border-blue-400 cursor-pointer"
-        onConfirm={() => onReset(user)}
+        onConfirm={() => handleAction(() => onReset(user.id), setResetOpen)}
+        loading={loading}
       />
-      {/* Clear Progress */}
       <Button
         variant="outline"
         className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
         onClick={() => setClearOpen(true)}
+        disabled={loading}
       >
         <Eraser className="size-4" />
         Clear Progress
@@ -272,16 +314,17 @@ function DrawerActions({
         description={
           "This action will remove all learning progress for this user. This cannot be undone."
         }
-        confirmLabel="Clear Progress"
+        confirmLabel={loading ? "Clearing..." : "Clear Progress"}
         confirmClass="bg-warning-400 text-warning-100 hover:bg-warning-500 border border-warning-400 cursor-pointer"
-        onConfirm={() => onClear(user)}
+        onConfirm={() => handleAction(() => onClear(user.id), setClearOpen)}
+        loading={loading}
       />
-      {/* Ban/Unban User (no dialog) */}
-      {user.status === "Banned" ? (
+      {user.banned ? (
         <Button
           variant="outline"
           className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
-          onClick={() => onUnban(user)}
+          onClick={() => handleAction(() => onUnban(user.id), () => { })}
+          disabled={loading}
         >
           <UserCheck className="size-4 stroke-1.25" />
           Unban User
@@ -290,17 +333,18 @@ function DrawerActions({
         <Button
           variant="outline"
           className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
-          onClick={() => onBan(user)}
+          onClick={() => handleAction(() => onBan(user.id), () => { })}
+          disabled={loading}
         >
           <Hammer className="size-4 stroke-1.25" />
           Ban User
         </Button>
       )}
-      {/* Delete Account */}
       <Button
         variant="outline"
         className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
         onClick={() => setDeleteOpen(true)}
+        disabled={loading}
       >
         <Trash className="size-4" />
         Delete Account
@@ -312,9 +356,10 @@ function DrawerActions({
         description={
           "This action will permanently delete the account of user, all associated data, which cannot be undone."
         }
-        confirmLabel="Delete Account"
+        confirmLabel={loading ? "Deleting..." : "Delete Account"}
         confirmClass="bg-danger-200/25 text-danger-500 hover:bg-danger-900 border border-danger-600 cursor-pointer"
-        onConfirm={() => onDelete(user)}
+        onConfirm={() => handleAction(() => onDelete(user.id), setDeleteOpen)}
+        loading={loading}
       />
     </div>
   );
@@ -333,11 +378,11 @@ function ManageUserDrawer({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   user: User | null;
-  onDelete: (user: User) => void;
-  onReset: (user: User) => void;
-  onClear: (user: User) => void;
-  onBan: (user: User) => void;
-  onUnban: (user: User) => void;
+  onDelete: (userId: string) => Promise<void>;
+  onReset: (userId: string) => Promise<void>;
+  onClear: (userId: string) => Promise<void>;
+  onBan: (userId: string) => Promise<void>;
+  onUnban: (userId: string) => Promise<void>;
 }) {
   if (!user) return null;
   return (
@@ -368,7 +413,7 @@ function ManageUserDrawer({
           </div>
           <div className="flex flex-row justify-between gap-8 mb-4">
             <UserInfoSection user={user} />
-            <UserMetaSection />
+            <UserMetaSection user={user} />
           </div>
           <div className="border-t border-blue-500 w-full mb-4" />
           <LearningProgressSection />
@@ -388,22 +433,22 @@ function ManageUserDrawer({
 }
 
 const ActionButtons = ({
-  status,
   onManage,
   onBan,
   onUnban,
+  user,
 }: {
-  status: User["status"];
   onManage: () => void;
-  onBan: () => void;
-  onUnban: () => void;
+  onBan: (userId: string) => Promise<void>;
+  onUnban: (userId: string) => Promise<void>;
+  user: User;
 }) => (
   <div className="flex items-center gap-2">
-    {status === "Banned" ? (
+    {user.banned ? (
       <Button
         size="sm"
         className="font-normal min-w-[6rem] bg-warning-100 text-warning-400 border-warning-400 hover:bg-warning-50 hover:text-warning-400 border-1.25 transition-all duration-300"
-        onClick={onUnban}
+        onClick={() => onUnban(user.id)}
       >
         <UserCheck className="size-4 stroke-1.25" />
         Unban
@@ -412,7 +457,7 @@ const ActionButtons = ({
       <Button
         size="sm"
         className="font-normal min-w-[6rem] bg-danger-100 text-danger-500 border-danger-500 hover:bg-danger-50 hover:text-danger-400 border-1.25 transition-all duration-300"
-        onClick={onBan}
+        onClick={() => onBan(user.id)}
       >
         <Hammer className="size-4 stroke-1.25" />
         Ban
@@ -439,92 +484,54 @@ const UserRow = ({
   user: User;
   index: number;
   onManage: () => void;
-  onBan: () => void;
-  onUnban: () => void;
-}) => (
-  <TableRow className={index % 2 === 0 ? "" : "bg-violet-100"}>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.email}
-    </TableCell>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.username}
-    </TableCell>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.firstName}
-    </TableCell>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.lastName}
-    </TableCell>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.birthDate}
-    </TableCell>
-    <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-      {user.contact}
-    </TableCell>
-    <TableCell className="p-3">
-      <StatusBadge status={user.status} />
-    </TableCell>
-    <TableCell className="p-3">
-      <ActionButtons
-        status={user.status}
-        onManage={onManage}
-        onBan={onBan}
-        onUnban={onUnban}
-      />
-    </TableCell>
-  </TableRow>
-);
-
-export function UserTable({ users }: { users?: User[] }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userList, setUserList] = useState<User[]>(users ?? []);
-
-  // Sync userList with users prop for filtering
-  useEffect(() => {
-    if (users) setUserList(users);
-  }, [users]);
-
-  // Keep selectedUser in sync with userList for real-time updates in the drawer
-  useEffect(() => {
-    if (selectedUser) {
-      const updated = userList.find((u) => u.email === selectedUser.email);
-      if (updated) setSelectedUser(updated);
-    }
-  }, [userList, drawerOpen, selectedUser]);
-
-  // Mock action handlers
-  const handleDelete = (user: User) => {
-    setUserList((prev) => prev.filter((u) => u.email !== user.email));
-    setDrawerOpen(false);
-    toast.error("User account deleted.");
-    // TODO: Replace this mock with a backend API call to delete the user
-  };
-  const handleReset = (user: User) => {
-    toast.info("Password reset link sent to " + user.email);
-    // TODO: Replace this mock with a backend API call to send a password reset link
-  };
-  const handleClear = (user: User) => {
-    toast.warning("Learning progress cleared for " + user.email);
-    // TODO: Replace this mock with a backend API call to clear user progress
-  };
-  const handleBan = (user: User) => {
-    setUserList((prev) =>
-      prev.map((u) => (u.email === user.email ? { ...u, status: "Banned" } : u))
-    );
-    toast.error("User has been banned.");
-    // TODO: Replace this mock with a backend API call to ban the user
-  };
-  const handleUnban = (user: User) => {
-    setUserList((prev) =>
-      prev.map((u) => (u.email === user.email ? { ...u, status: "Active" } : u))
-    );
-    toast.success("User has been unbanned.");
-    // TODO: Replace this mock with a backend API call to unban the user
-  };
+  onBan: (userId: string) => Promise<void>;
+  onUnban: (userId: string) => Promise<void>;
+}) => {
+  const formattedBirthDate = user.userInformation?.dateOfBirth
+    ? new Date(user.userInformation.dateOfBirth).toLocaleDateString()
+    : 'N/A';
 
   return (
-    <div className="self-stretch rounded-lg border-1.25 border-blue-500 ">
+    <TableRow className={index % 2 === 0 ? "" : "bg-violet-100"}>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {user.email}
+      </TableCell>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {user.userInformation?.username || 'N/A'}
+      </TableCell>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {user.userInformation?.firstName || 'N/A'}
+      </TableCell>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {user.userInformation?.lastName || 'N/A'}
+      </TableCell>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {formattedBirthDate}
+      </TableCell>
+      <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
+        {user.userInformation?.contactNumber || 'N/A'}
+      </TableCell>
+      <TableCell className="p-3">
+        <StatusBadge banned={user.banned} />
+      </TableCell>
+      <TableCell className="p-3">
+        <ActionButtons
+          onManage={onManage}
+          onBan={onBan}
+          onUnban={onUnban}
+          user={user}
+        />
+      </TableCell>
+    </TableRow>
+  );
+};
+
+export function UserTable({ users, onDelete, onReset, onClear, onBan, onUnban }: UserTableProps) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  return (
+    <div className="self-stretch rounded-lg border-1.25 border-blue-500">
       <Table className="w-full">
         <TableHeader>
           <TableRow>
@@ -539,17 +546,17 @@ export function UserTable({ users }: { users?: User[] }) {
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-slate-500">
-          {userList.map((user, index) => (
+          {users.map((user, index) => (
             <UserRow
-              key={index}
+              key={user.id}
               user={user}
               index={index}
               onManage={() => {
                 setSelectedUser(user);
                 setDrawerOpen(true);
               }}
-              onBan={() => handleBan(user)}
-              onUnban={() => handleUnban(user)}
+              onBan={onBan}
+              onUnban={onUnban}
             />
           ))}
         </TableBody>
@@ -558,11 +565,11 @@ export function UserTable({ users }: { users?: User[] }) {
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         user={selectedUser}
-        onDelete={handleDelete}
-        onReset={handleReset}
-        onClear={handleClear}
-        onBan={handleBan}
-        onUnban={handleUnban}
+        onDelete={onDelete}
+        onReset={onReset}
+        onClear={onClear}
+        onBan={onBan}
+        onUnban={onUnban}
       />
     </div>
   );

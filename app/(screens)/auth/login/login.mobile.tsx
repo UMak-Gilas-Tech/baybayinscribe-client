@@ -6,6 +6,7 @@ import Link from "next/link";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const LoginMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,7 @@ const LoginMobile = () => {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [validationError, setValidationError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const loginSchema = z.object({
     email: z.string().email({ message: "Invalid email address." }),
@@ -24,15 +26,18 @@ const LoginMobile = () => {
     e.preventDefault();
     setLoginError(""); // reset error before attempt
     setValidationError("");
+    setIsLoading(true);
     // If both fields are empty
     if (!email && !password) {
       setValidationError("Enter email and password credentials");
+      setIsLoading(false);
       return;
     }
     // Zod validation
     const result = loginSchema.safeParse({ email, password });
     if (!result.success) {
       setValidationError(result.error.errors[0].message);
+      setIsLoading(false);
       return;
     }
     try {
@@ -46,10 +51,12 @@ const LoginMobile = () => {
         },
         onError: (ctx) => {
           setLoginError(ctx.error?.message || "This account does not exist.");
+          setIsLoading(false);
         },
       });
     } catch {
       setLoginError("Failed to sign in. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -198,9 +205,14 @@ const LoginMobile = () => {
               {loginError && <p className="text-red-500 mb-4">{loginError}</p>}
               <button
                 type="submit"
-                className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer"
+                className="w-full py-3 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative"
+                disabled={isLoading}
               >
-                Sign in
+                {isLoading ? (
+                  <LoadingSpinner loadingText="Signing in..." />
+                ) : (
+                  "Sign in"
+                )}
               </button>
             </form>
 
