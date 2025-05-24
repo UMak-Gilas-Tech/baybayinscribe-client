@@ -6,7 +6,7 @@ importScripts(
   "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9"
 );
 
-self.onmessage = async function () {
+self.onmessage = async function (event) {
   tflite.setWasmPath(
     "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/wasm/"
   );
@@ -16,3 +16,7 @@ self.onmessage = async function () {
 
   console.log("Loaded Model!", model);
 };
+function importScripts(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+

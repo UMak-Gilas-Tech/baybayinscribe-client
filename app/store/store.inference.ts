@@ -6,9 +6,14 @@ import { LABELS } from "@/constants";
 
 import { InferenceResult } from "@/types/type.inference";
 
+
+// import { InferenceEngine } from "@tensorflow/tfjs-tflite";
+// TODO: Replace with correct import or implementation for InferenceEngine
+
 export enum InferenceStatus {
   IDLE,
   LOADING,
+  WARMING_UP, // <-- Add this
   READY,
   ERROR,
 }
@@ -119,6 +124,9 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     await tf.ready();
     set({ status: InferenceStatus.LOADING });
     const model = await tf.loadGraphModel("../../models/model.json");
+
+    // Set warming up state
+    set({ status: InferenceStatus.WARMING_UP });
 
     console.log("Warming up model...");
     if (model.inputs[0].shape) {
