@@ -31,7 +31,12 @@ export default function Home() {
   }, []);
 
   return (
-    <HomeContext.Provider value={{ lessonsStore: useLearningResourceStore, quizStore: useQuizStore }}>
+    <HomeContext.Provider
+      value={{
+        lessonsStore: useLearningResourceStore,
+        quizStore: useQuizStore,
+      }}
+    >
       <main className="min-h-screen w-full bg-white flex flex-col items-center justify-center sm:flex-row">
         <div className="flex items-center md:justify-start justify-center w-3/4">
           {isSmallScreen ? <ResponsiveNav /> : <LearningMaterialsNav />}

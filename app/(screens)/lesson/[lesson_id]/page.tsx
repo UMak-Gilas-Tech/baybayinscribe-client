@@ -15,20 +15,13 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useLessonContext } from "../LessonContext";
-import { CheckCircle2, Lock, FileText } from "lucide-react";
+import { CheckCircle2, Lock, FileText, ChevronLeft } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-type FileType = {
-  id: string;
-  name: string;
-  url: string;
-  type: string;
-};
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
   const percent = max === 0 ? 0 : Math.round((value / max) * 100);
@@ -47,15 +40,53 @@ function LessonContent() {
   const router = useRouter();
 
   if (status === "Loading") {
+    // Loading skeleton UI
     return (
-      <div className="max-w-4xl mx-auto py-12 px-4">
-        <Skeleton className="h-10 w-2/3 mb-4" />
-        <Skeleton className="h-6 w-1/2 mb-2" />
-        <Skeleton className="h-24 w-full mb-8" />
-        <div className="grid gap-6 md:grid-cols-2">
-          {[...Array(2)].map((_, i) => (
-            <Skeleton key={i} className="h-40 w-full" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
+        <div className="sticky top-0 z-10 bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-md border-b border-muted/40 mb-8">
+          <div className="max-w-4xl mx-auto px-4 pt-8">
+            <div className="shadow-lg border border-muted/30 bg-white/90 rounded-xl">
+              <div className="p-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <Skeleton className="h-10 w-64 mb-2" />
+                    <Skeleton className="h-6 w-40 mb-2" />
+                  </div>
+                  <div className="flex flex-col md:items-end gap-1">
+                    <Skeleton className="h-4 w-24 mb-1" />
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-4 w-28" />
+                  </div>
+                </div>
+                <Skeleton className="h-1 w-full my-6" />
+                <div className="flex items-center gap-3 mb-3">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <Skeleton className="h-3 w-full mb-6" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-2 mb-2 mt-2">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-5 w-10" />
+          </div>
+          <Skeleton className="h-1 w-full mb-6" />
+          <div className="grid gap-8 md:grid-cols-2">
+            {[...Array(2)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white/95 rounded-xl border border-muted/30 shadow-md p-6 flex flex-col gap-3"
+              >
+                <Skeleton className="h-6 w-40 mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2 mb-2" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -85,6 +116,13 @@ function LessonContent() {
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
       <div className="sticky top-0 z-10 bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-md border-b border-muted/40 mb-8">
         <div className="max-w-4xl mx-auto px-4 pt-8">
+          {/* Back button */}
+          <div className="mb-4">
+            <ChevronLeft
+              className="h-6 w-6 text-gray-500 cursor-pointer"
+              onClick={() => router.back()}
+            />
+          </div>
           <Card className="shadow-lg border border-muted/30 bg-white/90">
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -116,7 +154,7 @@ function LessonContent() {
                   <span className="text-xs text-muted-foreground">
                     Created by{" "}
                     <span className="font-medium text-foreground">
-                      {lesson.learning_resource.created_by.name || "Unknown"}
+                      {lesson.learning_resource.created_by ? (lesson.learning_resource.created_by as unknown as Record<string, string>).name : "Unknown"}
                     </span>
                   </span>
                   <span className="text-xs text-muted-foreground">
@@ -175,7 +213,7 @@ function LessonContent() {
                 module_id: string;
                 module_name: string;
                 module_description: string;
-                file?: FileType | null;
+                file?: string;
                 is_finished?: boolean;
               }) => {
                 let canView = false;

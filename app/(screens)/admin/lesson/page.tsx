@@ -28,7 +28,7 @@ const MyLessonsPage = () => {
       }
 
       const userId = session.data.user.id;
-      learningResourceStore.getLessons(userId);
+      learningResourceStore.getMyLessons(userId);
     };
     fetchLessons();
   }, []);

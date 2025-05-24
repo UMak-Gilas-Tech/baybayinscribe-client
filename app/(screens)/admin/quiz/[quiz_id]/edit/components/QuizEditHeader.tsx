@@ -37,11 +37,19 @@ interface QuizFormHeaderProps {
     timer: string;
     difficulty: QuizDifficulty;
   };
+  onChange?: (formData: {
+    title: string;
+    quizTopic: string;
+    description: string;
+    timer: string;
+    difficulty: string;
+  }) => void;
 }
 
 export const QuizFormHeader = ({
   onSubmit,
   existingData,
+  onChange,
 }: QuizFormHeaderProps) => {
   // Component state management
   const [title, setTitle] = useState("");
@@ -114,6 +122,20 @@ export const QuizFormHeader = ({
     quizInformation?.created_at,
     quizInformation?.updated_at,
   ]);
+
+  // Call onChange whenever any field changes
+  useEffect(() => {
+    if (onChange) {
+      onChange({
+        title,
+        quizTopic,
+        description,
+        timer,
+        difficulty,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, quizTopic, description, timer, difficulty]);
 
   return (
     <QuizFormCard>

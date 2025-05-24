@@ -15,11 +15,12 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
       .from(QuizSchema)
       .where(eq(QuizSchema.id, quizId));
 
-    if (doesQuizExist.length < 0) {
+    // Fix: should check if length === 0 for non-existent quiz
+    if (doesQuizExist.length === 0) {
       // Insert master quiz record
       await db.insert(QuizSchema).values({
         id: quizId,
-        created_by: created_by, // Use provided created_by or default to "system"
+        created_by: created_by,
       });
 
       // Insert quiz metadata record
@@ -30,7 +31,7 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
         category: quiz.metadata.category,
         description: quiz.metadata.description,
         is_public: quiz.metadata.is_public,
-        time_limit: quiz.metadata.time_limit || 30, // fallback time limit if not provided
+        time_limit: quiz.metadata.time_limit || 30,
         created_at: new Date(),
         updated_at: new Date(),
       });
@@ -74,7 +75,7 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
       // Update each quiz question (if any)
       if (quiz.questions && Array.isArray(quiz.questions)) {
         for (const q of quiz.questions) {
-          if (!q.id) {
+          if (!q.id || q.id == "") {
             // Insert as new question if id is missing/null
             await db.insert(quiz_question).values({
               id: crypto.randomUUID(),
@@ -112,6 +113,8 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
                 updated_at: new Date(),
               })
               .where(eq(quiz_question.id, q.id));
+
+
           }
         }
       }
@@ -145,7 +148,9 @@ export async function POST(request: Request) {
       quiz.id
     );
 
-    return NextResponse.json(savedQuiz);
+    console.log(savedQuiz);
+
+    return NextResponse.json(savedQuiz, { status: 200 });
   } catch (error: unknown) {
     console.error("API error:", error);
     return NextResponse.json(
