@@ -105,6 +105,8 @@
   --max-width-8xl: 1400px;
   --border-width-1.25: 1.25px; 
   --stroke-width-1.25: 1.25px;
+ 
+  --font-baybayin: "Baybayin Simple TAWBID";
 }
 
 @theme {
@@ -239,6 +241,11 @@
   --hidden: display: none;
 }
 
+@theme {
+  --breakpoint-xs: 320px;
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -248,3 +255,4 @@
     @apply bg-[#f0f0f0];
   }
 }
+

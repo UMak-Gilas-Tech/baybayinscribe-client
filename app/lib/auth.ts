@@ -3,6 +3,8 @@ import db from "../../db/drizzle";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { schema } from "../../db/schema/auth-schema";
 import { sendEmail } from "./email";
+import { admin } from "better-auth/plugins";
+import { jwt } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -29,4 +31,8 @@ export const auth = betterAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     },
   },
+  plugins: [
+    jwt(),
+    admin(),
+  ],
 });

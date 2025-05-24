@@ -1,0 +1,1 @@
+ALTER TABLE "learning_resource" ALTER COLUMN "created_by" SET DATA TYPE text;

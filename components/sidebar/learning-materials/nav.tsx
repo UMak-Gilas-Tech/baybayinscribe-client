@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useHomeContext } from "@/app/page";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface NavCardProps {
   title: string;
@@ -135,84 +137,103 @@ function QuizCard({
 }
 
 export function LearningMaterialsNav() {
-  const guides = [
-    {
-      title: "Baybayin vowels",
-      description: "Learn the basic vowel characters of the Baybayin script",
-      href: "#",
-      image: "/images/baybayin.vowels.png",
-    },
-    {
-      title: "Baybayin Kudlit",
-      description: "Learn the basic kudlit characters of the Baybayin script",
-      href: "#",
-      image: "/images/baybayin.kudlit.png",
-    },
-    {
-      title: "Baybayin Consonant",
-      description:
-        "Learn the basic consonant characters of the Baybayin script",
-      href: "#",
-      image: "/images/baybayin.consonant.png",
-    },
-    {
-      title: "Coming Soon",
-      description: "New Baybayin lesson on the way. Stay tuned!",
-      href: "#",
-      image: "/images/baybayin.comingsoon.png",
-      isComingSoon: true,
-    },
-  ];
+  const homeContext = useHomeContext();
 
-  const quizzes = [
-    {
-      title: "Shuffle Mode",
-      description: "Mix and match Baybayin characters for fast-paced review",
-      href: "#",
-      image: "/images/baybayin.shuffle.png",
-    },
-    {
-      title: "Multiple Choice Quiz",
-      description: "Test your knowledge with multiple choice questions",
-      href: "#",
-      image: "/images/baybayin.multiplechoice.png",
-    },
-    {
-      title: "Fill in the Blank Quiz",
-      description: "Complete Baybayin words by selecting the correct symbols",
-      href: "#",
-      image: "/images/baybayin.fillinblanks.png",
-    },
-    {
-      title: "Sketch Quiz",
-      description:
-        "Draw Baybayin characters to test your memory and handwriting",
-      href: "#",
-      image: "/images/baybayin.sketchquiz.png",
-    },
-  ];
+  useEffect(() => {
+    if (
+      !homeContext.lessonsStore.getState().lessons &&
+      homeContext.lessonsStore.getState().status === "Loaded"
+    )
+      return;
+
+    homeContext.lessonsStore.getState().getAllLessons();
+  }, []);
+
+  useEffect(() => {
+    if (
+      !homeContext.quizStore.getState().quizzes &&
+      homeContext.quizStore.getState().status === "Loaded"
+    )
+      return;
+
+    homeContext.quizStore.getState().loadAllQuiz();
+  }, []);
+
+  // Determine loading state for lessons and quizzes
+  const lessonsLoading =
+    homeContext.lessonsStore.getState().status !== "Loaded" ||
+    !homeContext.lessonsStore.getState().lessons;
+  const quizzesLoading =
+    homeContext.quizStore.getState().status !== "Loaded" ||
+    !homeContext.quizStore.getState().quizzes;
+
+  // Skeleton card for loading state
+  function SkeletonCard() {
+    return (
+      <div className="w-56 flex-shrink-0">
+        <div className="bg-gray-200 rounded-lg overflow-hidden shadow-sm border border-blue-200">
+          <div className="relative h-44 bg-[#e9f5f2] flex items-center justify-center p-4">
+            <Skeleton className="w-20 h-20 rounded-md" />
+          </div>
+          <div className="p-4">
+            <Skeleton className="h-5 w-32 mb-2" />
+            <Skeleton className="h-3 w-40 mb-4" />
+            <Skeleton className="h-8 w-full rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="mb-8 max-w-fit lg:mx-auto">
+    <div className="p-4 space-y-4 flex flex-col items-center justify-center">
+      <div className="mb-8 w-full">
         <h2 className="text-lg font-semibold mb-3 mt-8 text-[#1e3e59] uppercase">
           Guide to Baybayin
         </h2>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <div
             className="flex pb-2 space-x-10"
             style={{ width: "max-content" }}
           >
-            {guides.map((guide) => (
-              <div key={guide.title} className="w-56 flex-shrink-0">
-                <GuideCard {...guide} />
-              </div>
-            ))}
+            {lessonsLoading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : (
+              <>
+                {homeContext.lessonsStore.getState().lessons?.map((lesson) => (
+                  <div key={lesson.title} className="w-56 flex-shrink-0">
+                    <GuideCard
+                      title={lesson.title}
+                      description={lesson.description}
+                      href={`/lesson/${lesson.id}`}
+                      // image={lesson.image}
+                    />
+                  </div>
+                ))}
+                {(homeContext.lessonsStore.getState().lessons &&
+                  homeContext.lessonsStore.getState().lessons!.length <= 3) && (
+                  <div className="w-56 flex-shrink-0">
+                    <GuideCard
+                      title="Coming Soon"
+                      description="New Baybayin lesson on the way. Stay tuned!"
+                      href="#"
+                      image="/images/baybayin.comingsoon.png"
+                      isComingSoon={true}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="mb-6 max-w-fit lg:mx-auto">
+      <div className="mb-6 w-full">
         <h2 className="text-lg font-semibold mb-3 text-[#1e3e59] uppercase">
           AI Quiz
         </h2>
@@ -221,11 +242,39 @@ export function LearningMaterialsNav() {
             className="flex pb-2 mt-4 space-x-10"
             style={{ width: "max-content" }}
           >
-            {quizzes.map((quiz) => (
-              <div key={quiz.title} className="w-56 flex-shrink-0">
-                <QuizCard {...quiz} />
-              </div>
-            ))}
+            {quizzesLoading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : (
+              <>
+                {homeContext.quizStore.getState().quizzes?.map((quiz) => (
+                  <div key={quiz.metadata.quiz_id} className="w-56 flex-shrink-0">
+                    <QuizCard
+                      title={quiz.metadata.quiz_name}
+                      description={quiz.metadata.description ?? "No Description"}
+                      href={`/quiz/${quiz.metadata.quiz_id}/view`}
+                      // image={quiz.image}
+                    />
+                  </div>
+                ))}
+                {(homeContext.quizStore.getState().quizzes &&
+                  homeContext.quizStore.getState().quizzes!.length <= 3) && (
+                  <div className="w-56 flex-shrink-0">
+                    <GuideCard
+                      title="Coming Soon"
+                      description="New Baybayin Quizzes are on their way. Stay tuned!"
+                      href="#"
+                      image="/images/baybayin.comingsoon.png"
+                      isComingSoon={true}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

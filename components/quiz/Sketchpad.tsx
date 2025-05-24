@@ -1,5 +1,5 @@
 "use client";
-import { Eraser, Pencil, Trash, Undo } from "lucide-react";
+import { Pencil, Trash, Undo } from "lucide-react";
 import React, {
   useRef,
   useEffect,
@@ -57,7 +57,8 @@ const SketchpadCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
-  const [isErasing, setIsErasing] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setIsErasing] = useState(false);
   const [baybayinText, setBaybayinText] = useState<string | null>(null);
 
   // NEW: Reset canvas on render.
@@ -142,14 +143,14 @@ const SketchpadCanvas = () => {
   }, []);
 
   useEffect(() => {
-    const inference: InferenceState = props.inference as any;
+    const inference: InferenceState = props.inference as unknown as InferenceState;
 
     if (inference.status == InferenceStatus.READY)
       quizContext.subscribeToSubmit(handleSubmit);
   }, [(props.inference as InferenceState).status]);
 
   useEffect(() => {
-    const inference: InferenceState = props.inference as any;
+    const inference: InferenceState = props.inference as unknown as InferenceState;
     if (inference && inference.localInferenceResult) {
       const result = inference.localInferenceResult;
       if (result.length > 0) {
@@ -193,14 +194,14 @@ const SketchpadCanvas = () => {
 
   const handleSubmit = () => {
     const canvas = canvasRef.current;
-    const inference: InferenceState = props.inference as any;
+    const inference: InferenceState = props.inference as unknown as InferenceState;
     if (
       canvas &&
       inference &&
       inference.status === InferenceStatus.READY &&
       inference.localModel
     ) {
-      const inference: InferenceState = props.inference as any;
+      const inference: InferenceState = props.inference as unknown as InferenceState;
       inference.inferLocal(undefined, canvas, false);
     } else {
       console.error("Inference is not ready or canvas is not available");
@@ -281,7 +282,7 @@ const SketchpadCanvas = () => {
 };
 
 const SketchpadComponent = (props: SketchpadProps) => {
-  const inference: any = useInferenceStore();
+  const inference = useInferenceStore();
   return (
     <SketchpadPropsContext.Provider value={{ inference, ...props }}>
       <SketchpadQuestionHolder />

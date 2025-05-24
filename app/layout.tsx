@@ -4,7 +4,6 @@ import React from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
 import TopNavbar from "../components/sidebar/Navbar";
-import Background from "@/components/background";
 import { Toaster } from "sonner";
 
 import "./globals.css";
@@ -12,7 +11,7 @@ import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
 import { ScreenSize } from "../components/ScreenSize";
 import { siteConfig } from "./metadata";
-
+import Background from "@/components/background";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -48,6 +47,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Toaster richColors />
         <SidebarProvider>
           {!isLoginPage && (
             <div className="flex flex-col h-screen">

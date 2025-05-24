@@ -152,7 +152,7 @@ const TermsServicesWeb = () => {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className={`w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition ${
+            className={`w-4/5 py-3 mb-4 bg-[#837EFF] text-white font-semibold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
               isSubmitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >

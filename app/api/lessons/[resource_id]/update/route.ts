@@ -8,7 +8,7 @@ export async function PUT(
   { params }: { params: { resource_id: string } }
 ) {
   try {
-    const { resource_id } = params;
+    const { resource_id } = await params;
     if (!resource_id) {
       return new Response("Resource ID is required", { status: 400 });
     }

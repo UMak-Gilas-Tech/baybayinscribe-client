@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import TransliteratorHeader from "@/public/images/TransliteratorHeader.png";
 import baybayifyWord, { baybayinToLatin } from "@/lib/baybayify";
 

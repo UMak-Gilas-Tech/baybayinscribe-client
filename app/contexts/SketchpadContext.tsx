@@ -3,7 +3,6 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  useCallback,
 } from "react";
 
 interface SketchpadContextType {

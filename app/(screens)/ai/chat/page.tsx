@@ -70,10 +70,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
         ></span>
 
         <Markdown
-          children={displayText}
           components={{
             // wrap each paragraph
-            p({ node, children, ...rest }) {
+            p({ children, ...rest }) {
               // flatten children to plain string
               const raw = React.Children.toArray(children)
                 .map((c) => (typeof c === "string" ? c : ""))
@@ -81,12 +80,14 @@ const ChatBubble = (props: ChatBubbleProps) => {
               return <p {...rest}>{parseSentence(raw)}</p>;
             },
             // catch any remaining text nodes
-            text({ node, children }) {
+            text({ children }) {
               const raw = (children as Array<string>)[0] as string;
               return <>{parseSentence(raw)}</>;
             },
           }}
-        />
+        >
+          {displayText}
+        </Markdown>
 
         {/* render navigation buttons if any */}
         {commands.length > 0 && (
@@ -198,7 +199,7 @@ const ChatPageInput = ({
 );
 
 const ChatPage = () => {
-  const { response, status, sendPrompt, reset } = useAiStore();
+  const { response, status, sendPrompt } = useAiStore();
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>(
     []
   );

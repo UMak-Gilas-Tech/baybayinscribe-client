@@ -9,29 +9,25 @@ export async function PUT(
   params: { params: { resource_id: string; module_id: string } }
 ) {
   try {
-    const { resource_id, module_id } = params.params;
+    const { resource_id, module_id } = await params.params;
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const { existingFileId } = await request.json();
+    const existingFileId = formData.get("existingFileId")?.toString();
 
     if (!resource_id || !module_id) {
       return NextResponse.json("Resource ID and Module ID are required", {
         status: 400,
       });
     }
-    if (!existingFileId) {
-      return NextResponse.json(
-        "File Reference does not exist. Please upload a file.",
-        { status: 400 }
-      );
-    }
 
-    await useModuleStore.getState().updateModule(module_id, {
+    const updatedModule = await useModuleStore.getState().updateModule(module_id, {
       file,
       existingFileId,
       resource_id,
     });
-    return NextResponse.json("Module updated successfully", { status: 200 });
+
+    
+    return NextResponse.json(updatedModule, { status: 200 });
   } catch (error) {
     console.error("Error updating module:", error);
     return NextResponse.json(
@@ -63,11 +59,11 @@ export async function PATCH(
       });
     }
 
-    await useModuleStore.getState().updateModule(module_id, {
+    const updatedModule = await useModuleStore.getState().updateModule(module_id, {
       module_name: title,
       module_description: description,
     });
-    return NextResponse.json("Module updated successfully", { status: 200 });
+    return NextResponse.json(updatedModule, { status: 200 });
   } catch (error) {
     console.error("Error updating module:", error);
     return NextResponse.json(

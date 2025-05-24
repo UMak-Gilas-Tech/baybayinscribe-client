@@ -1,4 +1,4 @@
-import db from "@/db";
+import db from "@/db/drizzle";
 import { learningResource } from "@/db/schema/learning-resources";
 import { LearningResource } from "@/types/type.lessons";
 import { Status } from "@/types/type.loading";
@@ -13,21 +13,23 @@ type ServerLrStore = {
 
   createLesson: (
     lessonName: string,
-    lessonDescription: string
-  ) => Promise<void>;
-  getLesson: (lessonId: string) => Promise<void>;
+    lessonDescription: string,
+    created_by: string,
+    isLessonVisible?: boolean,
+  ) => Promise<typeof learningResource.$inferSelect | Record<string, string>>;
+  getLesson: (lessonId: string) => Promise<LearningResource>;
   getLessons: () => Promise<void>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
 };
 
-export const useServerLrStore = create<ServerLrStore>((set, get) => ({
+export const useServerLrStore = create<ServerLrStore>((set) => ({
   lesson: {} as LearningResource,
   lessons: [],
   error: undefined,
   status: "Idle",
 
-  createLesson: async (lessonName, lessonDescription) => {
+  createLesson: async (lessonName, lessonDescription, created_by, isLessonVisible) => {
     set({ status: "Loading" });
     try {
       const lessonCreateRequest = await db
@@ -36,6 +38,8 @@ export const useServerLrStore = create<ServerLrStore>((set, get) => ({
           id: crypto.randomUUID(),
           title: lessonName,
           description: lessonDescription,
+          created_by: created_by,
+          is_visible: isLessonVisible ?? false,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
@@ -46,8 +50,10 @@ export const useServerLrStore = create<ServerLrStore>((set, get) => ({
       }
 
       set({ status: "Loaded" });
+      return lessonCreateRequest[0];
     } catch (error) {
       set({ error: (error as Error).message, status: "Error" });
+      return { error: (error as Error).message };
     }
   },
   getLesson: async (lessonId) => {
@@ -58,11 +64,12 @@ export const useServerLrStore = create<ServerLrStore>((set, get) => ({
       .from(learningResource)
       .where(eq(learningResource.id, lessonId));
     if (lessonsGetAll.length === 0) {
-      set({ error: "Lesson not found" });
-      return;
+      set({ error: "Lesson not found", status: "Error" });
+      throw new Error("Lesson not found");
     }
 
     set({ lesson: lessonsGetAll[0], status: "Loaded" });
+    return lessonsGetAll[0];
   },
   getLessons: async () => {
     set({ status: "Loading" });

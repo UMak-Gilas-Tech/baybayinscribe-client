@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
 import { useSketchpad } from "@/app/contexts/SketchpadContext";
-import { baybayinCharacters, LABELS } from "@/constants";
+import { baybayinCharacters } from "@/constants";
 import baybayify from "@/lib/baybayify";
 
 type CharacterSelectionItemProps = {
@@ -12,12 +12,6 @@ type CharacterSelectionItemProps = {
   arrow?: boolean;
   bgClassName?: string;         // new: custom bg class
   hoverBgClassName?: string;    // new: custom hover bg/scale classes
-} & React.HTMLAttributes<HTMLDivElement>;
-
-type CharacterSelectionDrawerProps = {
-  onSelect: (character: string) => void;
-  onClose: () => void;
-  characters: string[];
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CharacterSelectionDrawer = () => {

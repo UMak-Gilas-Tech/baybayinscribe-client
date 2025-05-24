@@ -19,8 +19,8 @@ export const useAiStore = create<AiStore>((set) => ({
     try {
       const text = await promptGemini(prompt);
       set({ status: "Loaded", response: text });
-    } catch (e: any) {
-      set({ status: "Error", error: e.message || "Unknown error" });
+    } catch (e: unknown) {
+      set({ status: "Error", error: (e as Error).message || "Unknown error" });
     }
   },
   reset: () => {

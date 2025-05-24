@@ -2,130 +2,187 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  SquareTerminal,
-  Settings2,
+  Languages,
+  ScanText,
+  PencilRuler,
+  BotMessageSquare,
+  BookOpenText,
+  ListTodo,
+  UserCog,
 } from "lucide-react";
 
 import { NavMain } from "./nav.main";
 import { NavProjects1, NavProjects } from "./nav.projects";
-import { TeamSwitcher } from "./team.switcher";
+
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "../ui/sidebar";
+  useSidebar,
+} from "../ui/sidebar"
+import ProfileModal from "@/components/profile.settings/accounts/modal.profile"
+import Image from "next/image"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Username Here",
-      logo: GalleryVerticalEnd,
-      plan: "User Role Here",
-    },
-    {
-      name: "Username 2 Here",
-      logo: AudioWaveform,
-      plan: "Usere Role 2 Here",
-    },
-    {
-      name: "Username 3 Here",
-      logo: Command,
-      plan: "User Role 3 Here",
-    },
-  ],
-  navMain: [
-    {
-      title: "Text AI (Fil To Baybayin)",
-      url: "/transliterator",
-      icon: SquareTerminal,
-    },
-    {
-      title: "Scanner AI",
-      url: "#",
-      icon: Bot,
-      isActive: true,
-      items: [
-        {
-          title: "Web Cam",
-          url: "/ai/vision",
-        },
-        {
-          title: "Upload Image",
-          url: "/ai/vision",
-        },
-      ],
-    },
-    {
-      title: "Sketch",
-      url: "/ai/sketch",
-      icon: BookOpen,
-    },
-
-    {
-      title: "Chat AI",
-      url: "/ai/chat",
-      icon: Settings2,
-    },
-  ],
-  projects: [
-    {
-      name: "Learning",
-      url: "/auth/login",
-      icon: Frame,
-    },
-    {
-      name: "AI Quiz",
-      url: "#",
-      icon: PieChart,
-    },
-  ],
-
-  projects1: [
-    {
-      name: "Edit Profile",
-      url: "/signedinscreen",
-      icon: Frame,
-    },
-    {
-      name: "App Settings",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "General",
-      url: "#",
-      icon: Map,
-    },
-  ],
+type UserData = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  dateOfBirth?: string;
+  provider?: string;
+  contactNumber?: string;
+  profilePictureUrl?: string;
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const openProfileModal = () => setIsProfileModalOpen(true);
+  const closeProfileModal = () => setIsProfileModalOpen(false);
+
+  const { state } = useSidebar();
+
+  const data = {
+    user: {
+      name: userData?.username || "Guest",
+      email: userData?.email || "",
+      avatar: "/avatars/shadcn.jpg",
+    },
+
+    navMain: [
+      {
+        title: "Text to Baybayin",
+        url: "/transliterator",
+        icon: Languages,
+      },
+      {
+        title: "Baybayin Scanner",
+        url: "/ai/vision",
+        icon: ScanText,
+        isActive: true,
+      },
+      {
+        title: "Baybayin Sketch",
+        url: "/ai/sketch",
+        icon: PencilRuler,
+      },
+      {
+        title: "Baybayin Chat",
+        url: "/ai/chat",
+        icon: BotMessageSquare,
+      },
+    ],
+    
+    projects: [
+      {
+        name: "Lessons",
+        url: "#",
+        icon: BookOpenText,
+      },
+      {
+        name: "Quiz",
+        url: "#",
+        icon: ListTodo,
+      },
+    ],
+  };
+
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Fetch user information (username, email, etc.)
+        const userResponse = await fetch("/api/user.information", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        let userDataFromApi: UserData | null = null;
+
+        if (userResponse.ok) {
+          userDataFromApi = await userResponse.json();
+        } else {
+          console.error("Failed to fetch user data");
+          // Handle error or set default user data
+          userDataFromApi = { username: "Guest", email: "", firstName: "", lastName: "" }; // Provide defaults if fetch fails
+        }
+
+        // Set user data
+        setUserData(userDataFromApi || { username: "Guest", email: "", firstName: "", lastName: "" });
+
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setUserData({ username: "Guest", email: "", firstName: "", lastName: "" });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const projects1 = [
+    {
+      name: "Profile",
+      action: openProfileModal,
+      icon: UserCog,
+    },
+  ];
+
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavProjects1 projects={data.projects1} />
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          {!isLoading && userData ? (
+            <div className="flex items-center space-x-2">
+              <div className="flex-shrink-0">
+                <Image
+                  src={userData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
+                  alt="User Avatar"
+                  className="h-8 w-8 rounded-full object-cover"
+                  width={32}
+                  height={32}
+                />
+              </div>
+              {state === "expanded" && (
+                <div className="flex flex-col">
+                  <span className="font-semibold text-sm">{`${userData.firstName || ''} ${userData.lastName || ''}`.trim()}</span>
+                  <span className="text-xs text-gray-500">{userData.username || "User"}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-gray-300 animate-pulse"></div>
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="h-3 w-20 bg-gray-300 animate-pulse"></div>
+                <div className="h-2 w-16 bg-gray-300 animate-pulse"></div>
+              </div>
+            </div>
+          )}
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={data.navMain} />
+          <NavProjects projects={data.projects} />
+          <NavProjects1 projects={projects1} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+
+      {/* Profile Modal */}
+      {!isLoading && userData && (
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={closeProfileModal}
+          userData={userData}
+        />
+      )}
+    </>
+  )
 }

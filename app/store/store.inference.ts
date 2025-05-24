@@ -4,8 +4,6 @@ import * as tf from "@tensorflow/tfjs";
 import { create } from "zustand";
 import { LABELS } from "@/constants";
 
-// @ts-expect-error
-import { InferenceEngine, CVImage } from "inferencejs";
 import { InferenceResult } from "@/types/type.inference";
 
 export enum InferenceStatus {
@@ -156,17 +154,23 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     set({ status: InferenceStatus.READY });
   },
   detect: (video, canvas) => {
-    const detectFrame = () => {
+    const detectFrame = async () => {
       if (!get().modelWorkerId) {
         setTimeout(detectFrame, 100 / 3);
         return;
       }
       if (!video || !canvas) return;
       const img = new CVImage(video);
-      get().inferEngine &&
-        get()
-          .inferEngine.infer(get().modelWorkerId, img)
-          .then((predictions: any[]) => {
+      const inferEngine = get().inferEngine;
+      if (inferEngine) {
+        inferEngine
+          .infer(get().modelWorkerId, img)
+          .then((predictions: Array<{ 
+            color: string; 
+            bbox: { x: number; y: number; width: number; height: number }; 
+            class: string; 
+            confidence: number; 
+          }>) => {
             const ctx = canvas.getContext("2d");
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -202,8 +206,9 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
                 y - 10
               );
             }
-            setTimeout(detectFrame, 100 / 3);
           });
+      }
+      setTimeout(detectFrame, 100 / 3);
     };
     detectFrame();
   },

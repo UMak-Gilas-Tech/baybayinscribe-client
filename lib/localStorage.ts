@@ -7,12 +7,13 @@ export class LocalStorageService {
 			window.localStorage.removeItem(testKey);
 			return true;
 		} catch (e) {
+			console.error('LocalStorage is not available:', e);
 			return false;
 		}
 	}
 
 	// Create or Update an item
-	static setItem(key: string, value: any): void {
+	static setItem(key: string, value: Record<string, string>): void {
 		if (!LocalStorageService.isLocalStorageAvailable()) {
 			console.error('LocalStorage is not available.');
 			return;
