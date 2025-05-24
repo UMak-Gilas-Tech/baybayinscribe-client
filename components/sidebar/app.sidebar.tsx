@@ -115,7 +115,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const data = {
     user: {
-      name: isAdminRoute ? "Administrator" : userData?.username || "Guest",
+      name: isAdminRoute ? "Administrator" : (userData?.username ? `@${userData.username}` : "Guest"),
       email: userData?.email || "",
       avatar: "/avatars/shadcn.jpg",
     },
@@ -147,12 +147,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       : [
           {
             name: "Lessons",
-            url: "#",
+            url: "/lessons/all",
             icon: BookOpenText,
           },
           {
             name: "Quiz",
-            url: "#",
+            url: "/quiz/all",
             icon: ListTodo,
           },
         ],
@@ -215,6 +215,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       action: openProfileModal,
       icon: UserCog,
     },
+    {
+      name: "Admin Panel",
+      url: "/admin",
+      icon: ListTodo,
+      adminOnly: true
+    },
   ];
 
   return (
@@ -245,7 +251,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         }`.trim()}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {isAdminRoute ? "Admin Panel" : userData.username || "User"}
+                    {isAdminRoute ? "Admin Panel" : userData?.username ? `@${userData.username}` : "User"}
                   </span>
                 </div>
               )}
