@@ -34,7 +34,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 type FieldType = "multipleChoice" | "sketch" | "quiz";
- 
+
 type Field = { id: string; type: FieldType; data: any };
 
 // Define prop types for MemoizedField
@@ -133,12 +133,14 @@ const EditQuizScreenInner = () => {
             question: field.data.description || "",
             character: field.data.character || "",
             ...field.data,
+            type: "sketch",
           };
         } else if (field.type === "multipleChoice") {
           return {
             ...base,
             question: field.data.question || "",
             options: field.data.options || [],
+            type: "multipleChoice",
             correctAnswer:
               field.data.correct_answer || field.data.correctAnswer || "",
             display_text: field.data.display_text || "",
@@ -150,6 +152,7 @@ const EditQuizScreenInner = () => {
           return {
             ...base,
             question: field.data.question || "",
+            type: "quiz",
             baybayinCharacter:
               field.data.baybayinCharacter || field.data.display_text || "",
             answer: field.data.correct_answer || "",
@@ -240,15 +243,25 @@ const EditQuizScreenInner = () => {
   }, [quizStore?.quiz, quizStore?.error]);
 
   useEffect(() => {
+    // Only redirect if quiz_id is valid and not "new"
+    console.log(
+      "Checking quiz_id redirect condition:",
+      params.quiz_id,
+      quizStore?.quiz?.metadata?.quiz_id,
+      quizStore?.status,
+      quizStore?.quiz?.metadata?.quiz_id !== "new",
+      quizStore?.quiz?.metadata?.quiz_id !== undefined
+    )
     if (
       params.quiz_id === "new" &&
       quizStore &&
       quizStore.quiz &&
+      quizStore.quiz.metadata &&
+      quizStore.quiz.metadata.quiz_id &&
+      quizStore.quiz.metadata.quiz_id !== "new" &&
       quizStore.status === "Loaded"
     ) {
-      router.push("admin/quiz/" + quizStore.quiz.metadata?.quiz_id + "/edit");
-    } else {
-      toast.success("Saved Quiz!");
+      router.replace("/admin/quiz/" + quizStore.quiz.metadata.quiz_id + "/edit");
     }
   }, [quizStore?.quiz]);
 
@@ -286,14 +299,9 @@ const EditQuizScreenInner = () => {
       quizInformation!.difficulty as QuizDifficulty,
       quizInformation!.quiz_name
     );
-    console.log(quizGenerationResult.questions);
-    const typeMap: Record<string, FieldType> = {
-      MCQ: "multipleChoice",
-      SKT: "sketch",
-      IDT: "quiz",
-    };
+
     const aiFields = quizGenerationResult.questions.map((question) => {
-      const fieldType: FieldType = typeMap[question.type] || "quiz";
+      const fieldType: FieldType = question.type as FieldType;
       const data: any = { ...question };
       // Map correct_answer to correctAnswer for MCQ
       if (fieldType === "multipleChoice") {
@@ -301,7 +309,8 @@ const EditQuizScreenInner = () => {
       }
       // Map correct_answer to answer for IDT/quiz
       if (fieldType === "quiz") {
-        data.answer = question.correct_answer || "";
+        data.correct_answer = question.correct_answer || "";
+        data.answer = question.display_text || "";
       }
       // For sketch, ensure options contains character if not present
       if (fieldType === "sketch" && !data.options && data.character) {
@@ -313,20 +322,18 @@ const EditQuizScreenInner = () => {
         data,
       };
     });
+    console.log(aiFields)
     setFields((prev) => [...prev, ...aiFields]);
     setAiDialogOpen(false);
     setAiCount("");
   };
 
   const handleSaveQuiz = async () => {
-    // Validate quizInformation exists and has required properties
     if (!quizInformation) {
       setErrorMessage("Quiz information is missing.");
       setShowErrorDialog(true);
       return;
     }
-
-    console.log(quizInformation);
 
     // Validate quizInformation properties
     if (!quizInformation.quiz_name) {
@@ -371,7 +378,7 @@ const EditQuizScreenInner = () => {
         console.log("Quiz Type", field.data);
         if (
           !field.data.question ||
-          !field.data.display_text ||
+          !field.data.answer ||
           !field.data.correct_answer
         ) {
           setErrorMessage(
@@ -383,11 +390,30 @@ const EditQuizScreenInner = () => {
       }
     }
 
-    quizStore?.saveQuiz({
-      id: quizInformation.quiz_id || crypto.randomUUID(),
-      created_by: currentSession.user.id,
+    // Always generate a quizId if missing or invalid
+    let quizId = quizInformation.quiz_id;
+    if (
+      !quizId ||
+      typeof quizId !== "string" ||
+      quizId.trim() === "" ||
+      quizId === "new" ||
+      quizId === undefined
+    ) {
+      quizId = crypto.randomUUID();
+      // Immediately update quizInformation state and wait for it to finish before saving
+      await new Promise<void>((resolve) => {
+        setQuizInformation((prev) => {
+          resolve();
+          return { ...prev, quiz_id: quizId };
+        });
+      });
+    }
+
+    await quizStore?.saveQuiz({
+      id: quizId,
+      created_by: currentSession?.user?.id ?? "",
       metadata: {
-        quiz_id: quizInformation.quiz_id,
+        quiz_id: quizId,
         quiz_name: quizInformation.quiz_name,
         difficulty: quizInformation.difficulty,
         category: quizInformation.category,
@@ -397,183 +423,206 @@ const EditQuizScreenInner = () => {
         created_at: new Date(),
         updated_at: new Date(),
       },
-      questions: fields.map((field, index) => {
-        const baseQuestion = {
-          id: field.id,
-          quiz_id: quizInformation.quiz_id,
-          created_at: new Date(),
-          updated_at: new Date(),
-          question_number: field.data.question_number || index + 1,
-          type: field.type,
-          question: field.data.question || null,
-          options: field.data.options || [],
-          correct_answer: field.data.correct_answer || null,
-          description: field.data.description || null,
-          character: field.data.character || null,
-          is_options_baybayin: field.data.is_options_baybayin || false,
-          is_question_baybayin: field.data.is_question_baybayin || false,
-          is_input_baybayin: field.data.is_input_baybayin || false,
-          display_text:
-            field.data.display_text || field.data.baybayinCharacter || "",
-          language: field.data.language || null,
-          pairs: field.data.pairs || [],
-          answer: field.data.answer || field.data.correct_answer || null,
-        };
-        return baseQuestion;
-      }),
+      questions: fields.map((field, index) => ({
+        id: field.id,
+        quiz_id: quizId,
+        created_at: new Date(),
+        updated_at: new Date(),
+        question_number: field.data.question_number || index + 1,
+        type: field.type,
+        question: field.data.question || null,
+        options: field.data.options || [],
+        correct_answer: field.data.correct_answer || null,
+        description: field.data.description || null,
+        character: field.data.character || null,
+        is_options_baybayin: field.data.is_options_baybayin || false,
+        is_question_baybayin: field.data.is_question_baybayin || false,
+        is_input_baybayin: field.data.is_input_baybayin || false,
+        display_text:
+          field.data.display_text || field.data.baybayinCharacter || field.data.answer || "",
+        language: field.data.language || null,
+        pairs: field.data.pairs || [],
+        answer: field.data.answer || field.data.correct_answer || null,
+      })),
     });
+
+    // navigate to the quiz details page
+    router.push("/admin/quiz/" + quizId + "/edit");
   };
+
+  // Add a dataLoaded variable to check if all required data is loaded
+  const dataLoaded =
+    quizStore &&
+    quizStore.status === "Loaded" &&
+    quizInformation &&
+    fields.length > 0;
 
   return (
     <>
       <div className="relative w-screen h-screen">
-        {quizStore && quizStore.status == "Loading" && (
+        {(!dataLoaded || quizStore.status == "Loading") && (
           <div className="flex flex-col items-center justify-center absolute w-screen h-screen backdrop-blur-sm bg-black/20 z-50">
             <LoadingSpinner loadingText="Loading Quiz..." />
           </div>
         )}
-        <div className="flex flex-col items-center w-full h-screen p-4">
-          <div className="md:w-3/4 w-[90%]">
-            <div className="py-6 flex items-center justify-between">
-              <ChevronLeft onClick={() => router.back()} />
-              <div className="flex flex-row gap-4 items-end justify-end">
-                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-                <span>Is public</span>
-              </div>
-            </div>
-            {quizInformation && (
-              <QuizFormHeader
-                onSubmit={() => {}}
-                existingData={{
-                  title:
-                    quizStore?.quiz?.metadata?.quiz_name ??
-                    quizInformation.quiz_name ??
-                    "",
-                  quizTopic:
-                    quizStore?.quiz?.metadata?.category ??
-                    quizInformation.category ??
-                    "",
-                  description:
-                    quizStore?.quiz?.metadata?.description ??
-                    quizInformation.description ??
-                    "",
-                  timer:
-                    (
-                      quizStore?.quiz?.metadata?.time_limit ??
-                      quizInformation.time_limit ??
-                      ""
-                    )?.toString() || "",
-                  difficulty: (quizStore?.quiz?.metadata?.difficulty ??
-                    quizInformation.difficulty ??
-                    "") as QuizDifficulty,
-                }}
-              />
-            )}
-
-            {/* Updated FAB implementation */}
-            <div className="p-10 fixed bottom-4 right-4 flex flex-col items-end">
-              <div
-                className={`mt-2 flex flex-col gap-2 transform origin-bottom transition-all duration-300 pb-6 ${
-                  showFabOptions
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-95 pointer-events-none"
-                }`}
-              >
-                <button
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
-                  onClick={() => {
-                    addField("multipleChoice");
-                    setShowFabOptions(false);
-                  }}
-                >
-                  <List size={16} />
-                </button>
-                <button
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
-                  onClick={() => {
-                    addField("sketch");
-                    setShowFabOptions(false);
-                  }}
-                >
-                  <PenTool size={16} />
-                </button>
-                <button
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
-                  onClick={() => {
-                    addField("quiz");
-                    setShowFabOptions(false);
-                  }}
-                >
-                  <FileText size={16} />
-                </button>
-                <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-                  <DialogTrigger asChild>
-                    <button
-                      className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
-                      onClick={() => setShowFabOptions(false)}
-                    >
-                      <Sparkles size={16} />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Generate AI Questions</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-3 mt-2">
-                      <input
-                        type="number"
-                        placeholder="How many?"
-                        value={aiCount}
-                        onChange={(e) => setAiCount(e.target.value)}
-                        className="px-3 py-2 border rounded"
-                      />
-                      <button
-                        onClick={handleGenerateAI}
-                        className="px-4 py-2 bg-indigo-500 text-white rounded"
-                      >
-                        Generate
-                      </button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                <button
-                  className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"
-                  onClick={() => {
-                    handleSaveQuiz();
-                    setShowFabOptions(false);
-                  }}
-                >
-                  <Save size={16} />
-                </button>
-              </div>
-
-              <button
-                className="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg"
-                onClick={() => setShowFabOptions(!showFabOptions)}
-              >
-                <Plus size={24} />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-6">
-              {fields.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-full py-20">
-                  <p className="text-gray-500">
-                    No fields added yet. Click the + button to get started.
-                  </p>
+        {dataLoaded && (
+          <div className="flex flex-col items-center w-full h-screen p-4">
+            <div className="md:w-3/4 w-[90%]">
+              <div className="py-6 flex items-center justify-between">
+                <ChevronLeft onClick={() => router.back()} />
+                <div className="flex flex-row gap-4 items-end justify-end">
+                  <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                  <span>Is public</span>
                 </div>
-              )}
-              {fields.map((field) => (
-                <MemoizedField
-                  key={field.id}
-                  field={field}
-                  updateFieldData={updateFieldData}
-                  removeField={removeField}
+              </div>
+              {quizInformation && (
+                <QuizFormHeader
+                  onSubmit={() => {}}
+                  existingData={{
+                    title:
+                      quizStore?.quiz?.metadata?.quiz_name ??
+                      quizInformation.quiz_name ??
+                      "",
+                    quizTopic:
+                      quizStore?.quiz?.metadata?.category ??
+                      quizInformation.category ??
+                      "",
+                    description:
+                      quizStore?.quiz?.metadata?.description ??
+                      quizInformation.description ??
+                      "",
+                    timer:
+                      (
+                        quizStore?.quiz?.metadata?.time_limit ??
+                        quizInformation.time_limit ??
+                        ""
+                      )?.toString() || "",
+                    difficulty: (quizStore?.quiz?.metadata?.difficulty ??
+                      quizInformation.difficulty ??
+                      "") as QuizDifficulty,
+                  }}
+                  onChange={(data) => {
+                    setQuizInformation((prev) => ({
+                      ...prev,
+                      quiz_name: data.title ?? prev.quiz_name,
+                      category: data.quizTopic ?? prev.category,
+                      description: data.description ?? prev.description,
+                      time_limit: data.timer ? parseInt(data.timer) : prev.time_limit,
+                      difficulty: (data.difficulty ?? prev.difficulty) as QuizDifficulty,
+                    }));
+                  }}
                 />
-              ))}
+              )}
+
+              {/* Updated FAB implementation */}
+              <div className="p-10 fixed bottom-4 right-4 flex flex-col items-end">
+                <div
+                  className={`mt-2 flex flex-col gap-2 transform origin-bottom transition-all duration-300 pb-6 ${
+                    showFabOptions
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-95 pointer-events-none"
+                  }`}
+                >
+                  {params.quiz_id != "new" ? (
+                    <>
+                      <button
+                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        onClick={() => {
+                          addField("multipleChoice");
+                          setShowFabOptions(false);
+                        }}
+                      >
+                        <List size={16} />
+                      </button>
+                      <button
+                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        onClick={() => {
+                          addField("sketch");
+                          setShowFabOptions(false);
+                        }}
+                      >
+                        <PenTool size={16} />
+                      </button>
+                      <button
+                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        onClick={() => {
+                          addField("quiz");
+                          setShowFabOptions(false);
+                        }}
+                      >
+                        <FileText size={16} />
+                      </button>
+                      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+                        <DialogTrigger asChild>
+                          <button
+                            className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                            onClick={() => setShowFabOptions(false)}
+                          >
+                            <Sparkles size={16} />
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Generate AI Questions</DialogTitle>
+                          </DialogHeader>
+                          <div className="flex flex-col gap-3 mt-2">
+                            <input
+                              type="number"
+                              placeholder="How many?"
+                              value={aiCount}
+                              onChange={(e) => setAiCount(e.target.value)}
+                              className="px-3 py-2 border rounded"
+                            />
+                            <button
+                              onClick={handleGenerateAI}
+                              className="px-4 py-2 bg-indigo-500 text-white rounded"
+                            >
+                              Generate
+                            </button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </>
+                  ) : null}
+                  <button
+                    className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"
+                    onClick={() => {
+                      handleSaveQuiz();
+                      setShowFabOptions(false);
+                    }}
+                  >
+                    <Save size={16} />
+                  </button>
+                </div>
+
+                <button
+                  className="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg"
+                  onClick={() => setShowFabOptions(!showFabOptions)}
+                >
+                  <Plus size={24} />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                {fields.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full py-20">
+                    <p className="text-gray-500">
+                      No fields added yet. Click the + button to get started.
+                    </p>
+                  </div>
+                )}
+                {fields.map((field) => (
+                  <MemoizedField
+                    key={field.id}
+                    field={field}
+                    updateFieldData={updateFieldData}
+                    removeField={removeField}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
       <Dialog
         open={showErrorDialog}

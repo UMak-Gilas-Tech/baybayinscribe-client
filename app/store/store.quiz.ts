@@ -29,7 +29,7 @@ export type QuizStore = {
     quiz: typeof QuizSchema.$inferSelect & {
       metadata: typeof metadata.$inferSelect;
     } & { questions: (typeof quiz_question.$inferSelect)[] }
-  ) => void;
+  ) => Promise<void>;
 
   loadQuiz: (quiz_id: string) => void;
   loadQuizDetails: (quiz_id: string) => void;
@@ -68,17 +68,24 @@ const useQuizStore = create<QuizStore>((set) => ({
       set({ error: "Couldn't load quiz. Try again: " + error, status: "Error" });
     }
   },
-  saveQuiz: async (quiz) => {
+  saveQuiz: async (
+    quiz: typeof QuizSchema.$inferSelect & {
+      metadata: typeof metadata.$inferSelect;
+    } & { questions: (typeof quiz_question.$inferSelect)[] }
+  ) => {
     set({ status: "Loading" });
     try {
       const response = await axios.post(`/quiz/save`, quiz);
       if (response.status === 200) {
         set({ quiz: response.data, status: "Loaded" });
+        return response.data;
       } else {
         set({ error: response.data.error, status: "Error" });
+        throw new Error(response.data.error);
       }
     } catch (error: unknown) {
       set({ error: (error as Error).message || "Error", status: "Error" });
+      throw error;
     }
   },
   loadQuizDetails: async (quiz_id: string) => {
@@ -136,11 +143,17 @@ const useQuizStore = create<QuizStore>((set) => ({
       const response = await axios.get(`/quiz/all`);
       if (response.status === 200) {
         const quizzes = response.data;
+        if (Array.isArray(quizzes) && quizzes.length === 0) {
+          set({ quizzes: undefined, status: "Loaded" });
+          return undefined;
+        }
         set({ quizzes, status: "Loaded" });
+        return quizzes;
       } else {
         set({ error: response.data.error, status: "Error" });
       }
     } catch (error: unknown) {
+      console.error(error)
       set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
@@ -150,7 +163,12 @@ const useQuizStore = create<QuizStore>((set) => ({
       const response = await axios.post(`/quiz/my`, { userId: userId });
       if (response.status === 200) {
         const quizzes = response.data;
+        if (Array.isArray(quizzes) && quizzes.length === 0) {
+          set({ quizzes: undefined, status: "Loaded" });
+          return undefined;
+        }
         set({ quizzes, status: "Loaded" });
+        return quizzes;
       } else {
         set({ error: response.data.error, status: "Error" });
       }

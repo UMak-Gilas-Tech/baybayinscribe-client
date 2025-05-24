@@ -25,7 +25,7 @@ const remarkBaybayin: Plugin = () => {
         segments.push({
           type: 'baybayin',
           data: {
-            hName: 'div',
+            hName: 'span', // Use 'span' for inline, not 'div'
             hProperties: { className: 'font-baybayin' },
           },
           children: [

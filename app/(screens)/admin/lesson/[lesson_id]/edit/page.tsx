@@ -39,6 +39,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import remarkBaybayin from "@/app/lib/remark-baybayin";
+import type { LearningResource } from "@/types/type.lessons";
 
 type LessonEditorContextType = {
   lessonId?: string;
@@ -93,6 +94,9 @@ const EditorMenuButton = (props: EditorMenuButtonProps) => {
   );
 };
 
+// Local type for modules with file
+type ModuleWithFile = LearningResourceModule & { file?: { url?: string } };
+
 const CreateLesson = () => {
   const router = useRouter();
   const params = useParams();
@@ -101,36 +105,51 @@ const CreateLesson = () => {
   const moduleStore = useModuleStore();
 
   const [userId, setUserId] = useState<string | undefined>(undefined);
-
   const [initialMarkdown, setInitialMarkdown] = useState<string>("");
   const [markdown, setMarkdown] = useState<string>("");
   const [isFullPreview, setFullPreview] = useState<boolean>(false);
   const [unsavedChangeShown, setUnsavedChangeShown] = useState(false);
-
   const [openLessonInfoEditor, setOpenLessonInfoEditor] = useState(false);
   const [openAddModuleDialog, setOpenAddModuleDialog] = useState(false);
   const [openEditModuleDialog, setOpenEditModuleDialog] = useState(false);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [lessonResourceDetails, setResourceDetails] = useState<any>(undefined);
-
-  const [modules, setModules] = useState<any[]>([]);
+  const [lessonResourceDetails, setResourceDetails] = useState<
+    LearningResource | undefined
+  >(undefined);
+  const [modules, setModules] = useState<ModuleWithFile[]>([]);
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
+  const [currentModule, setCurrentModule] = useState<ModuleWithFile | null>(
+    null
+  );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [currentModule, setCurrentModule] = useState<any>(null);
+  const fetchModules = React.useCallback(async () => {
+    if (!params.lesson_id || params.lesson_id === "new") return;
+    await moduleStore.getModules(params.lesson_id as string);
+  }, [params.lesson_id, moduleStore]);
+
+  const loadLearningResourceInformation = React.useCallback(async () => {
+    if (params.lesson_id == "new") return;
+    const lessonId = params.lesson_id as string;
+    const lesson = await lessonStore.getLesson(lessonId);
+    if (!lesson || (Array.isArray(lesson) && lesson.length === 0)) {
+      toast.error("Lesson not found");
+      return;
+    }
+    const lessonObj = Array.isArray(lesson) ? lesson[0] : lesson;
+    setResourceDetails(lessonObj as LearningResource);
+    fetchModules();
+  }, [params.lesson_id, lessonStore, fetchModules]);
 
   useEffect(() => {
     loadLearningResourceInformation();
     retrieveUserInformation();
-  }, []);
+  }, [loadLearningResourceInformation]);
 
   useEffect(() => {
     if (params.lesson_id == "new" && !openLessonInfoEditor) {
       setOpenLessonInfoEditor(true);
       toast.info("Please fill in the lesson information first");
     }
-  }, [openLessonInfoEditor]);
+  }, [openLessonInfoEditor, params.lesson_id]);
 
   useEffect(() => {
     if (
@@ -142,7 +161,7 @@ const CreateLesson = () => {
       setOpenAddModuleDialog(true);
       toast.info("Please create your own module first");
     }
-  }, [openAddModuleDialog, modules, moduleStore.status]);
+  }, [openAddModuleDialog, moduleStore.modules, moduleStore.status]);
 
   useEffect(() => {
     if (initialMarkdown != markdown && !unsavedChangeShown) {
@@ -157,32 +176,15 @@ const CreateLesson = () => {
       });
       console.log("Unsaved changes detected");
     }
-  }, [markdown]);
-
-  const loadLearningResourceInformation = async () => {
-    if (params.lesson_id == "new") return;
-
-    const lessonId = params.lesson_id as string;
-    const lesson = await lessonStore.getLesson(lessonId);
-    if (lesson.error) {
-      toast.error(lesson.error);
-      return;
-    }
-
-    setResourceDetails(lesson.learning_resource);
-    fetchModules();
-  };
+  }, [initialMarkdown, markdown, unsavedChangeShown]);
 
   useEffect(() => {
-    const updatedModules = moduleStore.modules || [];
+    const updatedModules = (moduleStore.modules || []) as ModuleWithFile[];
     setModules(updatedModules);
-
     if (updatedModules.length > 0) {
-      // Always select and load the first module after modules load
       setCurrentModuleIndex(0);
       setCurrentModule(updatedModules[0]);
-      // Load markdown for the first module if it exists
-      if (updatedModules[0]?.file && updatedModules[0].file.url) {
+      if (updatedModules[0]?.file?.url) {
         fetch(updatedModules[0].file.url).then(async (res) => {
           if (res.ok) {
             const text = await res.text();
@@ -210,8 +212,7 @@ const CreateLesson = () => {
       const lessonModule = modules[currentModuleIndex];
       if (lessonModule) {
         setCurrentModule(lessonModule);
-        console.log(lessonModule.file)
-        if (lessonModule.file && lessonModule.file.url) {
+        if (lessonModule.file?.url) {
           fetch(lessonModule.file.url).then(async (res) => {
             if (res.ok) {
               const text = await res.text();
@@ -228,24 +229,29 @@ const CreateLesson = () => {
         setInitialMarkdown("");
       }
     }
-  }, [currentModuleIndex]);
+  }, [currentModuleIndex, modules]);
 
-  const handleLessonInfoSubmit = async (data: any) => {
+  const handleLessonInfoSubmit = async (data: {
+    lessonName: string;
+    lessonDescription: string;
+    isLessonVisible: boolean;
+  }) => {
     if (params.lesson_id != "new") {
-      const lessonUpdated = await lessonStore.updateLesson({
+      await lessonStore.updateLesson({
         id: params.lesson_id as string,
         title: data.lessonName,
         description: data.lessonDescription,
         is_visible: data.isLessonVisible,
       });
-
       setResourceDetails({
-        id: params.lesson_id,
+        id: params.lesson_id as string,
         title: data.lessonName,
         description: data.lessonDescription,
         is_visible: data.isLessonVisible,
+        created_by: userId || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
-
       setOpenLessonInfoEditor(false);
     } else {
       const lessonCreated = await lessonStore.createLesson(
@@ -254,12 +260,13 @@ const CreateLesson = () => {
         userId as string,
         data.isLessonVisible
       );
-
-      if (lessonCreated.error) {
-        toast.error(lessonCreated.error);
+      if (typeof lessonCreated === "object" && "error" in lessonCreated) {
+        toast.error((lessonCreated as Record<string, unknown>).error as string);
         return;
       }
-      router.push(`/admin/lesson/${lessonCreated.id}/edit`);
+      router.push(
+        `/admin/lesson/${(lessonCreated as LearningResource).id}/edit`
+      );
     }
   };
 
@@ -272,12 +279,7 @@ const CreateLesson = () => {
     setUserId(session.data.user.id);
   };
 
-  const fetchModules = async () => {
-    if (!params.lesson_id || params.lesson_id === "new") return;
-    await moduleStore.getModules(params.lesson_id as string);
-  };
-
-  const loadMarkdown = async (module: any) => {
+  const loadMarkdown = async (module: ModuleWithFile) => {
     if (!module || !module.module_id) {
       setMarkdown("");
       setInitialMarkdown("");
@@ -339,31 +341,15 @@ const CreateLesson = () => {
       toast.error("Module or file not selected");
       return;
     }
-
-    console.log("Module File Reference: ", currentModule)
     await moduleStore.updateModuleFile({
       resourceId: lessonResourceDetails.id,
       moduleId: currentModule.id,
       file,
-      existingFileId: currentModule.module_id ?? null,
+      existingFileId: currentModule.module_id || undefined,
     });
     await fetchModules();
     toast.success("Module file updated");
   };
-
-  // const handleDeleteModule = async () => {
-  //   if (!lessonResourceDetails?.id || !currentModule?.id) {
-  //     toast.error("Module not selected");
-  //     return;
-  //   }
-  //   await moduleStore.deleteModule({
-  //     resourceId: lessonResourceDetails.id,
-  //     moduleId: currentModule.id,
-  //   });
-  //   await fetchModules();
-  //   setCurrentModuleIndex(0);
-  //   toast.success("Module deleted");
-  // };
 
   const uploadMarkdown = async () => {
     if (!currentModule?.id) {
@@ -385,7 +371,7 @@ const CreateLesson = () => {
 
   return (
     <div className="w-full h-full p-6 relative">
-      {moduleStore.status == "Loading" && (
+      {moduleStore.status === "Loading" && (
         <div className="absolute top-0 left-0 w-full h-full backdrop-blur-xl bg-black/20 z-50">
           <LoadingSpinner loadingText="Loading Module..." />
         </div>
@@ -402,7 +388,6 @@ const CreateLesson = () => {
               onClick={() => setOpenLessonInfoEditor(true)}
             />
           </div>
-
           <div className="flex flex-row gap-4 justify-end flex-1">
             <div className="flex flex-row gap-2">
               <EditorMenuButton
@@ -413,7 +398,6 @@ const CreateLesson = () => {
                     setCurrentModuleIndex(currentModuleIndex - 1);
                 }}
               />
-
               <EditorMenuButton
                 tooltip="Next Module"
                 icon={<ChevronRight className="text-black" size={100} />}
@@ -423,7 +407,6 @@ const CreateLesson = () => {
                 }}
               />
             </div>
-            {/* Dropdown menu for lesson modules */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="w-1/2 flex flex-row justify-between h-full bg-transparent shadow-lg border-2 border-white rounded-lg cursor-pointer hover:bg-white">
@@ -452,9 +435,11 @@ const CreateLesson = () => {
                     <DropdownMenuItem
                       key={mod.id || idx}
                       onClick={() => setCurrentModuleIndex(idx)}
-                      className={`truncate w-full ${idx === currentModuleIndex ? "font-bold" : ""}`}
+                      className={`truncate w-full ${
+                        idx === currentModuleIndex ? "font-bold" : ""
+                      }`}
                     >
-                      {  `${idx + 1}. ${mod.module_name}` || `Module ${idx + 1}`}
+                      {`${idx + 1}. ${mod.module_name}` || `Module ${idx + 1}`}
                     </DropdownMenuItem>
                   ))
                 )}
@@ -479,7 +464,6 @@ const CreateLesson = () => {
             />
           </div>
         </div>
-
         <div
           className={`h-[90%] transition-all grid ${
             !isFullPreview ? "grid-cols-1 md:grid-cols-2" : ""
@@ -489,7 +473,6 @@ const CreateLesson = () => {
             <Card className="h-full col-span-1 transition-all relative">
               <CardHeader>
                 <h2 className="text-2xl font-semibold">Markdown Input</h2>
-                {/* Small upload button in the corner */}
                 <div className="absolute top-4 right-4 flex flex-row gap-2 z-10">
                   <input
                     id="upload-md"
@@ -542,13 +525,13 @@ const CreateLesson = () => {
             <CardContent className="prose max-w-none relative">
               <ReactMarkdown
                 remarkPlugins={[remarkParse, remarkBaybayin]}
-                children={markdown || "Nothing to preview..."}
                 key={markdown}
-              />
+              >
+                {markdown || "Nothing to preview..."}
+              </ReactMarkdown>
             </CardContent>
           </Card>
         </div>
-
         <LessonInfoDialog
           isOpen={openLessonInfoEditor}
           onClose={() => setOpenLessonInfoEditor(false)}
@@ -558,7 +541,8 @@ const CreateLesson = () => {
               ? {
                   lessonName: lessonResourceDetails.title ?? "",
                   lessonDescription: lessonResourceDetails.description ?? "",
-                  isLessonVisible: Boolean(lessonResourceDetails.is_visible) ?? false,
+                  isLessonVisible:
+                    Boolean(lessonResourceDetails.is_visible) ?? false,
                 }
               : undefined
           }
@@ -574,7 +558,8 @@ const CreateLesson = () => {
           onSubmit={handleUpdateModuleContent}
           defaultValues={{
             moduleName: modules[currentModuleIndex]?.module_name ?? "",
-            moduleDescription: modules[currentModuleIndex]?.module_description ?? "",
+            moduleDescription:
+              modules[currentModuleIndex]?.module_description ?? "",
           }}
         />
       </TooltipProvider>
