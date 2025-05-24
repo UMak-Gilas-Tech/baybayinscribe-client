@@ -67,6 +67,7 @@ export default function RootLayout({
           {isLoginPage && <main>{children}</main>}
         </SidebarProvider>
         <ScreenSize />
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

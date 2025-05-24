@@ -81,7 +81,7 @@ export const useLearningResourceStore = create<LearningResourceStore>(
           set({ lessons: [], status: "Loaded" });
           return [];
         }
-        set({ lessons: response.data, status: "Loaded" });
+        set({ lessons: response.data ?? [], status: "Loaded" });
         return response.data;
       } catch (error: unknown) {
         set({ error: (error as Error).message, status: "Error" });

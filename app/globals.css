@@ -39,6 +39,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Primary Colors */
   --color-blue-900: hsl(227, 92%, 95%);
   --color-blue-800: hsl(224, 100%, 85%);
   --color-blue-700: hsl(225, 65%, 52%);
@@ -52,20 +53,58 @@
   --color-yellow-300: hsl(27, 88%, 90%);
   --color-yellow-200: hsl(27, 100%, 86%);
   --color-yellow-100: hsl(39, 90%, 8%);
+  /* Neutral Colors */
   --color-neutral-white: hsl(226, 91%, 91%);
+  --color:var(--color-neutral-white): hsl(226, 91%, 91%);
   --color-neutral-black: hsl(224, 45%, 10%);
+  --color:var(--color-neutral-black): hsl(224, 45%, 10%);
   --color-grey-600: hsl(20, 20%, 97%);
   --color-grey-500: hsl(225, 25%, 94%);
   --color-grey-400: hsl(233, 21%, 85%);
   --color-grey-300: hsla(230, 18%, 50%);
   --color-grey-200: hsl(231, 15%, 45%);
   --color-grey-100: hsl(231, 15%, 20%);
-  --color:var(--color-neutral-black): hsl(224, 45%, 10%);
-  --color:var(--color-neutral-white): hsl(226, 91%, 91%);
+  /* Accent Colors */
+  /* ** Danger ** */
+  --color-danger-600: hsl(0, 61%, 20%);
+  --color-danger-500: hsl(0, 48%, 59%);
+  --color-danger-400: hsl(5, 80%, 50%);
+  --color-danger-300: hsl(5, 80%, 58%);
+  --color-danger-200: hsl(5, 80%, 65%);
+  --color-danger-100: hsl(0, 60%, 94%);
+  --color-danger-50: hsl(5, 60%, 96%);
+  /* ** Success ** */
+  --color-success-600: hsl(120, 61%, 20%);
+  --color-success-500: hsl(120, 48%, 59%);
+  --color-success-400: hsl(120, 80%, 50%);
+  --color-success-300: hsl(120, 80%, 58%);
+  --color-success-200: hsl(120, 80%, 65%);
+  --color-success-100: hsl(120, 60%, 94%);
+  --color-success-50: hsl(120, 60%, 96%);
+  /* ** Warning ** */
+  --color-warning-600: hsl(60, 61%, 20%); /* Default */
+  --color-warning-500: hsl(60, 61%, 30%);
+  --color-warning-400: hsl(41, 61%, 45%);
+  --color-warning-300: hsl(41, 60%, 55%); /* Default */
+  --color-warning-200: hsl(41, 61%, 65%);
+  --color-warning-100: hsl(60, 61%, 92%);
+  --color-warning-50: hsl(60, 60%, 94%); /* Default */
+  /* ** Info ** */
+  --color-info-600: hsl(204, 61%, 20%);
+  --color-info-500: hsl(204, 48%, 59%);
+  --color-info-400: hsl(204, 80%, 50%);
+  --color-info-300: hsl(204, 80%, 58%);
+  --color-info-200: hsl(204, 80%, 65%);
+  --color-info-100: hsl(204, 60%, 94%);
+  --color-info-50: hsl(204, 60%, 96%);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --max-width-8xl: 1400px;
+  --border-width-1.25: 1.25px; 
+  --stroke-width-1.25: 1.25px;
  
   --font-baybayin: "Baybayin Simple TAWBID";
 }

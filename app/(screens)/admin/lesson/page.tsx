@@ -8,9 +8,19 @@ import { PlusCircle, FileText } from "lucide-react";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import { LearningResource } from "@/types/type.lessons";
 import { authClient } from "@/app/lib/auth-client";
+import Background from "@/components/background";
+
+// Helper type guard
+function hasModules(obj: unknown): obj is { modules: unknown[] } {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "modules" in obj &&
+    Array.isArray((obj as { modules: unknown[] }).modules)
+  );
+}
 
 const MyLessonsPage = () => {
-  const [lessons, setLessons] = React.useState<LearningResource[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>("");
@@ -31,122 +41,158 @@ const MyLessonsPage = () => {
       learningResourceStore.getMyLessons(userId);
     };
     fetchLessons();
-  }, []);
+  }, [learningResourceStore]);
 
   useEffect(() => {
-    console.log(learningResourceStore.lessons);
-    if (learningResourceStore.status === "Loaded" && learningResourceStore.lessons) {
-      setLessons(learningResourceStore.lessons);
-    } else if (learningResourceStore.status === "Error") {
+    if (learningResourceStore.status === "Error") {
       setError(learningResourceStore.error);
       setLoading(false);
     }
-  }, [learningResourceStore.lessons]);
+  }, [learningResourceStore.error, learningResourceStore.status]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 px-2">
-      <div className="max-w-4xl mx-auto py-10">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-800 mb-1">
-              My Lessons
-            </h1>
-            <p className="text-slate-500 text-lg">
-              Manage and edit your lessons below.
-            </p>
-          </div>
-          <Link href="/admin/lesson/new/edit">
-            <Button className="flex items-center gap-2" size="lg">
-              <PlusCircle className="w-5 h-5" />
-              New Lesson
-            </Button>
-          </Link>
-        </div>
-
-        {/* States */}
-        {learningResourceStore.status == "Idle" ||
-          (learningResourceStore.status == "Loading" && (
-            <div className="flex justify-center py-10">
-              <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></span>
+    <>
+      <Background />
+      <div className="relative min-h-screen px-2 flex flex-col items-center justify-start bg-gradient-to-br from-[hsl(227,92%,95%)] via-[hsl(225,25%,94%)] to-[hsl(225,36%,39%)]/10">
+        <div className="max-w-4xl w-full mx-auto py-12">
+          {/* Header */}
+          <header className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-blue-400 mb-1 drop-shadow-sm">
+                My Lessons
+              </h1>
+              <p className="text-blue-300 text-lg font-medium">
+                Manage and edit your lessons below.
+              </p>
             </div>
-          ))}
-        {learningResourceStore.status == "Error" && error && (
-          <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-6 text-center">
-            {error}
-          </div>
-        )}
-        {learningResourceStore.status == "Loaded" &&
-          !error &&
-          (!lessons || lessons.length === 0) && (
-            <div className="flex flex-col items-center py-16">
-              <FileText className="w-12 h-12 text-slate-300 mb-3" />
-              <span className="text-slate-500 text-lg mb-2">
-                No lessons found.
-              </span>
-              <Link href="/admin/lesson/create">
-                <Button variant="secondary" className="mt-2">
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Create your first lesson
-                </Button>
-              </Link>
+            <Link href="/admin/lesson/new/edit" aria-label="Create new lesson">
+              <Button
+                className="flex items-center gap-2 bg-blue-400 hover:bg-blue-500 text-white shadow-md"
+                size="lg"
+              >
+                <PlusCircle className="w-5 h-5" />
+                New Lesson
+              </Button>
+            </Link>
+          </header>
+
+          {/* States */}
+          {(learningResourceStore.status == "Idle" ||
+            learningResourceStore.status == "Loading") && (
+            <div className="flex justify-center py-16">
+              <span
+                className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"
+                aria-label="Loading"
+              ></span>
             </div>
           )}
-
-        {/* Lesson Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {lessons &&
-            lessons.map((lesson: LearningResource) => (
-              <Card
-                key={lesson.id}
-                className="relative transition-shadow hover:shadow-xl border-slate-200 bg-white/90"
-              >
-                {/* Status Badge */}
-                <div
-                  className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold shadow-sm
-                    ${
-                      lesson.is_visible
-                        ? "bg-green-100 text-green-700 border border-green-300"
-                        : "bg-orange-100 text-orange-700 border border-orange-300"
-                    }
-                  `}
-                  style={{ zIndex: 2 }}
+          {learningResourceStore.status == "Error" && error && (
+            <div
+              className="bg-danger-100 border border-danger-400 text-danger-500 px-4 py-3 rounded-lg mb-8 text-center font-semibold shadow"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+          {learningResourceStore.status == "Loaded" &&
+            !error &&
+            (!learningResourceStore.lessons ||
+              learningResourceStore.lessons.length === 0) && (
+              <div className="flex flex-col items-center py-20">
+                <FileText
+                  className="w-16 h-16 text-blue-200 mb-4"
+                  aria-hidden="true"
+                />
+                <span className="text-blue-400 text-xl font-semibold mb-2">
+                  No lessons found
+                </span>
+                <span className="text-blue-300 mb-4">
+                  Start by creating your first lesson!
+                </span>
+                <Link
+                  href="/admin/lesson/create"
+                  aria-label="Create your first lesson"
                 >
-                  {lesson.is_visible ? "Published" : "Draft"}
-                </div>
-                <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                  <FileText className="w-7 h-7 text-indigo-500 flex-shrink-0" />
-                  <CardTitle className="text-lg font-semibold truncate">
-                    {lesson.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4 text-slate-600 min-h-[48px] line-clamp-3">
-                    {lesson.description || (
-                      <span className="italic text-slate-400">
-                        No description
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Link href={`/admin/lesson/${lesson.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
+                  <Button
+                    variant="secondary"
+                    className="mt-2 bg-blue-400/90 hover:bg-blue-500 text-white shadow"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Create your first lesson
+                  </Button>
+                </Link>
+              </div>
+            )}
 
-                    <div className="flex flex-col gap-1 items-end">
-                      <span className="text-xs text-slate-400">
-                        {0} modules
-                      </span>
-                    </div>
+          {/* Lesson Cards */}
+          <section
+            className="grid grid-cols-1 sm:grid-cols-2 gap-8"
+            aria-label="Lessons list"
+          >
+            {learningResourceStore.lessons &&
+              learningResourceStore.lessons.map((lesson: LearningResource) => (
+                <Card
+                  key={lesson.id}
+                  className="relative transition-shadow hover:shadow-xl border-blue-200 bg-white/80 backdrop-blur-md rounded-xl shadow-md group"
+                  aria-label={`Lesson: ${lesson.title}`}
+                >
+                  {/* Status Badge */}
+                  <div
+                    className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm border-2
+                      ${
+                        lesson.is_visible
+                          ? "bg-success-100 text-success-500 border-success-400"
+                          : "bg-warning-100 text-warning-500 border-warning-400"
+                      }
+                    `}
+                    style={{ zIndex: 2 }}
+                  >
+                    {lesson.is_visible ? "Published" : "Draft"}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                    <FileText
+                      className="w-7 h-7 text-blue-400 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <CardTitle className="text-lg font-semibold truncate text-blue-300 group-hover:text-blue-500 transition-colors">
+                      {lesson.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4 text-blue-200 min-h-[48px] line-clamp-3">
+                      {lesson.description || (
+                        <span className="italic text-blue-100">
+                          No description
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <Link
+                        href={`/admin/lesson/${lesson.id}/edit`}
+                        aria-label={`Edit lesson: ${lesson.title}`}
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-300 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
+                        >
+                          View Details
+                        </Button>
+                      </Link>
+                      <div className="flex flex-col gap-1 items-end">
+                        <span className="text-xs text-blue-200">
+                          {hasModules(lesson) ? lesson.modules.length : 0}{" "}
+                          modules
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </section>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

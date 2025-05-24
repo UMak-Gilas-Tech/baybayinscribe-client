@@ -1,7 +1,7 @@
 import { Users, AreaChartIcon } from "lucide-react";
-import { OverviewCard } from "./OverviewCard";
+import { OverviewCard } from "@/components/shared/Admin.SummaryCard";
 import { UserEngagementChart } from "./UserEngagementChart";
-import { overviewStats, chartData } from "../dashboard-data";
+import { overviewStats, chartData } from "../data/dashboard-data";
 
 interface OverviewSectionProps {
   overviewStats: typeof overviewStats;
@@ -26,7 +26,6 @@ export function OverviewSection({
           icon={<Users className="w-6 h-6 text-blue-950" />}
           bgColor="bg-green-600/25"
           iconBg="bg-green-600/50"
-          outlineColor="outline-none"
           title="Total Registered Users"
           value={overviewStats.totalUsers.value}
           trend={overviewStats.totalUsers.trend}
@@ -35,7 +34,6 @@ export function OverviewSection({
           icon={<AreaChartIcon className="w-6 h-6 text-blue-950" />}
           bgColor="bg-blue-700/25"
           iconBg="bg-blue-700/30"
-          outlineColor="outline-none"
           title="Daily Active Users"
           value={overviewStats.dailyActiveUsers.value}
           trend={overviewStats.dailyActiveUsers.trend}
