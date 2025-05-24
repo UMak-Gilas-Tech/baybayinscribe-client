@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { authClient } from "../../../lib/auth-client";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const ForgotPasswordWeb = () => {
   const [email, setEmail] = useState("");
@@ -9,10 +10,12 @@ const ForgotPasswordWeb = () => {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setIsLoading(true);
 
     try {
       const emailCheckResponse = await fetch(
@@ -25,6 +28,7 @@ const ForgotPasswordWeb = () => {
         setErrorMessage(
           "Email not found. Please check your email or register a new account."
         );
+        setIsLoading(false);
         return;
       }
 
@@ -36,18 +40,21 @@ const ForgotPasswordWeb = () => {
         {
           onSuccess: () => {
             setStatus("success");
+            setIsLoading(false);
           },
           onError: (ctx) => {
             setStatus("error");
             setErrorMessage(
               ctx.error?.message || "Something went wrong. Please try again."
             );
+            setIsLoading(false);
           },
         }
       );
     } catch {
       setStatus("error");
       setErrorMessage("Failed to send reset link. Please try again later.");
+      setIsLoading(false);
     }
   };
 
@@ -140,12 +147,12 @@ const ForgotPasswordWeb = () => {
 
               <button
                 type="submit"
-                disabled={status === "loading"}
-                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer ${
-                  status === "loading" ? "opacity-50 cursor-not-allowed" : ""
+                disabled={status === "loading" || isLoading}
+                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative ${
+                  status === "loading" || isLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                {status === "loading" ? "Sending..." : "Send Reset Link"}
+                {isLoading ? <LoadingSpinner loadingText="Sending..." /> : "Send Reset Link"}
               </button>
             </form>
           )}

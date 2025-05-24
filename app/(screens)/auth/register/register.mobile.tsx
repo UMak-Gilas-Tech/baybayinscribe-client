@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "../../../lib/auth-client";
 import { z } from "zod";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const RegisterMobile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,7 @@ const RegisterMobile = () => {
   const [error, setError] = useState("");
   const [loginError, setLoginError] = useState("");
   const [validationError, setValidationError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const registerSchema = z.object({
     email: z.string().email({ message: "Invalid email address." }),
@@ -34,26 +36,32 @@ const RegisterMobile = () => {
     setLoginError("");
     setError("");
     setValidationError("");
+    setIsLoading(true);
     // If all fields are empty
     if (!email && !password && !confirmPassword) {
       setValidationError("Enter email and password credentials");
+      setIsLoading(false);
       return;
     }
     // Zod validation
     const result = registerSchema.safeParse({ email, password, confirmPassword });
     if (!result.success) {
       setValidationError(result.error.errors[0].message);
+      setIsLoading(false);
       return;
     }
     try {
       const response = await authClient.signUp.email({ email, password, name: "New user" });
       if (response?.error) {
         setError(response.error.message || "Registration failed");
+        setIsLoading(false);
       } else {
         router.push("/auth/userinfo");
+        setIsLoading(false);
       }
     } catch {
       setError("An unexpected error occurred");
+      setIsLoading(false);
     }
   };
 
@@ -222,9 +230,10 @@ const RegisterMobile = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer"
+                className="w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative"
+                disabled={isLoading}
               >
-                Continue
+                {isLoading ? <LoadingSpinner loadingText="Registering..." /> : "Continue"}
               </button>
             </form>
 
