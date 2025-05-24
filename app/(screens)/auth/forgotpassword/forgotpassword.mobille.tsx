@@ -98,7 +98,7 @@ const ForgotPasswordMobile = () => {
             
               <button
                 type="submit"
-                className="w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition"
+                className="w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer"
                 disabled={status === "loading"}
               >
                 {status === "loading" ? "Sending..." : "Send Reset Link"}

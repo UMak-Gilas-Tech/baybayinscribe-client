@@ -4,6 +4,16 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "../../../lib/auth-client";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
 
 const RegisterWeb = () => {
   const router = useRouter();
@@ -13,18 +23,24 @@ const RegisterWeb = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [validationError, setValidationError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoginError("");
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    setValidationError("");
+    // If all fields are empty
+    if (!email && !password && !confirmPassword) {
+      setValidationError("Enter email and password credentials");
       return;
     }
-
+    // Zod validation
+    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    if (!result.success) {
+      setValidationError(result.error.errors[0].message);
+      return;
+    }
     try {
       const response = await authClient.signUp.email({ email, password, name: "New user" });
       if (response?.error) {
@@ -121,13 +137,13 @@ const RegisterWeb = () => {
           {/* Social Login Buttons */}
           <div className="flex gap-4 mb-6">
             <button
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
               onClick={handleFacebookSignIn}
             >
               Facebook
             </button>
             <button
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
               onClick={handleGoogleSignIn}
             >
               Google
@@ -186,10 +202,11 @@ const RegisterWeb = () => {
 
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
             {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
+            {validationError && <p className="text-red-500 text-sm mb-3">{validationError}</p>}
 
             <button
               type="submit"
-              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
+              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer"
             >
               Continue
             </button>

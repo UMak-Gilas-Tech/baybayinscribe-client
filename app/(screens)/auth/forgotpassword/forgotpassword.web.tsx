@@ -5,7 +5,9 @@ import { authClient } from "../../../lib/auth-client";
 
 const ForgotPasswordWeb = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -13,27 +15,36 @@ const ForgotPasswordWeb = () => {
     setStatus("loading");
 
     try {
-      const emailCheckResponse = await fetch(`/api/auth/check.email?email=${encodeURIComponent(email)}`);
+      const emailCheckResponse = await fetch(
+        `/api/auth/check.email?email=${encodeURIComponent(email)}`
+      );
       const emailCheckData = await emailCheckResponse.json();
-      
+
       if (!emailCheckData.exists) {
         setStatus("error");
-        setErrorMessage("Email not found. Please check your email or register a new account.");
+        setErrorMessage(
+          "Email not found. Please check your email or register a new account."
+        );
         return;
       }
 
-      await authClient.forgetPassword({
-        email,
-        redirectTo: "/auth/resetpassword",
-      }, {
-        onSuccess: () => {
-          setStatus("success");
+      await authClient.forgetPassword(
+        {
+          email,
+          redirectTo: "/auth/resetpassword",
         },
-        onError: (ctx) => {
-          setStatus("error");
-          setErrorMessage(ctx.error?.message || "Something went wrong. Please try again.");
+        {
+          onSuccess: () => {
+            setStatus("success");
+          },
+          onError: (ctx) => {
+            setStatus("error");
+            setErrorMessage(
+              ctx.error?.message || "Something went wrong. Please try again."
+            );
+          },
         }
-      });
+      );
     } catch {
       setStatus("error");
       setErrorMessage("Failed to send reset link. Please try again later.");
@@ -98,16 +109,18 @@ const ForgotPasswordWeb = () => {
           <h1 className="text-gray-600 font-bold mb-6">
             Enter your email to reset your password
           </h1>
-          
+
           {status === "success" ? (
             <div className="text-green-600 mb-4">
               Reset link sent! Please check your email.
             </div>
           ) : (
-
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email
                 </label>
                 <input
@@ -120,15 +133,15 @@ const ForgotPasswordWeb = () => {
                   required
                 />
               </div>
-              
+
               {status === "error" && (
                 <div className="text-red-600 mb-4">{errorMessage}</div>
               )}
-              
+
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition ${
+                className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer ${
                   status === "loading" ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

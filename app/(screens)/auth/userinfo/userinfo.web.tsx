@@ -26,16 +26,45 @@ const UserInfoWeb = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      form.username.length > 15 ||
-      form.firstName.length > 15 ||
-      form.lastName.length > 15 ||
-      !/^\d{11}$/.test(form.contactNumber)
-    ) {
-      setError("Please check your input values.");
+    // Contact number validation
+    if (form.contactNumber && !/^\d{11}$/.test(form.contactNumber)) {
+      setError("Contact number form not valid.");
       return;
     }
 
+    //username validation
+    if (form.username.length > 15) {
+      setError("Username must be less than 15 characters.");
+      return;
+    }
+
+    //firstname validation
+    if (form.firstName.length > 15) {
+      setError("First name must be less than 15 characters.");
+      return;
+    }
+
+    //lastname validation
+    if (form.lastName.length > 15) {
+      setError("Last name must be less than 15 characters.");
+      return;
+    }
+    
+    // Date of birth validation
+    if (form.dateOfBirth) {
+      const dob = new Date(form.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      if (age < 8) {
+        setError("Age must be at least 8 years old.");
+        return;
+      }
+    }
+    
     try {
       const res = await fetch("/api/user.information", {
         method: "POST",
@@ -178,7 +207,7 @@ const UserInfoWeb = () => {
 
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition">
+            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer">
               Continue
             </button>
           </form>
