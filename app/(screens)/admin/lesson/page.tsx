@@ -41,7 +41,8 @@ const MyLessonsPage = () => {
       learningResourceStore.getMyLessons(userId);
     };
     fetchLessons();
-  }, [learningResourceStore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   useEffect(() => {
     if (learningResourceStore.status === "Error") {

@@ -253,12 +253,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ) : (
             <div className="flex items-center space-x-2">
               <div className="flex-shrink-0">
-                <div className="h-8 w-8 rounded-full bg-gray-300 animate-pulse"></div>
+                <Image
+                  src="/images/user.profile/user.avatar.png"
+                  alt="User Avatar Loading"
+                  className="h-8 w-8 rounded-full object-cover animate-pulse"
+                  width={32}
+                  height={32}
+                />
               </div>
-              <div className="flex flex-col space-y-1">
-                <div className="h-3 w-20 bg-gray-300 animate-pulse"></div>
-                <div className="h-2 w-16 bg-gray-300 animate-pulse"></div>
-              </div>
+              {state === "expanded" && (
+                <div className="flex flex-col space-y-1">
+                  <div className="h-3 w-20 bg-gray-300 animate-pulse"></div>
+                  <div className="h-2 w-16 bg-gray-300 animate-pulse"></div>
+                </div>
+              )}
             </div>
           )}
         </SidebarHeader>

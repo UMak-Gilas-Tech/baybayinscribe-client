@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/app/lib/auth-client";
 import MobileEditProfile from "./edit.profile/mobile.edit";
@@ -35,11 +34,10 @@ type UserData = {
 
 type ProfileModalMobileProps = {
   userData: UserData;
-  onClose: () => void;
   onEdit?: () => void;
 };
 
-export default function ProfileModalMobile({ userData, onClose, onEdit }: ProfileModalMobileProps) {
+export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMobileProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
@@ -171,9 +169,6 @@ export default function ProfileModalMobile({ userData, onClose, onEdit }: Profil
             Settings
           </button>
         </div>
-        <button onClick={onClose} className="absolute right-4 top-4 text-gray-500 hover:text-gray-700">
-          <X size={20} />
-        </button>
       </div>
 
       {/* Profile Section */}
