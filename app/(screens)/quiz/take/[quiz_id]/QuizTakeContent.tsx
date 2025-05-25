@@ -13,6 +13,7 @@ import QuizDoneDialog from "../../../../../components/quiz/dialog/QuizDoneDialog
 import { useQuizTakeContext } from "./QuizTakeContext";
 import { useRouter } from "next/navigation";
 import useQuizStore from "@/app/store/store.quiz";
+import { authClient } from "@/app/lib/auth-client";
 
 export const SubmitButton = () => {
   const { onSubmit } = useQuizTakeContext();
@@ -27,35 +28,72 @@ export const QuizTakeContent = () => {
   const quizContext = useQuizTakeContext();
   const router = useRouter();
   const quizStore = useQuizStore();
+  const [userId, setUserId] = React.useState<string | null>(null);
 
   const dumpedRef = useRef(false);
 
   useEffect(() => {
-    if (quizContext.health === 0 && quizContext.quiz && !dumpedRef.current) {
+    (async () => {
+      const session = await authClient.getSession();
+      if (session.data) {
+        setUserId(session.data.user.id);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!quizContext.quiz || dumpedRef.current) return;
+
+    const isOutOfHealth = quizContext.health === 0;
+    const isQuizCompleted =
+      quizContext.progress >= quizContext.quiz.questions.length;
+
+    if ((isOutOfHealth || isQuizCompleted) && !dumpedRef.current) {
+      // Fill unanswered questions if any
       const unanswered = quizContext.quiz.questions.filter(
         (q) =>
-          !quizContext.answerHistory.some(
-            (a) => a.id === q.id
-          )
+          !quizContext.answerHistory.some((a) => a.quiz_question_id === q.id)
       );
-      unanswered.forEach(() => {
+      unanswered.forEach((q) => {
         quizContext.recordAnswer({
-          quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+          quiz_question_id: q.id,
           is_correct: false,
           user_answer: "Unanswered",
           attempt: 0,
-          answered_at: new Date(),
-          quiz_id: quizContext.quizId ?? ""
+          answered_at: new Date().toISOString(),
+          quiz_id: quizContext.quiz!.metadata.quiz_id,
+          user_id: userId || "", // Ensure user_id is set
         });
       });
+
       dumpedRef.current = true;
 
-      quizStore.submitQuizAnswers(
-        quizContext.quiz.metadata.quiz_id,
-        quizContext.answerHistory
-      );
+      // Use a timeout to ensure state updates before submitting
+      setTimeout(() => {
+        quizStore.submitQuizAnswers(quizContext.quiz!.metadata.quiz_id, [
+          ...quizContext.answerHistory.map((a) => ({
+            ...a,
+            user_id: userId || "", // Ensure user_id is set
+          })),
+          ...unanswered.map((q) => ({
+            quiz_question_id: q.id,
+            is_correct: false,
+            user_answer: "Unanswered",
+            attempt: 0,
+            answered_at: new Date().toISOString(),
+            quiz_id: quizContext.quiz!.metadata.quiz_id,
+            user_id: userId || "", // Ensure user_id is set
+          })),
+        ]);
+      }, 0);
     }
-  }, [quizContext.health, quizContext.quiz, quizContext.answerHistory]);
+  }, [
+    quizContext.health,
+    quizContext.progress,
+    quizContext.quiz,
+    quizContext.answerHistory,
+    quizStore,
+  ]);
 
   // Add helper function to compute total score
   const calculateScore = () => {
@@ -79,7 +117,8 @@ export const QuizTakeContent = () => {
   // Helper to determine if quiz is done
   const isQuizDone =
     quizContext.quiz &&
-    (quizContext.progress >= quizContext.quiz.questions.length || quizContext.health === 0);
+    (quizContext.progress >= quizContext.quiz.questions.length ||
+      quizContext.health === 0);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100">
@@ -93,14 +132,16 @@ export const QuizTakeContent = () => {
                   duration={quizContext.quiz.metadata.time_limit}
                   onTimerEnd={() => {
                     quizContext.setHealth((h) => h - 1);
-                    toast.error("Time's up!");
                     quizContext.recordAnswer({
-                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
+                      quiz_question_id: quizContext.currentQuestion
+                        ? quizContext.currentQuestion.id
+                        : "",
                       is_correct: false,
                       user_answer: "Unanswered",
                       attempt: 0,
-                      answered_at: new Date(),
-                      quiz_id: quizContext.quizId ?? ""
+                      answered_at: new Date().toISOString(),
+                      quiz_id: quizContext.quiz!.metadata.quiz_id,
+                      user_id: userId || "", // Ensure user_id is set
                     });
                     if (quizContext.health === 0) return;
                     setTimeout(
@@ -111,16 +152,15 @@ export const QuizTakeContent = () => {
                 />
               ) : null}
               {quizContext.currentQuestion &&
-              (
-                quizContext.currentQuestion.type === QuestionType.IDT ||
+              (quizContext.currentQuestion.type === QuestionType.IDT ||
                 quizContext.currentQuestion.type === "quiz" ||
                 quizContext.currentQuestion.type === QuestionType.MCQ ||
-                quizContext.currentQuestion.type === "multipleChoice"
-              ) ? (
+                quizContext.currentQuestion.type === "multipleChoice") ? (
                 <QuestionHolderComponent
                   questionHighlight={{
                     mainQuestion: quizContext.currentQuestion.question!,
-                    isBaybayin: quizContext.currentQuestion.language === "Baybayin",
+                    isBaybayin:
+                      quizContext.currentQuestion.language === "Baybayin",
                     text: quizContext.currentQuestion.display_text
                       ? baybayifyWord(quizContext.currentQuestion.display_text)
                       : undefined,
@@ -131,10 +171,8 @@ export const QuizTakeContent = () => {
 
             {quizContext.currentQuestion &&
             quizContext.currentQuestion.description &&
-            (
-              quizContext.currentQuestion.type === QuestionType.SKT ||
-              quizContext.currentQuestion.type === "sketch"
-            ) ? (
+            (quizContext.currentQuestion.type === QuestionType.SKT ||
+              quizContext.currentQuestion.type === "sketch") ? (
               <SketchpadComponent
                 key={quizContext.currentQuestion.question_number}
                 characters={(quizContext.currentQuestion.character as string)!}
@@ -142,19 +180,25 @@ export const QuizTakeContent = () => {
                 inference={quizContext.inference}
                 onDrawingSubmit={(result, isCorrect) => {
                   quizContext.recordAnswer({
-                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
-                      is_correct: isCorrect,
-                      user_answer: result,
-                      attempt: 0,
-                      answered_at: new Date(),
-                      quiz_id: quizContext.quizId ?? ""
+                    quiz_question_id: quizContext.currentQuestion
+                      ? quizContext.currentQuestion.id
+                      : "",
+                    is_correct: isCorrect,
+                    user_answer: result,
+                    attempt: 0,
+                    answered_at: new Date().toISOString(),
+                    quiz_id: quizContext.quiz!.metadata.quiz_id,
+                    user_id: userId || "", // Ensure user_id is set
                   });
                   if (isCorrect) toast.success("Correct!");
                   else {
                     quizContext.setHealth((health) => health - 1);
                     toast.error("Incorrect!");
                   }
-                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                  setTimeout(
+                    () => quizContext.setProgress((val) => val + 1),
+                    1000
+                  );
                 }}
               />
             ) : null}
@@ -163,17 +207,16 @@ export const QuizTakeContent = () => {
                 <Progress
                   className="w-full md:w-3/4 lg:w-1/2"
                   value={
-                    (quizContext.progress / quizContext.quiz.questions.length) * 100
+                    (quizContext.progress / quizContext.quiz.questions.length) *
+                    100
                   } // converted to percentage
                   max={100} // progress is now out of 100
                 />
               </div>
             ) : null}
             {quizContext.currentQuestion &&
-            (
-              quizContext.currentQuestion.type === QuestionType.MCQ ||
-              quizContext.currentQuestion.type === "multipleChoice"
-            ) ? (
+            (quizContext.currentQuestion.type === QuestionType.MCQ ||
+              quizContext.currentQuestion.type === "multipleChoice") ? (
               <MultipleChoice
                 key={quizContext.currentQuestion.question_number}
                 options={[
@@ -181,55 +224,65 @@ export const QuizTakeContent = () => {
                     (option, index) => ({
                       label: option,
                       isCorrect:
-                        parseInt(quizContext.currentQuestion!.correct_answer ?? "0") === index,
+                        parseInt(
+                          quizContext.currentQuestion!.correct_answer ?? "0"
+                        ) === index,
                     })
                   ),
                 ]}
                 onAnswer={(selected, isCorrect) => {
                   quizContext.recordAnswer({
-                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
-                      is_correct: isCorrect,
-                      user_answer: selected.label,
-                      attempt: 0,
-                      answered_at: new Date(),
-                      quiz_id: quizContext.quizId ?? ""
+                    quiz_question_id: quizContext.currentQuestion
+                      ? quizContext.currentQuestion.id
+                      : "",
+                    is_correct: isCorrect,
+                    user_answer: selected.label,
+                    attempt: 0,
+                    answered_at: new Date().toISOString(),
+                    quiz_id: quizContext.quiz!.metadata.quiz_id,
+                    user_id: userId || "", // Ensure user_id is set
                   });
                   if (!isCorrect) quizContext.setHealth((h) => h - 1);
-                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                  setTimeout(
+                    () => quizContext.setProgress((val) => val + 1),
+                    1000
+                  );
                 }}
               />
             ) : null}
             {quizContext.currentQuestion &&
-            (
-              quizContext.currentQuestion.type === QuestionType.SKT ||
-              quizContext.currentQuestion.type === "sketch"
-            ) ? (
+            (quizContext.currentQuestion.type === QuestionType.SKT ||
+              quizContext.currentQuestion.type === "sketch") ? (
               <div className="flex flex-col items-center justify-center w-full gap-4">
                 <SubmitButton />
               </div>
             ) : null}
             {quizContext.currentQuestion &&
-            (
-              quizContext.currentQuestion.type === QuestionType.IDT ||
-              quizContext.currentQuestion.type === "quiz"
-            ) ? (
+            (quizContext.currentQuestion.type === QuestionType.IDT ||
+              quizContext.currentQuestion.type === "quiz") ? (
               <Identification
                 correctAnswer={quizContext.currentQuestion.correct_answer!}
                 onAnswer={(userAnswer, isCorrect) => {
                   quizContext.recordAnswer({
-                      quiz_question_id: quizContext.currentQuestion ? quizContext.currentQuestion.id : "",
-                      is_correct: isCorrect,
-                      user_answer: userAnswer,
-                      attempt: 0,
-                      answered_at: new Date(),
-                      quiz_id: quizContext.quizId ?? ""
+                    quiz_question_id: quizContext.currentQuestion
+                      ? quizContext.currentQuestion.id
+                      : "",
+                    is_correct: isCorrect,
+                    user_answer: userAnswer,
+                    attempt: 0,
+                    answered_at: new Date().toISOString(),
+                    quiz_id: quizContext.quiz!.metadata.quiz_id,
+                    user_id: userId || "", // Ensure user_id is set
                   });
                   if (isCorrect) toast.success("Correct!");
                   else {
                     quizContext.setHealth((h) => h - 1);
                     toast.error("Incorrect!");
                   }
-                  setTimeout(() => quizContext.setProgress((val) => val + 1), 1000);
+                  setTimeout(
+                    () => quizContext.setProgress((val) => val + 1),
+                    1000
+                  );
                 }}
               />
             ) : null}

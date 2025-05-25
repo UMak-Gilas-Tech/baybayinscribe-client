@@ -92,7 +92,7 @@ export default function ViewModule() {
     loadingMarkdown // <-- add this condition
   ) {
     return (
-      <main className="w-full min-h-[60vh] bg-muted py-8">
+      <main className="w-full min-h-[60vh]  py-8">
         <article className="max-w-3xl mx-auto px-4">
           <Skeleton className="h-10 w-2/3 mb-6" />
           <Skeleton className="h-6 w-full mb-3" />
@@ -109,7 +109,7 @@ export default function ViewModule() {
   }
 
   return (
-    <main className="w-full min-h-[80vh] bg-muted py-10">
+    <main className="w-full min-h-[80vh] py-10">
       <article className="max-w-3xl mx-auto px-4">
         <ChevronLeft className="my-4" onClick={() => router.back()} />
         <div className="prose prose-lg max-w-none">

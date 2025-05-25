@@ -20,16 +20,17 @@ export type QuizStore = {
     | undefined;
   error?: string;
   answerHistory:
-    | ({ quiz: { id: string } } & {
-        quiz_answer_question: (typeof quiz_answer_question.$inferSelect)[];
-      })
+    | {
+        attempt: number;
+        score: number;
+      }[]
     | undefined;
 
   saveQuiz: (
     quiz: typeof QuizSchema.$inferSelect & {
       metadata: typeof metadata.$inferSelect;
     } & { questions: (typeof quiz_question.$inferSelect)[] }
-  ) => void;
+  ) => Promise<void>;
 
   loadQuiz: (quiz_id: string) => void;
   loadQuizDetails: (quiz_id: string) => void;
@@ -38,7 +39,7 @@ export type QuizStore = {
     quiz_id: string,
     answers: ModifiedQuizAnswerQuestion[]
   ) => void;
-  loadQuizAnswerHistory: (quiz_id: string) => void;
+  loadQuizAnswerHistory: (quiz_id: string, user_id: string) => void;
 
   saveLocalQuizProgress: (
     answer: typeof quiz_answer_question.$inferSelect
@@ -65,20 +66,30 @@ const useQuizStore = create<QuizStore>((set) => ({
         set({ error: response.data.error, status: "Error" });
       }
     } catch (error: unknown) {
-      set({ error: "Couldn't load quiz. Try again: " + error, status: "Error" });
+      set({
+        error: "Couldn't load quiz. Try again: " + error,
+        status: "Error",
+      });
     }
   },
-  saveQuiz: async (quiz) => {
+  saveQuiz: async (
+    quiz: typeof QuizSchema.$inferSelect & {
+      metadata: typeof metadata.$inferSelect;
+    } & { questions: (typeof quiz_question.$inferSelect)[] }
+  ) => {
     set({ status: "Loading" });
     try {
       const response = await axios.post(`/quiz/save`, quiz);
       if (response.status === 200) {
         set({ quiz: response.data, status: "Loaded" });
+        return response.data;
       } else {
         set({ error: response.data.error, status: "Error" });
+        throw new Error(response.data.error);
       }
     } catch (error: unknown) {
       set({ error: (error as Error).message || "Error", status: "Error" });
+      throw error;
     }
   },
   loadQuizDetails: async (quiz_id: string) => {
@@ -105,12 +116,15 @@ const useQuizStore = create<QuizStore>((set) => ({
       set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
-  loadQuizAnswerHistory: async (quiz_id: string) => {
+  loadQuizAnswerHistory: async (quiz_id: string, user_id: string) => {
     set({ status: "Loading" });
     try {
-      const response = await axios.get(`/quiz/answers/${quiz_id}`);
+      const response = await axios.get(
+        `/quiz/answers/${quiz_id}?user_id=${user_id}`
+      );
       if (response.status === 200) {
         const answers = response.data;
+        console.log(answers);
         set({ answerHistory: answers, status: "Loaded" });
       } else {
         set({ error: response.data.error, status: "Error" });
@@ -136,11 +150,17 @@ const useQuizStore = create<QuizStore>((set) => ({
       const response = await axios.get(`/quiz/all`);
       if (response.status === 200) {
         const quizzes = response.data;
+        if (Array.isArray(quizzes) && quizzes.length === 0) {
+          set({ quizzes: undefined, status: "Loaded" });
+          return undefined;
+        }
         set({ quizzes, status: "Loaded" });
+        return quizzes;
       } else {
         set({ error: response.data.error, status: "Error" });
       }
     } catch (error: unknown) {
+      console.error(error);
       set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
@@ -150,7 +170,12 @@ const useQuizStore = create<QuizStore>((set) => ({
       const response = await axios.post(`/quiz/my`, { userId: userId });
       if (response.status === 200) {
         const quizzes = response.data;
+        if (Array.isArray(quizzes) && quizzes.length === 0) {
+          set({ quizzes: undefined, status: "Loaded" });
+          return undefined;
+        }
         set({ quizzes, status: "Loaded" });
+        return quizzes;
       } else {
         set({ error: response.data.error, status: "Error" });
       }

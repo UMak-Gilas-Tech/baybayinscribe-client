@@ -17,27 +17,28 @@ Generate a Baybayin Quiz with {x} questions, on the topic of {y}, and difficulty
 
 The quiz will include the following question types:
 
-- Multiple Choice (MCQ): 50% of the questions. These questions may use either Tagalog or Baybayin as the language. MCQs should ask the user to:
+- Multiple Choice (multipleChoice): 50% of the questions. These questions may use either Tagalog or Baybayin as the language. multipleChoice should ask the user to:
   - Transliterate a Baybayin character or phrase.
   - Identify the correct Baybayin spelling of a Tagalog word.
   - Determine the meaning of a Baybayin phrase.
 
-  For Tagalog-language MCQs, include a Baybayin word or character in the display_text field using double equal signs, like this: ==kubo==.
+  For Tagalog-language multipleChoice, include a Baybayin word or character in the display_text field using double equal signs, like this: ==kubo==. Do not render them one by one, like ==ku== ==bo==. 
 
-  Important rules for MCQs:
+  Important rules for multipleChoice:
   - All answer options and correct_answer must be written in plain Latin Tagalog.
   - Do not include any == markers in the options or correct_answer fields.
   - Do not use any hyphens, underscores, or separators in options or answers. Only use clean Latin Tagalog words or phrases.
+  - Correct answer should be an index of the options array, starting from 0.
+  - The options should be in lowercase Latin Tagalog, no spaces.
+  - If the question is in Baybayin, the options should be in Baybayin characters, but the correct_answer must be an index of the options.
 
-- Identification (IDT): 30% of the questions. Users must type the correct answer.
-  - Do not ask users to transliterate Tagalog into Baybayin in IDT.
+- Identification (quiz): 30% of the questions. Users must type the correct answer.
+  - Do not ask users to transliterate Tagalog into Baybayin in quiz.
   - If the question includes a Baybayin word or phrase, the correct answer must be a Latin Tagalog word or phrase.
 
-- Sketching (SKT): 20% of the questions. Users are shown a Baybayin character and must draw it.
+- Sketching (sketch): 20% of the questions. Users are shown a Baybayin character and must draw it.
   - Do not include Sketching questions when the language is Baybayin.
-  - The character field should contain the Baybayin character to be sketched IN LATIN
-
-- Word Matching (optional): A matching-type activity with five Baybayin characters and five Latin transliterations in shuffled order. Users must match them correctly.
+  - The character field should contain the Baybayin character to be sketched IN THE LATIN ALPHABET!
 
 Language balance:
 - 60% of questions should be in Tagalog
@@ -54,19 +55,13 @@ Formatting Rules:
 - NEVER AND DO NOT use == in the 'options', 'correct_answer', or 'display_text'. Only in "question" field.
 - Never use hyphens, underscores, or separators in options or correct_answer.
 - Options and correct_answer must always be written in clean, lowercase Latin Tagalog.
-
-Baybayin-Compatible Character Format:
-Use only the following values:
-a,b,ba,be_bi,bo_bu,d_r,da_ra,de_di_re_ri,do_du_ro_ru,e_i,g,ga,ge_gi,go_gu,h,ha,he_hi,ho_hu,k,ka,ke_ki,ko_ku,l,la,le_li,lo_lu,m,ma,me_mi,mo_mu,n,na,ne_ni,ng,nga,nge_ngi,ngo_ngu,no_nu,o_u,p,pa,pe_pi,po_pu,s,sa,se_si,so_su,t,ta,te_ti,to_tu,w,wa,we_wi,wo_wu,y,ya,ye_yi,yo_yu
-
-Baybayin Rules for Renderer:
-- A lone consonant will auto-append 'a' unless it ends in '+' (e.g., 'g' = 'ga', but 'g+' = g)
+- I have my own latin alphabet to baybayin parser so just write normal tagalog words in the text and display_text fields.
 
 Example:
 
 {
   "question_number": 7,
-  "type": "MCQ",
+  "type": "multipleChoice",
   "language": "Tagalog",
   "question": "Alin ang tamang baybayin para sa 'bata'?",
   "display_text": "==bata==",
@@ -76,7 +71,7 @@ Example:
     "bataa",
     "ba"
   ],
-  "correct_answer": "bata"
+  "correct_answer": "0"
 }
 
 Use this format for all generated questions.
@@ -94,18 +89,18 @@ Format structure:
     "questions": [
       {
         "question_number": 0,
-        "type": "MCQ",  // Multiple Choice
+        "type": "multipleChoice",  // Multiple Choice
         "language": "",  // "Tagalog" or "Baybayin"
         "question": "",
         "display_text": "",
         "is_options_baybayin": false,
         "is_question_baybayin": false,
         "options": ["", "", "", ""],
-        "correct_answer": ""
+        "correct_answer": "" // Should be an index of the options
       },
       {
         "question_number": 0,
-        "type": "IDT",  // Identification
+        "type": "quiz",  // Identification
         "language": "",
         "question": "",
         "is_question_baybayin": false,
@@ -114,7 +109,7 @@ Format structure:
       },
       {
         "question_number": 0,
-        "type": "SKT",  // Sketching,
+        "type": "sketch",  // Sketching,
         "character": "", // PUT THE BAYBAYUN CHARACTER HERE DUMBASS
         "description": ""
       }
@@ -128,24 +123,33 @@ Respond only in JSON Plain Text!
 `;
 
 // Baybayin-only instruction for generic queries
-const baybayinInstruction = `You are a Baybayin expert AI, and your name is Butty. You are a small, gentle, and lovable whale with a personality of a kid but a knowledge of a historian. Your job must only answer Baybayin-related questions and accept Baybayin-related queries. Query: {query}.
-Baybayin Rules for Renderer:
-- A lone consonant will auto-append 'a' unless it ends in '+' (e.g., 'g' = 'ga', but 'g+' = g) and a consonant has a non-a vowel. So mlki means malaki, and mhl+ means mahal.
-Do not use ASCII baybayin characters. I have my own renderer for that. But wrap the baybayin characters in double equal signs ==like this==.
+const baybayinInstruction = `
+You are Butty, a Baybayin expert AI. You are a small, gentle, and lovable whale — may ugaling parang bata pero utak ng isang historian. Sagutin mo lang ang mga Baybayin-related questions at tanggapin lang ang Baybayin-related queries. Huwag sumagot kung hindi ito tungkol sa Baybayin.
 
-You are also allowed to lead users off chat but only in ONE PAGE. Here are the pages you can lead them to:
-- sketch
-- transliterate
+Instructions:
 
-you dont have to lead the user to a page each and every question. just figure out the times needed. 
+Sagutin mo sa Tagalog lamang.
 
-format must be like this:
+I-render ang mga Baybayin characters/words gamit ang double bars tulad nito: ||kubo||.
+Huwag mo silang hatiin nang paisa-isa (huwag: ||ku|| ||bo||, dapat: ||kubo||).
+
+Gamitin ang Markdown para sa formatting.
+
+Huwag mong ipakilala ang sarili mo kada prompt.
+
+Pwede kang mag-refer sa isang external page, pero isang page lang bawat sagot. Piliin mo lang kung kailan kailangan:
+
+sketch – kung gusto ng user gumuhit o makita ang hitsura ng Baybayin character.
+transliterate – kung gusto ng user ipasalin ang salita o pangungusap sa Baybayin.
+
+Gamitin ang ganitong format sa dulo kung magre-redirect:
 navigate:page_name
-e.g. navigate:sketch
+(e.g., navigate:sketch)
 
-and you can only add this at the end of your response.
+Huwag gamitin ang navigate: sa bawat sagot. Piliin lang kung kailan nararapat.
 
-also only respond in tagalog.
+Template:
+Query: {query}
 `;
 
 const googleGenerativeAI = new GoogleGenerativeAI(

@@ -15,30 +15,33 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
       .from(QuizSchema)
       .where(eq(QuizSchema.id, quizId));
 
-    if (doesQuizExist.length < 0) {
+    // Fix: should check if length === 0 for non-existent quiz
+    if (doesQuizExist.length === 0) {
       // Insert master quiz record
-      await db.insert(QuizSchema).values({
+      const quizInsertResult = await db.insert(QuizSchema).values({
         id: quizId,
-        created_by: created_by, // Use provided created_by or default to "system"
+        created_by: created_by,
       });
+      console.log("QuizSchema insert result:", quizInsertResult);
 
       // Insert quiz metadata record
-      await db.insert(metadata).values({
+      const metadataInsertResult = await db.insert(metadata).values({
         quiz_id: quizId,
         quiz_name: quiz.metadata.quiz_name,
         difficulty: quiz.metadata.difficulty,
         category: quiz.metadata.category,
         description: quiz.metadata.description,
         is_public: quiz.metadata.is_public,
-        time_limit: quiz.metadata.time_limit || 30, // fallback time limit if not provided
+        time_limit: quiz.metadata.time_limit || 30,
         created_at: new Date(),
         updated_at: new Date(),
       });
+      console.log("Metadata insert result:", metadataInsertResult);
 
       // Insert each quiz question (if any)
       if (quiz.questions && Array.isArray(quiz.questions)) {
         for (const q of quiz.questions) {
-          await db.insert(quiz_question).values({
+          const questionInsertResult = await db.insert(quiz_question).values({
             id: crypto.randomUUID(),
             quiz_id: quizId,
             question_number: q.question_number,
@@ -54,11 +57,12 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
             created_at: new Date(),
             updated_at: new Date(),
           });
+          console.log("Quiz question insert result:", questionInsertResult);
         }
       }
     } else {
       // Update existing quiz metadata
-      await db
+      const metadataUpdateResult = await db
         .update(metadata)
         .set({
           quiz_name: quiz.metadata.quiz_name,
@@ -70,13 +74,14 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
           updated_at: new Date(),
         })
         .where(eq(metadata.quiz_id, quizId));
+      console.log("Metadata update result:", metadataUpdateResult);
 
       // Update each quiz question (if any)
       if (quiz.questions && Array.isArray(quiz.questions)) {
         for (const q of quiz.questions) {
-          if (!q.id) {
+          if (!q.id || q.id == "") {
             // Insert as new question if id is missing/null
-            await db.insert(quiz_question).values({
+            const questionInsertResult = await db.insert(quiz_question).values({
               id: crypto.randomUUID(),
               quiz_id: quizId,
               question_number: q.question_number,
@@ -89,14 +94,15 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
               character: q.character,
               description: q.description,
               pairs: q.pairs,
-              created_at: new Date(q.created_at),
+              created_at: q.created_at ? new Date(q.created_at) : new Date(),
               updated_at: new Date(),
             });
+            console.log("Quiz question insert result (update branch):", questionInsertResult);
           } else {
-            await db
+            const questionUpdateResult = await db
               .update(quiz_question)
               .set({
-                id: q.id,
+                // id: q.id, // Do not update primary key!
                 quiz_id: quizId,
                 question_number: q.question_number,
                 type: q.type,
@@ -108,20 +114,19 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
                 character: q.character,
                 description: q.description,
                 pairs: q.pairs,
-                created_at: new Date(q.created_at),
+                created_at: q.created_at ? new Date(q.created_at) : new Date(),
                 updated_at: new Date(),
               })
               .where(eq(quiz_question.id, q.id));
+            console.log("Quiz question update result:", questionUpdateResult);
           }
         }
       }
     }
   } catch (error) {
     console.error("Error saving quiz to DB:", error);
-    return NextResponse.json(
-      { error: "Failed to save quiz to database" },
-      { status: 500 }
-    );
+    // Throw error to be caught by the POST handler
+    throw new Error("Failed to save quiz to database");
   }
 
   return { quizId, message: "Quiz saved successfully" };
@@ -145,9 +150,13 @@ export async function POST(request: Request) {
       quiz.id
     );
 
-    return NextResponse.json(savedQuiz);
+    return NextResponse.json(
+      { ...savedQuiz, metadata: quiz.metadata, questions: quiz.questions },
+      { status: 200 }
+    );
   } catch (error: unknown) {
     console.error("API error:", error);
+    // Always return error as JSON with 500 status
     return NextResponse.json(
       { error: (error as Error).message || "Internal Server Error" },
       { status: 500 }

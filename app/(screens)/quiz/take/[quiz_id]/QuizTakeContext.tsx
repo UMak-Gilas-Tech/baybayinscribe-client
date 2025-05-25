@@ -66,7 +66,6 @@ export const QuizTakeProvider: React.FC<{
   const quizStore = useQuizStore();
   useEffect(() => {
     quizStore.loadQuiz(params.quiz_id);
-    console.log(params.quiz_id);
     inference.initLocalModel();
   }, []);
 

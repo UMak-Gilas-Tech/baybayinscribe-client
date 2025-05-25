@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { authClient } from "../../../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 const ResetPasswordMobile = () => {
   const router = useRouter();
@@ -16,6 +17,7 @@ const ResetPasswordMobile = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -46,6 +48,7 @@ const ResetPasswordMobile = () => {
     }
 
     setStatus("loading");
+    setIsLoading(true);
 
     try {
       await authClient.resetPassword({
@@ -54,6 +57,7 @@ const ResetPasswordMobile = () => {
       }, {
         onSuccess: () => {
           setStatus("success");
+          setIsLoading(false);
           // Redirect to login page after 2 seconds
           setTimeout(() => {
             router.push("/auth/login");
@@ -62,11 +66,13 @@ const ResetPasswordMobile = () => {
         onError: (ctx) => {
           setStatus("error");
           setErrorMessage(ctx.error?.message || "Failed to reset password. Please try again.");
+          setIsLoading(false);
         }
       });
     } catch {
       setStatus("error");
       setErrorMessage("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -163,12 +169,12 @@ const ResetPasswordMobile = () => {
                 
                 <button
                   type="submit"
-                  disabled={status === "loading" || !token}
-                  className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer ${
-                    (status === "loading" || !token) ? "opacity-50 cursor-not-allowed" : ""
+                  disabled={status === "loading" || !token || isLoading}
+                  className={`w-full py-3 mt-6 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative ${
+                    (status === "loading" || !token || isLoading) ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  {status === "loading" ? "Resetting..." : "Reset Password"}
+                  {isLoading ? <LoadingSpinner loadingText="Resetting..." /> : "Reset Password"}
                 </button>
               </form>
             </>

@@ -38,10 +38,11 @@ const MyLessonsPage = () => {
       }
 
       const userId = session.data.user.id;
-      learningResourceStore.getLessons(userId);
+      learningResourceStore.getMyLessons(userId);
     };
     fetchLessons();
-  }, [learningResourceStore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   useEffect(() => {
     if (learningResourceStore.status === "Error") {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "User Auth",
+  name: "BaybayInscribe",
   description: "Learn Baybayin script interactively",
 };
 
