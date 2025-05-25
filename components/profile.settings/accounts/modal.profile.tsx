@@ -33,9 +33,10 @@ type ProfileModalProps = {
   userData: UserData;
   onClose: () => void;
   isOpen: boolean;
+  onProfileUpdated?: () => void;
 };
 
-export default function ProfileModal({ userData: initialUserData, onClose, isOpen }: ProfileModalProps) {
+export default function ProfileModal({ userData: initialUserData, onClose, isOpen, onProfileUpdated }: ProfileModalProps) {
   const isMobile = useMediaQuery("(max-width: 1023px)");
   const [isEditing, setIsEditing] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -101,6 +102,9 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
       // Update local state and close edit mode
       setLocalUserData(enhancedUpdatedData);
       setIsEditing(false);
+      if (onProfileUpdated) {
+        onProfileUpdated();
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
     }
@@ -174,7 +178,6 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
     modalContent = (
       <ProfileModalMobile
         userData={enhancedUserData}
-        onClose={onClose}
         onEdit={() => setIsEditing(true)}
       />
     );

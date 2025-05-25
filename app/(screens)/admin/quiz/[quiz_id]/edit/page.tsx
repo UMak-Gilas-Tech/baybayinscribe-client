@@ -342,7 +342,6 @@ const EditQuizScreenInner = () => {
     }
 
     for (const field of fields) {
-      console.log(field);
       if (field.type === "multipleChoice") {
         if (
           !field.data.question ||
@@ -357,14 +356,12 @@ const EditQuizScreenInner = () => {
           return;
         }
       } else if (field.type === "sketch") {
-        console.log(field.data);
-        if (field.data.options.length === 0) {
+        if (!field.data.options || field.data.options.length === 0) {
           setErrorMessage("Each sketch question must have a character.");
           setShowErrorDialog(true);
           return;
         }
       } else if (field.type === "quiz") {
-        console.log("Quiz Type", field.data);
         if (
           !field.data.question ||
           !field.data.answer ||
@@ -386,44 +383,50 @@ const EditQuizScreenInner = () => {
       typeof quizId !== "string" ||
       quizId.trim() === "" ||
       quizId === "new" ||
-      quizId === undefined
+      quizId === undefined ||
+      params.quiz_id === "new" // <-- Ensure new quiz gets a new ID
     ) {
       quizId = crypto.randomUUID();
-      // Immediately update quizInformation state and wait for it to finish before saving
-      await new Promise<void>((resolve) => {
-        setQuizInformation((prev) => {
-          resolve();
-          return { ...prev, quiz_id: quizId };
-        });
-      });
+      setQuizInformation((prev) => ({
+        ...prev,
+        quiz_id: quizId,
+      }));
     }
 
-    await quizStore?.saveQuiz({
-      id: quizId,
-      created_by: currentSession?.user?.id ?? "",
-      metadata: {
-        quiz_id: quizId,
-        quiz_name: quizInformation.quiz_name,
-        difficulty: quizInformation.difficulty,
-        category: quizInformation.category,
-        time_limit: quizInformation.time_limit,
-        description: quizInformation.description,
-        is_public: isPublic,
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      questions: fields.map((field, index) => ({
+    // Prepare metadata
+    const metadata = {
+      quiz_id: quizId,
+      quiz_name: quizInformation.quiz_name,
+      difficulty: quizInformation.difficulty,
+      category: quizInformation.category,
+      time_limit: quizInformation.time_limit,
+      description: quizInformation.description,
+      is_public: isPublic,
+      created_at: quizInformation.created_at || new Date(),
+      updated_at: new Date(),
+    };
+
+    // Prepare questions
+    const questions = fields.map((field, index) => {
+      let correct_answer = field.data.correct_answer;
+      if (field.type === "multipleChoice") {
+        correct_answer = field.data.correct_answer || field.data.correctAnswer || "";
+      }
+      if (field.type === "quiz") {
+        correct_answer = field.data.correct_answer || field.data.answer || "";
+      }
+      return {
         id: field.id,
         quiz_id: quizId,
-        created_at: new Date(),
+        created_at: field.data.created_at || new Date(),
         updated_at: new Date(),
         question_number: field.data.question_number || index + 1,
         type: field.type,
-        question: field.data.question || null,
+        question: field.data.question || "",
         options: field.data.options || [],
-        correct_answer: field.data.correct_answer || null,
-        description: field.data.description || null,
-        character: field.data.character || null,
+        correct_answer: correct_answer,
+        description: field.data.description || "",
+        character: field.data.character || "",
         is_options_baybayin: field.data.is_options_baybayin || false,
         is_question_baybayin: field.data.is_question_baybayin || false,
         is_input_baybayin: field.data.is_input_baybayin || false,
@@ -434,12 +437,25 @@ const EditQuizScreenInner = () => {
           "",
         language: field.data.language || null,
         pairs: field.data.pairs || [],
-        answer: field.data.answer || field.data.correct_answer || null,
-      })),
+        answer: field.data.answer || correct_answer || "",
+      };
     });
 
-    // navigate to the quiz details page
-    router.push("/admin/quiz/" + quizId + "/edit");
+    // Compose payload
+    const payload = {
+      id: quizId,
+      created_by: currentSession?.user?.id ?? "",
+      metadata,
+      questions,
+    };
+
+    try {
+      await quizStore?.saveQuiz(payload);
+      router.push("/admin/quiz/" + quizId + "/edit");
+    } catch (err: any) {
+      setErrorMessage("Failed to save quiz: " + (err?.message || err));
+      setShowErrorDialog(true);
+    }
   };
 
   // Add a dataLoaded variable to check if all required data is loaded
