@@ -60,7 +60,7 @@ export const useLearningResourceStore = create<LearningResourceStore>(
     getLesson: async (lessonId, userId) => {
       set({ status: "Loading" });
       try {
-        const response = await axios.post(`/lessons/l/${lessonId}`, { userId });
+        const response = await axios.post(`/lessons/${lessonId}`, { userId });
         console.log("Lesson data:", response.data);
         if (!response.data) {
           set({ lesson: undefined, status: "Loaded" });
