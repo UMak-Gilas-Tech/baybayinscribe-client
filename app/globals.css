@@ -4,6 +4,11 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Baybayin Simple TAWBID";
+  src: url("fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
