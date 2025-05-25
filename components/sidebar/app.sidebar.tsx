@@ -147,7 +147,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       : [
           {
             name: "Lessons",
-            url: "/lessons/all",
+            url: "/lesson/all",
             icon: BookOpenText,
           },
           {
