@@ -1,6 +1,4 @@
-import baybayifyWord, {
-  baybayinToLatin,
-} from "@/lib/baybayify";
+import baybayifyWord, { baybayinToLatin } from "@/lib/baybayify";
 import React, { useState } from "react";
 
 // ToggleSpan component: renders two variants and toggles on click.
