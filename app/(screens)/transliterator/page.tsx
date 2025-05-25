@@ -6,7 +6,10 @@ import {
   SwitchButton,
   TransliteratorHeader,
 } from "./components";
-import baybayifyWord, { baybayinToLatin } from "@/lib/baybayify";
+import baybayifyWord, {
+  baybayinToLatin,
+  latinToBaybayinUnicode,
+} from "@/lib/baybayify";
 import {
   Select,
   SelectTrigger,
@@ -83,7 +86,7 @@ export default function TransliterationScreen() {
   const baybayinInput = (
     <InputContainer
       title="Baybayin"
-      value={baybayinText}
+      value={latinToBaybayinUnicode(baybayinText)}
       onChange={handleBaybayinChange}
       placeholder="Type Baybayin..."
       className="font-[Baybayin_Simple_TAWBID] text-xl sm:text-2xl md:text-3xl lg:text-4xl"
