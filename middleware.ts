@@ -18,12 +18,54 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = pathname.startsWith("/auth");
   const isAdminPage = pathname.startsWith("/admin");
 
+  // Allow access to auth pages without session
+  if (!sessionCookie && isAuthPage) {
+    return NextResponse.next();
+  }
+
+  // Redirect to login if no session and trying to access protected pages
   if (!sessionCookie && !isAuthPage) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  if (sessionCookie && isAuthPage && pathname === "/auth/login") {
-    return NextResponse.redirect(new URL("/", request.url));
+  // If user has session, check registration status only for non-auth pages
+  if (sessionCookie && !isAuthPage) {
+    try {
+      const response = await fetch(new URL('/api/auth/check.user.info', request.url), {
+        headers: {
+          cookie: request.headers.get('cookie') || '',
+        },
+      });
+
+      const data = await response.json();
+
+      // If user hasn't completed registration
+      if (data.status === "incomplete") {
+        if (data.step === "userinfo") {
+          return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+        } else if (data.step === "terms") {
+          return NextResponse.redirect(new URL("/auth/terms", request.url));
+        }
+      }
+
+      // If there's an error or unauthenticated
+      if (data.status === "error" || data.status === "unauthenticated") {
+        return NextResponse.redirect(new URL("/auth/login", request.url));
+      }
+
+      // If status is "complete" and the current path is the check endpoint, redirect to home
+      if (data.status === "complete" && pathname === "/api/auth/check.user.info") {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+
+      // Only allow access if status is "complete"
+      if (data.status !== "complete") {
+        return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+      }
+    } catch (err) {
+      console.error("Registration check error:", err);
+      return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+    }
   }
 
   // Admin route protection
