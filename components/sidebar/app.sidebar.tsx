@@ -175,54 +175,55 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
   };
 
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Fetch user information (username, email, etc.)
-        const userResponse = await fetch("/api/user.information", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  // Fetch user data function
+  const fetchUserData = async () => {
+    try {
+      // Fetch user information (username, email, etc.)
+      const userResponse = await fetch("/api/user.information", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        let userDataFromApi: UserData | null = null;
+      let userDataFromApi: UserData | null = null;
 
-        if (userResponse.ok) {
-          userDataFromApi = await userResponse.json();
-        } else {
-          console.error("Failed to fetch user data");
-          // Handle error or set default user data
-          userDataFromApi = {
-            username: "Guest",
-            email: "",
-            firstName: "",
-            lastName: "",
-          }; // Provide defaults if fetch fails
-        }
-
-        // Set user data
-        setUserData(
-          userDataFromApi || {
-            username: "Guest",
-            email: "",
-            firstName: "",
-            lastName: "",
-          }
-        );
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setUserData({
+      if (userResponse.ok) {
+        userDataFromApi = await userResponse.json();
+      } else {
+        console.error("Failed to fetch user data");
+        // Handle error or set default user data
+        userDataFromApi = {
           username: "Guest",
           email: "",
           firstName: "",
           lastName: "",
-        });
-      } finally {
-        setIsLoading(false);
+        }; // Provide defaults if fetch fails
       }
-    };
 
+      // Set user data
+      setUserData(
+        userDataFromApi || {
+          username: "Guest",
+          email: "",
+          firstName: "",
+          lastName: "",
+        }
+      );
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setUserData({
+        username: "Guest",
+        email: "",
+        firstName: "",
+        lastName: "",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -329,6 +330,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <ProfileModal
           isOpen={isProfileModalOpen}
           onClose={closeProfileModal}
+          onProfileUpdated={fetchUserData}
           userData={userData}
         />
       )}

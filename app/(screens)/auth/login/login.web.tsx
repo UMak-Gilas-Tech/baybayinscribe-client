@@ -63,7 +63,7 @@ const LoginWeb = () => {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/api/auth/check.user.info",
+        callbackURL: "/",
       });
     } catch {
       setLoginError("Failed to sign in with Google. Please try again.");
@@ -74,7 +74,7 @@ const LoginWeb = () => {
     try {
       await authClient.signIn.social({
         provider: "facebook",
-        callbackURL: "/api/auth/check.user.info",
+        callbackURL: "/",
       });
     } catch {
       setLoginError("Failed to sign in with Facebook. Please try again.");
