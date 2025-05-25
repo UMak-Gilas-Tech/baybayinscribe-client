@@ -1,21 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
-import TransliteratorHeader from "@/public/images/TransliteratorHeader.png";
+import { useState } from "react";
+import {
+  InputContainer,
+  SwitchButton,
+  TransliteratorHeader,
+} from "./components";
 import baybayifyWord, { baybayinToLatin } from "@/lib/baybayify";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import Image from "next/image";
 
-const TransliterationScreen = () => {
-
+export default function TransliterationScreen() {
   const [latinText, setLatinText] = useState("");
   const [baybayinText, setBaybayinText] = useState(baybayifyWord(""));
-
-  // New state to toggle the order of inputs
   const [switchOrder, setSwitchOrder] = useState(false);
+  const [latinLang, setLatinLang] = useState("default");
 
   const handleLatinChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setLatinText(value);
-    // if input is empty, clear baybayinText, otherwise convert
     setBaybayinText(value === "" ? "" : baybayifyWord(value));
   };
 
@@ -23,64 +32,90 @@ const TransliterationScreen = () => {
     const value = e.target.value;
     const wrapped = value === "" ? "" : baybayifyWord(value);
     setBaybayinText(wrapped);
-    // if input is empty, clear latinText, otherwise convert back
     setLatinText(wrapped === "" ? "" : baybayinToLatin(wrapped));
   };
 
-  // Render input section for Latin
-  const renderLatinInput = () => (
-    <div className="border-2 border-[#31384D] bg-[#e7ecfe] lg:rounded-xl rounded-t-xl flex-1 w-full p-2">
-      <h2 className="text-2xl p-2 font-bold mb-2">Latin</h2>
-      <textarea
-        value={latinText}
-        onChange={handleLatinChange}
-        placeholder="Type Latin..."
-        className="w-full p-3 rounded-md resize-none h-[250px] md:min-h-[400px]"
-        rows={20}
-      />
-    </div>
+  const latinInput = (
+    <InputContainer
+      title="Latin Alphabet"
+      value={latinText}
+      onChange={handleLatinChange}
+      placeholder="Type Latin..."
+      headerRight={
+        <Select value={latinLang} onValueChange={setLatinLang}>
+          <SelectTrigger className="w-fit bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500 ">
+            <SelectValue placeholder="Language" />
+          </SelectTrigger>
+          <SelectContent className="bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500">
+            <SelectItem className="hover:bg-blue-900" value="default">
+              🌐 Auto-Detect (Default)
+            </SelectItem>
+            <SelectItem
+              className="hover:bg-blue-900 flex items-center gap-2"
+              value="filipino"
+            >
+              <Image
+                src="/images/flag-ph.svg"
+                alt="Philippines flag"
+                width={20}
+                height={20}
+              />
+              Filipino
+            </SelectItem>
+            <SelectItem
+              className="hover:bg-blue-900 flex items-center gap-2"
+              value="english"
+            >
+              <Image
+                src="/images/flag-us.svg"
+                alt="US flag"
+                width={20}
+                height={20}
+              />
+              English
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      }
+    />
   );
 
-  const renderBaybayinInput = () => (
-    <div className="border-2 border-[#31384D] bg-[#e7ecfe] lg:rounded-xl md:rounded-xl rounded-b-xl p-2 flex-1 w-full">
-      <h2 className="text-2xl p-2 font-bold mb-2">Baybayin</h2>
-      <textarea
-        value={baybayinText}
-        onChange={handleBaybayinChange}
-        placeholder="Type Baybayin..."
-        className="w-full p-3 rounded-md  resize-none h-[250px] md:min-h-[400px] font-[Baybayin_Simple_TAWBID]"
-        rows={20}
-      />
-    </div>
+  const baybayinInput = (
+    <InputContainer
+      title="Baybayin"
+      value={baybayinText}
+      onChange={handleBaybayinChange}
+      placeholder="Type Baybayin..."
+      className="font-[Baybayin_Simple_TAWBID] text-xl sm:text-2xl md:text-3xl lg:text-4xl"
+    />
+  );
+
+  const switchBtn = (
+    <SwitchButton
+      onClick={() => setSwitchOrder(!switchOrder)}
+      currentOrder={switchOrder}
+    />
   );
 
   return (
-    <div className="flex flex-col items-center h-full p-4 md:p-8">
-      <img className="h-38 my-4" src={TransliteratorHeader.src} alt="Header" />
-      <div className="w-full max-w-[90%]">
-        {/* Mobile-only switch button */}
-        <div className="flex justify-end md:hidden mb-4">
-          <div
-            onClick={() => setSwitchOrder(!switchOrder)}
-            className="cursor-pointer text-2xl font-bold"
-          >
-            ⇆ Switch
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row lg:gap-4 md:gap-2 items-center">
-          {switchOrder ? renderBaybayinInput() : renderLatinInput()}
-          {/* Desktop-only switch arrow */}
-          <div
-            onClick={() => setSwitchOrder(!switchOrder)}
-            className="hidden md:block cursor-pointer text-2xl font-bold"
-          >
-            ⇆
-          </div>
-          {switchOrder ? renderLatinInput() : renderBaybayinInput()}
-        </div>
-      </div>
-    </div>
-  );
-};
+    <main className="flex flex-col items-center min-h-full font-sans">
+      <TransliteratorHeader />
 
-export default TransliterationScreen;
+      <section className="w-full max-w-8xl px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex md:hidden mb-2 sm:mb-3 md:mb-4">
+          <SwitchButton
+            onClick={() => setSwitchOrder(!switchOrder)}
+            isMobile
+            currentOrder={switchOrder}
+          />
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-2 sm:gap-3 md:gap-4 items-center">
+          {switchOrder
+            ? [baybayinInput, switchBtn, latinInput]
+            : [latinInput, switchBtn, baybayinInput]}
+        </div>
+      </section>
+    </main>
+  );
+}
