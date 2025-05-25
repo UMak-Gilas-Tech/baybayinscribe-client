@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
 import TopNavbar from "../components/sidebar/Navbar";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next"
 
 import "./globals.css";
 import { SidebarProvider } from "../components/ui/sidebar";
@@ -67,6 +68,7 @@ export default function RootLayout({
           {isLoginPage && <main>{children}</main>}
         </SidebarProvider>
         <ScreenSize />
+        <Analytics />
         <Toaster position="bottom-right" richColors />
       </body>
     </html>

@@ -43,6 +43,7 @@
     "@tensorflow/tfjs-tflite": "^0.0.1-alpha.10",
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^1.0.1",
+    "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.8.4",
     "better-auth": "^1.2.7",
     "class-variance-authority": "^0.7.1",
