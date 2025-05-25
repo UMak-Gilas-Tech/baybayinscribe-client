@@ -1,3 +1,5 @@
+"use server";
+
 import db from "@/db/drizzle";
 import {
   learningResource,
@@ -8,14 +10,12 @@ import { file as FileSchema } from "@/db/schema/file-schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { user } from "@/db/schema/auth-schema";
-export const dynamic = "force-static";
 
 export async function POST(
   request: Request,
   { params }: { params: { resource_id: string } }
 ) {
-  const resource_id = await params.resource_id;
-  console.log("resource_id param:", resource_id);
+  const resource_id = params.resource_id;
 
   if (!resource_id) {
     return new Response("Resource ID is required", { status: 400 });
@@ -23,11 +23,6 @@ export async function POST(
 
   const body = await request.json();
   const userId = body.userId;
-  console.log("Extracted userId from body:", userId);
-
-  if (!userId) {
-    console.warn("userId is null. Make sure you are sending it in the POST body as { userId: ... }");
-  }
 
   // Query the lesson with the joined modules and their files.
   const rows = await db
@@ -41,7 +36,7 @@ export async function POST(
     .leftJoin(FileSchema, eq(learningResourceModule.module_id, FileSchema.id));
 
   if (rows.length === 0) {
-    return NextResponse.json({message: "Lesson not found"}, { status: 404 });
+    return NextResponse.json({ message: "Lesson not found" }, { status: 404 });
   }
 
   // Get the lesson and user info from the first row
@@ -73,11 +68,8 @@ export async function POST(
                 )
               )
             );
-
           is_finished = progress.length > 0;
         }
-
-        console.log(row.file)
         return {
           ...row.learning_resource_module,
           file: row.file || null,
@@ -91,8 +83,7 @@ export async function POST(
     learning_resource_module: modules,
   };
 
-  console.log("Lesson data:", lesson);
   return NextResponse.json(lesson, {
-    headers: { "Content-Type": "application/json" },
-  });
+    status: 200,
+});
 }
