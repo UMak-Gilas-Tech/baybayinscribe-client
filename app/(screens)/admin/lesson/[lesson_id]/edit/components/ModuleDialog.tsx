@@ -35,9 +35,16 @@ type Props = {
   onClose: () => void;
   onSubmit: (data: ModuleValues) => void;
   defaultValues?: ModuleValues;
+  loading?: boolean;
 };
 
-const ModuleDialog = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
+const ModuleDialog = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  defaultValues,
+  loading = false,
+}: Props) => {
   const form = useForm<ModuleValues>({
     resolver: zodResolver(moduleSchema),
     defaultValues,
@@ -86,8 +93,17 @@ const ModuleDialog = ({ isOpen, onClose, onSubmit, defaultValues }: Props) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">
-              {isEdit ? "Update Module" : "Create Module"}
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                  {isEdit ? "Updating..." : "Creating..."}
+                </span>
+              ) : isEdit ? (
+                "Update Module"
+              ) : (
+                "Create Module"
+              )}
             </Button>
           </form>
         </ShadcnForm>

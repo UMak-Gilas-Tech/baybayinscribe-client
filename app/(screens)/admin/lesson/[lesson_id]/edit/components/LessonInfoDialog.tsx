@@ -32,6 +32,7 @@ type Props = {
   onClose: () => void;
   onSubmit: (data: LessonInfoValues) => void;
   defaultValues?: LessonInfoValues;
+  loading?: boolean;
 };
 
 const LessonInfoDialog = ({
@@ -39,6 +40,7 @@ const LessonInfoDialog = ({
   onClose,
   onSubmit,
   defaultValues,
+  loading = false,
 }: Props) => {
   const form = useForm<LessonInfoValues>({
     resolver: zodResolver(lessonInfoSchema),
@@ -109,8 +111,12 @@ const LessonInfoDialog = ({
                 </FormItem>
               )}
             />
-            <Button type="submit">
-              Save
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>Saving...</span>
+              ) : (
+                'Save'
+              )}
             </Button>
           </form>
         </ShadcnForm>
