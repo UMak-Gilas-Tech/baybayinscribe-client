@@ -19,8 +19,20 @@ import {
 } from "./CharacterSelection";
 import { useSketchpad } from "@/app/contexts/SketchpadContext";
 import SketchpadInformation from "./SketchpadInformation";
+import { isPromise } from "@/lib/isPromise";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-const StandaloneSketchpad: React.FC = () => {
+interface StandaloneSketchpadProps {
+  setModelLoading?: (loading: boolean) => void;
+}
+
+const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoading }) => {
   const sketchpadContext = useSketchpad();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
@@ -28,6 +40,7 @@ const StandaloneSketchpad: React.FC = () => {
   const [result, setResult] = useState<string | null>(null);
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
   const [openGuide, setOpenGuide] = useState(false);
+  const [showResultDrawer, setShowResultDrawer] = useState(false);
   const widthDragRef = useRef<{ startY: number; startWidth: number } | null>(
     null
   );
@@ -35,7 +48,19 @@ const StandaloneSketchpad: React.FC = () => {
 
   // initialise model
   useEffect(() => {
-    inference.initLocalModel();
+    let cancelled = false;
+    if (setModelLoading) setModelLoading(true);
+    const maybePromise = inference.initLocalModel();
+    if (isPromise(maybePromise)) {
+      maybePromise.finally(() => {
+        if (!cancelled && setModelLoading) setModelLoading(false);
+      });
+    } else {
+      if (setModelLoading) setModelLoading(false);
+    }
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // redraw on resize
@@ -65,6 +90,7 @@ const StandaloneSketchpad: React.FC = () => {
         .map((i) => i.className)
         .join("");
       setResult(str);
+      setShowResultDrawer(true); // open drawer when results are available
     }
   }, [inference.localInferenceResult]);
 
@@ -268,11 +294,47 @@ const StandaloneSketchpad: React.FC = () => {
         </Button>
       </div>
 
-      {result && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-green-200 px-4 py-2 rounded">
-          {baybayinToLatin(result)}
-        </div>
-      )}
+      {/* Results Drawer using shadcn/ui */}
+      <Dialog open={showResultDrawer} onOpenChange={setShowResultDrawer}>
+        <DialogContent side="right" className="sm:max-w-md w-full">
+          <DialogHeader>
+            <DialogTitle>Recognition Results</DialogTitle>
+            <DialogDescription>
+              Feedback for each detected character.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-2">
+            {inference.localInferenceResult && inference.localInferenceResult.length > 0 ? (
+              inference.localInferenceResult.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-4 p-3 rounded-md bg-muted border"
+                >
+                  <span className="text-3xl font-[Baybayin_Simple_TAWBID]">{item.className}</span>
+                  <span className="text-lg text-muted-foreground">{baybayinToLatin(item.className)}</span>
+                  <span className="ml-auto text-xs text-gray-500">
+                    {(item.confidence * 100).toFixed(1)}%
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-muted-foreground text-center">No results</div>
+            )}
+            {inference.localInferenceResult && inference.localInferenceResult.length > 0 && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <b>Bounding Boxes:</b>
+                <ul className="list-disc ml-5">
+                  {inference.localInferenceResult.map((item, idx) => (
+                    <li key={idx}>
+                      x: {item.x.toFixed(1)}, y: {item.y.toFixed(1)}, w: {item.width.toFixed(1)}, h: {item.height.toFixed(1)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <SketchpadInformation open={openGuide} setOpen={setOpenGuide} />
     </div>

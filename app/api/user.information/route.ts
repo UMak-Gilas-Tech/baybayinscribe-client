@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-  const {
+    const {
       username,
       firstName,
       lastName,
@@ -51,7 +51,9 @@ export async function POST(req: NextRequest) {
 
       if (existingResult.rows.length > 0) {
         return NextResponse.json({ error: "Username already taken" }, { status: 409 });
-      }      await pool.query(
+      }
+
+      await pool.query(
         `INSERT INTO "user_information" (
           user_id, 
           username, 
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
           lastName,
           contactNumber,
           dateOfBirth,
-          true, //agreed_to_terms
+          false, // Set agreed_to_terms to false by default
           wantsNotifications,
           profilePictureUrl || null,
         ]
@@ -102,7 +104,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { wantsNotifications } = body;
+    const { wantsNotifications, agreedToTerms } = body;
 
     if (typeof wantsNotifications !== "boolean") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -122,9 +124,11 @@ export async function PATCH(req: NextRequest) {
       // Update the wants_notifications preference
       await pool.query(
         `UPDATE "user_information" 
-         SET wants_notifications = $1, updated_at = NOW() 
-         WHERE user_id = $2`,
-        [wantsNotifications, userId]
+         SET wants_notifications = $1,
+             agreed_to_terms = $2,
+             updated_at = NOW()
+         WHERE user_id = $3`,
+        [wantsNotifications, agreedToTerms, userId]
       );
 
       return NextResponse.json({ success: true });
@@ -133,7 +137,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Database operation failed" }, { status: 500 });
     }
   } catch (error) {
-    console.error("Error updating notification preferences:", error);
+    console.error("Error updating user information:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

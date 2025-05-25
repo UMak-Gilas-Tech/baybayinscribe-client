@@ -17,7 +17,15 @@ const UserInfoMobile = () => {
     wantsNotifications: false
   });
 
-  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    contactNumber: "",
+    dateOfBirth: ""
+  });
+
+  const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,31 +36,47 @@ const UserInfoMobile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Contact number validation
+    if (!form.username || !form.firstName || !form.lastName || !form.contactNumber || !form.dateOfBirth) {
+      setGeneralError("Enter correct credentials.");
+      setFieldErrors({
+        username: '',
+        firstName: '',
+        lastName: '',
+        contactNumber: '',
+        dateOfBirth: ''
+      });
+      return;
+    }
+
+    let hasErrors = false;
+    const newFieldErrors = {
+      username: "",
+      firstName: "",
+      lastName: "",
+      contactNumber: "",
+      dateOfBirth: ""
+    };
+
     if (form.contactNumber && !/^\d{11}$/.test(form.contactNumber)) {
-      setError("Contact number form not valid.");
-      return;
+      newFieldErrors.contactNumber = "Contact number form not valid.";
+      hasErrors = true;
     }
 
-    //username validation
     if (form.username.length > 15) {
-      setError("Username must be less than 15 characters.");
-      return;
+      newFieldErrors.username = "Username must be less than 15 characters.";
+      hasErrors = true;
     }
 
-    //firstname validation
     if (form.firstName.length > 15) {
-      setError("First name must be less than 15 characters.");
-      return;
+      newFieldErrors.firstName = "First name must be less than 15 characters.";
+      hasErrors = true;
     }
 
-    //lastname validation
     if (form.lastName.length > 15) {
-      setError("Last name must be less than 15 characters.");
-      return;
+      newFieldErrors.lastName = "Last name must be less than 15 characters.";
+      hasErrors = true;
     }
-
-    // Date of birth validation
+    
     if (form.dateOfBirth) {
       const dob = new Date(form.dateOfBirth);
       const today = new Date();
@@ -62,9 +86,24 @@ const UserInfoMobile = () => {
         age--;
       }
       if (age < 8) {
-        setError("Age must be at least 8 years old.");
-        return;
+        newFieldErrors.dateOfBirth = "Age must be at least 8 years old.";
+        hasErrors = true;
       }
+    }
+    
+    if (hasErrors) {
+      setFieldErrors(newFieldErrors);
+      setGeneralError("");
+      setIsLoading(false);
+      return;
+    } else {
+      setFieldErrors({
+        username: '',
+        firstName: '',
+        lastName: '',
+        contactNumber: '',
+        dateOfBirth: ''
+      });
     }
 
     setIsLoading(true);
@@ -81,11 +120,22 @@ const UserInfoMobile = () => {
         router.push("/auth/terms");
       } else {
         const data = await res.json();
-        setError(data.error || "Failed to submit information.");
+        
+        if (data.error && data.error === "Username already taken") {
+          setFieldErrors(prevErrors => ({
+            ...prevErrors,
+            username: data.error,
+          }));
+          setGeneralError("");
+        } else if (data.error) {
+           setGeneralError(data.error);
+        } else {
+           setGeneralError("Failed to submit information.");
+        }
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong.");
+      setGeneralError("Something went wrong.");
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +148,6 @@ const UserInfoMobile = () => {
         backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
-
-      {/* Wave Design */}
       <div
         className="fixed bottom-0 left-0 right-0 z-10 bg-cover bg-center"
         style={{
@@ -112,10 +160,8 @@ const UserInfoMobile = () => {
         }}
       />
 
-      {/* Content Container */}
       <div className="relative z-20 flex flex-col items-center w-full h-full pt-20 pb-16">
         <div className="w-full max-w-xs md:max-w-sm px-4">
-          {/* Title */}
           <h1
             className="text-2xl md:text-4xl font-bold text-[#FAD6A5] text-center mb-4"
           >
@@ -123,9 +169,7 @@ const UserInfoMobile = () => {
           </h1>
           <h1 className="text-sm font-bold text-[#FAD6A5] mt-6 mb-6">Great let us continue! Enter your details below</h1>
 
-          {/* Form */}
           <form className="space-y-2 mt-2" onSubmit={handleSubmit}>
-            {/* Username */}
             <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
               Username
             </h2>
@@ -138,9 +182,9 @@ const UserInfoMobile = () => {
                 value={form.username}
                 onChange={handleChange}
               />
+              {fieldErrors.username && <p className="text-red-500 text-sm mt-1">{fieldErrors.username}</p>}
             </div>
 
-            {/* First Name */}
             <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
               First Name
             </h2>
@@ -153,9 +197,9 @@ const UserInfoMobile = () => {
                 value={form.firstName}
                 onChange={handleChange}
               />
+              {fieldErrors.firstName && <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>}
             </div>
 
-            {/* Last Name */}
             <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
               Last Name
             </h2>
@@ -168,11 +212,11 @@ const UserInfoMobile = () => {
                 value={form.lastName}
                 onChange={handleChange}
               />
+              {fieldErrors.lastName && <p className="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>}
             </div>
 
-            {/* Contact Number */}
             <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
-              Contact Number (Optional)
+              Contact Number
             </h2>
             <div>
               <input
@@ -183,11 +227,11 @@ const UserInfoMobile = () => {
                 value={form.contactNumber}
                 onChange={handleChange}
               />
+              {fieldErrors.contactNumber && <p className="text-red-500 text-sm mt-1">{fieldErrors.contactNumber}</p>}
             </div>
 
-            {/* Date of Birth */}
             <h2 className="text-base md:text-lg font-semibold text-[#FAD6A5]">
-              Date of Birth (Optional)
+              Date of Birth
             </h2>
             <div>
               <input
@@ -198,10 +242,10 @@ const UserInfoMobile = () => {
                 value={form.dateOfBirth}
                 onChange={handleChange}
               />
+              {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{fieldErrors.dateOfBirth}</p>}
             </div>
 
-            {/* Submit Button */}
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {generalError && <p className="text-red-500 mb-4">{generalError}</p>}
             <button
               type="submit"
               className="w-full py-3 mt-8 bg-[#837EFF] text-white font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative"

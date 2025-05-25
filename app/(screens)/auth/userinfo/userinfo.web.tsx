@@ -17,7 +17,15 @@ const UserInfoWeb = () => {
     wantsNotifications: false
   });
 
-  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    contactNumber: "",
+    dateOfBirth: ""
+  });
+
+  const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,31 +36,47 @@ const UserInfoWeb = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Contact number validation
+    if (!form.username || !form.firstName || !form.lastName || !form.contactNumber || !form.dateOfBirth) {
+      setGeneralError("Enter correct credentials.");
+      setFieldErrors({
+        username: '',
+        firstName: '',
+        lastName: '',
+        contactNumber: '',
+        dateOfBirth: ''
+      });
+      return;
+    }
+
+    let hasErrors = false;
+    const newFieldErrors = {
+      username: "",
+      firstName: "",
+      lastName: "",
+      contactNumber: "",
+      dateOfBirth: ""
+    };
+
     if (form.contactNumber && !/^\d{11}$/.test(form.contactNumber)) {
-      setError("Contact number form not valid.");
-      return;
+      newFieldErrors.contactNumber = "Contact number form not valid.";
+      hasErrors = true;
     }
 
-    //username validation
     if (form.username.length > 15) {
-      setError("Username must be less than 15 characters.");
-      return;
+      newFieldErrors.username = "Username must be less than 15 characters.";
+      hasErrors = true;
     }
 
-    //firstname validation
     if (form.firstName.length > 15) {
-      setError("First name must be less than 15 characters.");
-      return;
+      newFieldErrors.firstName = "First name must be less than 15 characters.";
+      hasErrors = true;
     }
 
-    //lastname validation
     if (form.lastName.length > 15) {
-      setError("Last name must be less than 15 characters.");
-      return;
+      newFieldErrors.lastName = "Last name must be less than 15 characters.";
+      hasErrors = true;
     }
     
-    // Date of birth validation
     if (form.dateOfBirth) {
       const dob = new Date(form.dateOfBirth);
       const today = new Date();
@@ -62,11 +86,26 @@ const UserInfoWeb = () => {
         age--;
       }
       if (age < 8) {
-        setError("Age must be at least 8 years old.");
-        return;
+        newFieldErrors.dateOfBirth = "Age must be at least 8 years old.";
+        hasErrors = true;
       }
     }
     
+    if (hasErrors) {
+      setFieldErrors(newFieldErrors);
+      setGeneralError("");
+      setIsLoading(false);
+      return;
+    } else {
+      setFieldErrors({
+        username: '',
+        firstName: '',
+        lastName: '',
+        contactNumber: '',
+        dateOfBirth: ''
+      });
+    }
+
     setIsLoading(true);
 
     try {
@@ -81,11 +120,22 @@ const UserInfoWeb = () => {
         router.push("/auth/terms");
       } else {
         const data = await res.json();
-        setError(data.error || "Failed to submit information.");
+        
+        if (data.error && data.error === "Username already taken") {
+          setFieldErrors(prevErrors => ({
+            ...prevErrors,
+            username: data.error,
+          }));
+          setGeneralError("");
+        } else if (data.error) {
+           setGeneralError(data.error);
+        } else {
+           setGeneralError("Failed to submit information.");
+        }
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong.");
+      setGeneralError("Something went wrong.");
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +143,6 @@ const UserInfoWeb = () => {
 
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-      {/* Vector SVG Design */}
       <svg className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none" viewBox="0 0 953 1117">
         <path
           fillRule="evenodd"
@@ -106,7 +155,6 @@ const UserInfoWeb = () => {
         />
       </svg>
 
-      {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center z-10"
         style={{
@@ -125,13 +173,9 @@ const UserInfoWeb = () => {
         USER INFORMATION
       </h1>
 
-      {/* Left Section */}
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
-      {/* Right Section */}
       <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
-        
-        {/* Login Form */}
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
           style={{ transform: "translateX(-35px)" }}
@@ -152,6 +196,7 @@ const UserInfoWeb = () => {
                 placeholder="Enter your username"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {fieldErrors.username && <p className="text-red-500 text-sm mb-4">{fieldErrors.username}</p>}
             </div>
 
             <div className="mb-4">
@@ -167,6 +212,7 @@ const UserInfoWeb = () => {
                 placeholder="Enter your first name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {fieldErrors.firstName && <p className="text-red-500 text-sm mb-4">{fieldErrors.firstName}</p>}
             </div>
 
             <div className="mb-4">
@@ -182,6 +228,7 @@ const UserInfoWeb = () => {
                 placeholder="Enter your last name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {fieldErrors.lastName && <p className="text-red-500 text-sm mb-4">{fieldErrors.lastName}</p>}
             </div>
 
             <div className="mb-4">
@@ -196,6 +243,7 @@ const UserInfoWeb = () => {
                 placeholder="Enter your contact number"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {fieldErrors.contactNumber && <p className="text-red-500 text-sm mb-4">{fieldErrors.contactNumber}</p>}
             </div>
 
             <div className="mb-4">
@@ -209,9 +257,10 @@ const UserInfoWeb = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm mb-4">{fieldErrors.dateOfBirth}</p>}
             </div>
 
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            {generalError && <p className="text-red-500 text-sm mb-4">{generalError}</p>}
 
             <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative" disabled={isLoading}>
               {isLoading ? <LoadingSpinner loadingText="Saving..." /> : "Continue"}
