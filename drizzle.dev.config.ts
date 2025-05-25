@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.dev') });
 
 import { defineConfig } from 'drizzle-kit';
-import { dot } from '@tensorflow/tfjs-core';
 console.log(process.env.DATABASE_URL);
 export default defineConfig({
   out: './db/dev/generated',
