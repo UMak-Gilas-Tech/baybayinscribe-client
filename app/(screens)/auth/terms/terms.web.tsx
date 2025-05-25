@@ -31,7 +31,25 @@ const TermsServicesWeb = () => {
     setIsLoading(true);
 
     try {
-      // Save the notification preference
+      // First update terms agreement
+      const termsResponse = await fetch("/api/auth/agree.terms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agreed: true,
+        }),
+      });
+
+      if (!termsResponse.ok) {
+        const data = await termsResponse.json();
+        console.error("Failed to save terms agreement:", data.error);
+        setError("Failed to save terms agreement. Please try again.");
+        return;
+      }
+
+      // Then save the notification preference
       const response = await fetch("/api/user.information", {
         method: "PATCH",
         headers: {
@@ -39,6 +57,7 @@ const TermsServicesWeb = () => {
         },
         body: JSON.stringify({
           wantsNotifications,
+          agreedToTerms: true,
         }),
       });
 
@@ -50,9 +69,8 @@ const TermsServicesWeb = () => {
 
       router.push("/auth/login");
     } catch (err) {
-      console.error("Error saving notification preference:", err);
-      // Continue anyway, don't block the user flow
-      router.push("/auth/login");
+      console.error("Error saving preferences:", err);
+      setError("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
       setIsLoading(false);
