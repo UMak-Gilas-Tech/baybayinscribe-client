@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkParse from "remark-parse";
 
@@ -197,18 +197,30 @@ const CreateLesson = () => {
   ]);
 
   // Only show unsaved changes warning once per change
+  const unsavedToastId = useRef<string | number | null>(null);
   useEffect(() => {
-    if (initialMarkdown != markdown && !unsavedChangeShown) {
+    if (
+      initialMarkdown != markdown &&
+      !unsavedChangeShown &&
+      !unsavedToastId.current
+    ) {
       setUnsavedChangeShown(true);
-      toast.warning("Unsaved changes detected", {
+      unsavedToastId.current = toast.warning("Unsaved changes detected", {
         onAutoClose: () => {
           setUnsavedChangeShown(false);
+          unsavedToastId.current = null;
         },
         onDismiss: () => {
           setUnsavedChangeShown(false);
+          unsavedToastId.current = null;
         },
       });
-      console.log("Unsaved changes detected");
+      // console.log("Unsaved changes detected");
+    }
+    if (initialMarkdown === markdown && unsavedToastId.current) {
+      toast.dismiss(unsavedToastId.current);
+      unsavedToastId.current = null;
+      setUnsavedChangeShown(false);
     }
   }, [initialMarkdown, markdown, unsavedChangeShown]);
 

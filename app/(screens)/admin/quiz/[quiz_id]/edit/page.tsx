@@ -215,9 +215,10 @@ const EditQuizScreenInner = () => {
       if (fieldsChanged) {
         setFields(newFields);
       }
+      console.log(quiz)
       // Only update quizInformation if it is different
       const newQuizInfo = {
-        quiz_id: quiz.metadata.quiz_id || "",
+        quiz_id: params.quiz_id || "",
         quiz_name: quiz.metadata.quiz_name || "",
         category: quiz.metadata.category || "",
         description: quiz.metadata.description || "",
@@ -237,28 +238,21 @@ const EditQuizScreenInner = () => {
 
   useEffect(() => {
     // Only redirect if quiz_id is valid and not "new"
-    console.log(
-      "Checking quiz_id redirect condition:",
-      params.quiz_id,
-      quizStore?.quiz?.metadata?.quiz_id,
-      quizStore?.status,
-      quizStore?.quiz?.metadata?.quiz_id !== "new",
-      quizStore?.quiz?.metadata?.quiz_id !== undefined
-    );
     if (
       params.quiz_id === "new" &&
       quizStore &&
       quizStore.quiz &&
       quizStore.quiz.metadata &&
-      quizStore.quiz.metadata.quiz_id &&
+      typeof quizStore.quiz.metadata.quiz_id === "string" &&
       quizStore.quiz.metadata.quiz_id !== "new" &&
+      quizStore.quiz.metadata.quiz_id !== undefined &&
       quizStore.status === "Loaded"
     ) {
       router.replace(
         "/admin/quiz/" + quizStore.quiz.metadata.quiz_id + "/edit"
       );
     }
-  }, [quizStore?.quiz]);
+  }, [quizStore?.quiz, quizStore?.status, params.quiz_id, router]);
 
   const loadExistingQuiz = async () => {
     const quizId = params.quiz_id as string;
