@@ -10,23 +10,24 @@ import { NextResponse } from "next/server";
 import { user } from "@/db/schema/auth-schema";
 export const dynamic = "force-static";
 
-type HandlerParams = { params: { resource_id: string } };
+export async function POST(
+  request: Request,
+  { params }: { params: { resource_id: string } }
+) {
+  const resource_id = await params.resource_id;
+  console.log("resource_id param:", resource_id);
 
-export async function handler(
-  req: Request,
-  { params }: HandlerParams
-): Promise<Response> {
-  if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
-  }
-
-  const resource_id = params.resource_id;
   if (!resource_id) {
     return new Response("Resource ID is required", { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await request.json();
   const userId = body.userId;
+  console.log("Extracted userId from body:", userId);
+
+  if (!userId) {
+    console.warn("userId is null. Make sure you are sending it in the POST body as { userId: ... }");
+  }
 
   // Query the lesson with the joined modules and their files.
   const rows = await db
@@ -40,9 +41,10 @@ export async function handler(
     .leftJoin(FileSchema, eq(learningResourceModule.module_id, FileSchema.id));
 
   if (rows.length === 0) {
-    return new Response("Lesson not found", { status: 404 });
+    return NextResponse.json({message: "Lesson not found"}, { status: 404 });
   }
 
+  // Get the lesson and user info from the first row
   const lessonRow = rows[0].learning_resource;
   const userInfo = await db
     .select()
@@ -52,6 +54,7 @@ export async function handler(
 
   (lessonRow.created_by as unknown) = userInfo;
 
+  // Build modules array (resolve files, etc.)
   const modules = await Promise.all(
     rows
       .filter((row) => row.learning_resource_module)
@@ -70,8 +73,11 @@ export async function handler(
                 )
               )
             );
+
           is_finished = progress.length > 0;
         }
+
+        console.log(row.file)
         return {
           ...row.learning_resource_module,
           file: row.file || null,
@@ -85,10 +91,8 @@ export async function handler(
     learning_resource_module: modules,
   };
 
+  console.log("Lesson data:", lesson);
   return NextResponse.json(lesson, {
     headers: { "Content-Type": "application/json" },
   });
 }
-
-// Next.js route handler export
-export { handler as POST };
