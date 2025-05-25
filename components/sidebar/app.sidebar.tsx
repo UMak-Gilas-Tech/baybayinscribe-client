@@ -57,16 +57,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
 
+  // Logout handler
+  const handleAdminLogout = async () => {
+    try {
+      console.log("Logging out...");
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            console.log("Logout successful, redirecting...");
+            router.push("/auth/login");
+          },
+          onError: (error) => {
+            console.error("Logout error:", error);
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   // Admin sidebar structure
   const adminNavGroups = [
     {
       label: "Management Panel",
       items: [
-        {
+        /*{
           title: "Admin Dashboard",
           url: "/admin/dashboard",
           icon: LayoutDashboard,
-        },
+        }, */
         {
           title: "User Management",
           url: "/admin/users",
@@ -82,36 +102,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/admin/lesson",
           icon: Pencil,
         },
-
+      ],
+    },
+    {
+      label: "Account",
+      items: [
         {
-          title: "Return to User Dashboard",
+          title: "Return as User",
           url: "/",
           icon: SkipBack,
         },
         {
-          title: "Logout as Admin",
-          url: "#logout",
+          title: "Logout",
+          url: "#",
           icon: LogOut,
-          isLogout: true,
+          onClick: async (e: React.MouseEvent) => {
+            e.preventDefault();
+            console.log("Logout button clicked");
+            await handleAdminLogout();
+          },
         },
       ],
     },
   ];
 
-  // Logout handler
-  const handleAdminLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push('/auth/login');
-        }
-      }
-    });
-  };
-
   const data = {
     user: {
-      name: isAdminRoute ? "Administrator" : (userData?.username ? `@${userData.username}` : "Guest"),
+      name: isAdminRoute
+        ? "Administrator"
+        : userData?.username
+        ? `@${userData.username}`
+        : "Guest",
       email: userData?.email || "",
       avatar: "/avatars/shadcn.jpg",
     },
@@ -141,17 +162,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     projects: isAdminRoute
       ? []
       : [
-        {
-          name: "Lessons",
-          url: "/lesson/all",
-          icon: BookOpenText,
-        },
-        {
-          name: "Quiz",
-          url: "/quiz/all",
-          icon: ListTodo,
-        },
-      ],
+          {
+            name: "Lessons",
+            url: "/lesson/all",
+            icon: BookOpenText,
+          },
+          {
+            name: "Quiz",
+            url: "/quiz/all",
+            icon: ListTodo,
+          },
+        ],
   };
 
   React.useEffect(() => {
@@ -215,7 +236,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       name: "Admin Panel",
       url: "/admin",
       icon: ListTodo,
-      adminOnly: true
+      adminOnly: true,
     },
   ];
 
@@ -242,11 +263,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="font-semibold text-sm">
                     {isAdminRoute
                       ? "Administrator"
-                      : `${userData.firstName || ""} ${userData.lastName || ""
+                      : `${userData.firstName || ""} ${
+                          userData.lastName || ""
                         }`.trim()}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {isAdminRoute ? "Admin Panel" : userData?.username ? `@${userData.username}` : "User"}
+                    {isAdminRoute
+                      ? "Admin Panel"
+                      : userData?.username
+                      ? `@${userData.username}`
+                      : "User"}
                   </span>
                 </div>
               )}
@@ -281,47 +307,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 labelClassName="text-base font-medium text-blue-400 mb-1"
               />
               <NavMain
-                items={adminNavGroups[1].items.map((item) => ({
-                  ...item,
-                  onClick: item.isLogout ? () => {
-                    const dialog = document.createElement('dialog');
-                    dialog.innerHTML = `
-                      <div class="fixed inset-0 z-50 flex items-center justify-center p-2">
-                        <div class="bg-black/50 fixed inset-0"></div>
-                        <div class="relative bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-                          <h3 class="text-lg font-semibold mb-2">Log out</h3>
-                          <p class="text-gray-600 mb-4">Do you want to log out of your session?</p>
-                          <div class="flex justify-end gap-3">
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer" id="confirmLogout">
-                              Yes, Log me out
-                            </button>
-                            <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 cursor-pointer" id="cancelLogout">
-                              No, don't log me out
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    `;
-                    document.body.appendChild(dialog);
-                    dialog.showModal();
-
-                    const confirmBtn = dialog.querySelector('#confirmLogout');
-                    const cancelBtn = dialog.querySelector('#cancelLogout');
-
-                    confirmBtn?.addEventListener('click', () => {
-                      dialog.close();
-                      handleAdminLogout();
-                    });
-
-                    cancelBtn?.addEventListener('click', () => {
-                      dialog.close();
-                    });
-
-                    dialog.addEventListener('close', () => {
-                      document.body.removeChild(dialog);
-                    });
-                  } : undefined
-                }))}
+                extraSpacing={false}
+                items={adminNavGroups[1].items}
                 label={adminNavGroups[1].label}
                 labelClassName="text-base font-medium text-blue-400 mb-1"
               />
