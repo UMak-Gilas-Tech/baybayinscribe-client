@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: "Baybayin Simple TAWBID";
-  src: url("fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
+  src: url("/fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
 }
 
 @theme inline {
