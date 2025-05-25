@@ -12,8 +12,6 @@ import {
   UserCog,
   LayoutDashboard,
   Users,
-  Shield,
-  FileText,
   LogOut,
   ListChecks,
   Pencil,
@@ -80,21 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/admin/lesson",
           icon: Pencil,
         },
-      ],
-    },
-    {
-      label: "System Controls",
-      items: [
-        {
-          title: "Admin Settings",
-          url: "/admin/settings",
-          icon: Shield,
-        },
-        {
-          title: "Logs and Security",
-          url: "/admin/logs",
-          icon: FileText,
-        },
+
         {
           title: "Logout as Admin",
           url: "#logout",
@@ -271,13 +255,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 label={adminNavGroups[0].label}
                 labelClassName="text-base font-medium text-blue-400 mb-1"
               />
-              <NavMain
-                items={adminNavGroups[1].items.map((item) =>
-                  item.isLogout ? { ...item, onClick: handleAdminLogout } : item
-                )}
-                label={adminNavGroups[1].label}
-                labelClassName="text-base font-medium text-blue-400 mb-1"
-              />
+              {adminNavGroups[1] && (
+                <NavMain
+                  items={adminNavGroups[1].items.map((item) =>
+                    item.isLogout
+                      ? { ...item, onClick: handleAdminLogout }
+                      : item
+                  )}
+                  label={adminNavGroups[1].label}
+                  labelClassName="text-base font-medium text-blue-400 mb-1"
+                />
+              )}
             </>
           ) : (
             <>
