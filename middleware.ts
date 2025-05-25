@@ -14,6 +14,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
   const sessionCookie = getSessionCookie(request);
   const isAuthPage = pathname.startsWith("/auth");
   const isAdminPage = pathname.startsWith("/admin");
@@ -29,11 +33,14 @@ export async function middleware(request: NextRequest) {
   // Admin route protection
   if (sessionCookie && isAdminPage) {
     try {
-      const response = await fetch(new URL('/api/auth/verify.admin.session', request.url), {
-        headers: {
-          cookie: request.headers.get('cookie') || '',
-        },
-      });
+      const response = await fetch(
+        new URL("/api/auth/verify.admin.session", request.url),
+        {
+          headers: {
+            cookie: request.headers.get("cookie") || "",
+          },
+        }
+      );
 
       if (!response.ok) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
