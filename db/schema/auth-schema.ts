@@ -1,6 +1,5 @@
 import {
 	pgTable,
-	uuid,
 	text,
 	timestamp,
 	boolean,

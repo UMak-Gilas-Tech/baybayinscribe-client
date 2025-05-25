@@ -88,6 +88,7 @@ const EditQuizScreenInner = () => {
     useQuizContext();
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiCount, setAiCount] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false); // loading state for AI generation
   const [showFabOptions, setShowFabOptions] = useState(false); // new state for FAB options
   const [errorMessage, setErrorMessage] = useState(""); // new state for error message
   const [showErrorDialog, setShowErrorDialog] = useState(false); // new state for error dialog
@@ -182,49 +183,40 @@ const EditQuizScreenInner = () => {
 
     if (quizStore?.quiz) {
       const quiz = quizStore.quiz;
-
-      if (!quiz.questions || quiz.questions.length === 0) {
-        return;
+      // Only update fields if they are different
+      const newFields = quiz.questions
+        ? quiz.questions.map((question, index) => {
+            const data: any = { ...question, question_number: index + 1 };
+            if (question.type === "MCQ" || question.type === "multipleChoice") {
+              data.correctAnswer = question.correct_answer || question.correct_answer || "";
+            }
+            if (question.type === "IDT" || question.type === "quiz") {
+              data.correct_answer = question.correct_answer || "";
+              data.display_text = question.display_text || "";
+            }
+            if ((question.type === "SKT" || question.type === "sketch") && !data.options && data.character) {
+              data.options = [data.character];
+            }
+            return {
+              id: question.id ? String(question.id) : crypto.randomUUID(),
+              type:
+                question.type === "MCQ"
+                  ? "multipleChoice"
+                  : question.type === "SKT"
+                  ? "sketch"
+                  : question.type === "IDT"
+                  ? "quiz"
+                  : (question.type as FieldType),
+              data,
+            };
+          })
+        : [];
+      const fieldsChanged = JSON.stringify(fields) !== JSON.stringify(newFields);
+      if (fieldsChanged) {
+        setFields(newFields);
       }
-
-      setIsPublic(quiz.metadata.is_public || false);
-      setFields(
-        quiz.questions.map((question, index) => {
-          const data: any = { ...question, question_number: index + 1 };
-          // Map correct_answer to correctAnswer for MCQ
-          if (question.type === "MCQ" || question.type === "multipleChoice") {
-            data.correctAnswer =
-              question.correct_answer || question.correct_answer || "";
-          }
-          // Map correct_answer to answer for IDT/quiz
-          if (question.type === "IDT" || question.type === "quiz") {
-            data.correct_answer = question.correct_answer || "";
-            data.display_text = question.display_text || "";
-          }
-          // For sketch, ensure options contains character if not present
-          if (
-            (question.type === "SKT" || question.type === "sketch") &&
-            !data.options &&
-            data.character
-          ) {
-            data.options = [data.character];
-          }
-          return {
-            id: question.id ? String(question.id) : crypto.randomUUID(),
-            type:
-              question.type === "MCQ"
-                ? "multipleChoice"
-                : question.type === "SKT"
-                ? "sketch"
-                : question.type === "IDT"
-                ? "quiz"
-                : (question.type as FieldType),
-            data,
-          };
-        })
-      );
-      // Set quizInformation for form header
-      setQuizInformation({
+      // Only update quizInformation if it is different
+      const newQuizInfo = {
         quiz_id: quiz.metadata.quiz_id || "",
         quiz_name: quiz.metadata.quiz_name || "",
         category: quiz.metadata.category || "",
@@ -232,13 +224,14 @@ const EditQuizScreenInner = () => {
         time_limit: quiz.metadata.time_limit || 0,
         difficulty: quiz.metadata.difficulty || "Easy",
         is_public: quiz.metadata.is_public || false,
-        created_at: quiz.metadata.created_at
-          ? new Date(quiz.metadata.created_at)
-          : new Date(),
-        updated_at: quiz.metadata.updated_at
-          ? new Date(quiz.metadata.updated_at)
-          : new Date(),
-      });
+        created_at: quiz.metadata.created_at ? new Date(quiz.metadata.created_at) : new Date(),
+        updated_at: quiz.metadata.updated_at ? new Date(quiz.metadata.updated_at) : new Date(),
+      };
+      const quizInfoChanged = JSON.stringify(quizInformation) !== JSON.stringify(newQuizInfo);
+      if (quizInfoChanged) {
+        setQuizInformation(newQuizInfo);
+      }
+      setIsPublic(quiz.metadata.is_public || false);
     }
   }, [quizStore?.quiz, quizStore?.error]);
 
@@ -251,7 +244,7 @@ const EditQuizScreenInner = () => {
       quizStore?.status,
       quizStore?.quiz?.metadata?.quiz_id !== "new",
       quizStore?.quiz?.metadata?.quiz_id !== undefined
-    )
+    );
     if (
       params.quiz_id === "new" &&
       quizStore &&
@@ -261,7 +254,9 @@ const EditQuizScreenInner = () => {
       quizStore.quiz.metadata.quiz_id !== "new" &&
       quizStore.status === "Loaded"
     ) {
-      router.replace("/admin/quiz/" + quizStore.quiz.metadata.quiz_id + "/edit");
+      router.replace(
+        "/admin/quiz/" + quizStore.quiz.metadata.quiz_id + "/edit"
+      );
     }
   }, [quizStore?.quiz]);
 
@@ -293,39 +288,39 @@ const EditQuizScreenInner = () => {
   const handleGenerateAI = async () => {
     const count = parseInt(aiCount, 10);
     if (isNaN(count) || count <= 0) return;
-    const quizGenerationResult = await generateQuiz(
-      count,
-      quizInformation!.category,
-      quizInformation!.difficulty as QuizDifficulty,
-      quizInformation!.quiz_name
-    );
-
-    const aiFields = quizGenerationResult.questions.map((question) => {
-      const fieldType: FieldType = question.type as FieldType;
-      const data: any = { ...question };
-      // Map correct_answer to correctAnswer for MCQ
-      if (fieldType === "multipleChoice") {
-        data.correctAnswer = question.correct_answer || "";
-      }
-      // Map correct_answer to answer for IDT/quiz
-      if (fieldType === "quiz") {
-        data.correct_answer = question.correct_answer || "";
-        data.answer = question.display_text || "";
-      }
-      // For sketch, ensure options contains character if not present
-      if (fieldType === "sketch" && !data.options && data.character) {
-        data.options = [data.character];
-      }
-      return {
-        id: crypto.randomUUID(),
-        type: fieldType,
-        data,
-      };
-    });
-    console.log(aiFields)
-    setFields((prev) => [...prev, ...aiFields]);
-    setAiDialogOpen(false);
-    setAiCount("");
+    setAiGenerating(true);
+    try {
+      const quizGenerationResult = await generateQuiz(
+        count,
+        quizInformation?.category ?? "",
+        (quizInformation?.difficulty as QuizDifficulty) ?? "Easy",
+        quizInformation?.quiz_name ?? ""
+      );
+      const aiFields = quizGenerationResult.questions.map((question) => {
+        const fieldType: FieldType = question.type as FieldType;
+        const data: any = { ...question };
+        if (fieldType === "multipleChoice") {
+          data.correctAnswer = question.correct_answer || "";
+        }
+        if (fieldType === "quiz") {
+          data.correct_answer = question.correct_answer || "";
+          data.answer = question.display_text || "";
+        }
+        if (fieldType === "sketch" && !data.options && data.character) {
+          data.options = [data.character];
+        }
+        return {
+          id: crypto.randomUUID(),
+          type: fieldType,
+          data,
+        };
+      });
+      setFields((prev) => [...prev, ...aiFields]);
+      setAiDialogOpen(false);
+      setAiCount("");
+    } finally {
+      setAiGenerating(false);
+    }
   };
 
   const handleSaveQuiz = async () => {
@@ -439,7 +434,10 @@ const EditQuizScreenInner = () => {
         is_question_baybayin: field.data.is_question_baybayin || false,
         is_input_baybayin: field.data.is_input_baybayin || false,
         display_text:
-          field.data.display_text || field.data.baybayinCharacter || field.data.answer || "",
+          field.data.display_text ||
+          field.data.baybayinCharacter ||
+          field.data.answer ||
+          "",
         language: field.data.language || null,
         pairs: field.data.pairs || [],
         answer: field.data.answer || field.data.correct_answer || null,
@@ -451,20 +449,23 @@ const EditQuizScreenInner = () => {
   };
 
   // Add a dataLoaded variable to check if all required data is loaded
+  const isNewQuiz = params.quiz_id === "new";
   const dataLoaded =
-    quizStore &&
-    quizStore.status === "Loaded" &&
-    quizInformation &&
-    fields.length > 0;
+    (isNewQuiz && quizInformation) ||
+    (!isNewQuiz &&
+      quizStore &&
+      quizStore.status === "Loaded" &&
+      quizInformation);
 
   return (
     <>
       <div className="relative w-screen h-screen">
-        {(!dataLoaded || quizStore.status == "Loading") && (
+        {(!dataLoaded && !isNewQuiz) ||
+        (quizStore?.status == "Loading" && !isNewQuiz) ? (
           <div className="flex flex-col items-center justify-center absolute w-screen h-screen backdrop-blur-sm bg-black/20 z-50">
             <LoadingSpinner loadingText="Loading Quiz..." />
           </div>
-        )}
+        ) : null}
         {dataLoaded && (
           <div className="flex flex-col items-center w-full h-screen p-4">
             <div className="md:w-3/4 w-[90%]">
@@ -507,8 +508,11 @@ const EditQuizScreenInner = () => {
                       quiz_name: data.title ?? prev.quiz_name,
                       category: data.quizTopic ?? prev.category,
                       description: data.description ?? prev.description,
-                      time_limit: data.timer ? parseInt(data.timer) : prev.time_limit,
-                      difficulty: (data.difficulty ?? prev.difficulty) as QuizDifficulty,
+                      time_limit: data.timer
+                        ? parseInt(data.timer)
+                        : prev.time_limit,
+                      difficulty: (data.difficulty ??
+                        prev.difficulty) as QuizDifficulty,
                     }));
                   }}
                 />
@@ -526,7 +530,7 @@ const EditQuizScreenInner = () => {
                   {params.quiz_id != "new" ? (
                     <>
                       <button
-                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
                         onClick={() => {
                           addField("multipleChoice");
                           setShowFabOptions(false);
@@ -535,7 +539,7 @@ const EditQuizScreenInner = () => {
                         <List size={16} />
                       </button>
                       <button
-                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
                         onClick={() => {
                           addField("sketch");
                           setShowFabOptions(false);
@@ -544,7 +548,7 @@ const EditQuizScreenInner = () => {
                         <PenTool size={16} />
                       </button>
                       <button
-                        className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
                         onClick={() => {
                           addField("quiz");
                           setShowFabOptions(false);
@@ -552,10 +556,13 @@ const EditQuizScreenInner = () => {
                       >
                         <FileText size={16} />
                       </button>
-                      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+                      <Dialog
+                        open={aiDialogOpen}
+                        onOpenChange={setAiDialogOpen}
+                      >
                         <DialogTrigger asChild>
                           <button
-                            className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
+                            className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
                             onClick={() => setShowFabOptions(false)}
                           >
                             <Sparkles size={16} />
@@ -572,12 +579,40 @@ const EditQuizScreenInner = () => {
                               value={aiCount}
                               onChange={(e) => setAiCount(e.target.value)}
                               className="px-3 py-2 border rounded"
+                              disabled={aiGenerating}
                             />
                             <button
                               onClick={handleGenerateAI}
-                              className="px-4 py-2 bg-indigo-500 text-white rounded"
+                              className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:bg-indigo-700 flex items-center justify-center"
+                              disabled={aiGenerating}
                             >
-                              Generate
+                              {aiGenerating ? (
+                                <>
+                                  <svg
+                                    className="animate-spin h-5 w-5 mr-2 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                    ></path>
+                                  </svg>
+                                  Generating...
+                                </>
+                              ) : (
+                                "Generate"
+                              )}
                             </button>
                           </div>
                         </DialogContent>
@@ -585,7 +620,7 @@ const EditQuizScreenInner = () => {
                     </>
                   ) : null}
                   <button
-                    className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md"
+                    className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md hover:bg-indigo-700 focus:bg-indigo-800"
                     onClick={() => {
                       handleSaveQuiz();
                       setShowFabOptions(false);
@@ -596,7 +631,7 @@ const EditQuizScreenInner = () => {
                 </div>
 
                 <button
-                  className="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg"
+                  className="w-16 h-16 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-lg hover:bg-indigo-600 focus:bg-indigo-700"
                   onClick={() => setShowFabOptions(!showFabOptions)}
                 >
                   <Plus size={24} />

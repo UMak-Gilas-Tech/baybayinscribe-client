@@ -20,9 +20,10 @@ export type QuizStore = {
     | undefined;
   error?: string;
   answerHistory:
-    | ({ quiz: { id: string } } & {
-        quiz_answer_question: (typeof quiz_answer_question.$inferSelect)[];
-      })
+    | {
+        attempt: number;
+        score: number;
+      }[]
     | undefined;
 
   saveQuiz: (
@@ -38,7 +39,7 @@ export type QuizStore = {
     quiz_id: string,
     answers: ModifiedQuizAnswerQuestion[]
   ) => void;
-  loadQuizAnswerHistory: (quiz_id: string) => void;
+  loadQuizAnswerHistory: (quiz_id: string, user_id: string) => void;
 
   saveLocalQuizProgress: (
     answer: typeof quiz_answer_question.$inferSelect
@@ -65,7 +66,10 @@ const useQuizStore = create<QuizStore>((set) => ({
         set({ error: response.data.error, status: "Error" });
       }
     } catch (error: unknown) {
-      set({ error: "Couldn't load quiz. Try again: " + error, status: "Error" });
+      set({
+        error: "Couldn't load quiz. Try again: " + error,
+        status: "Error",
+      });
     }
   },
   saveQuiz: async (
@@ -112,12 +116,15 @@ const useQuizStore = create<QuizStore>((set) => ({
       set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },
-  loadQuizAnswerHistory: async (quiz_id: string) => {
+  loadQuizAnswerHistory: async (quiz_id: string, user_id: string) => {
     set({ status: "Loading" });
     try {
-      const response = await axios.get(`/quiz/answers/${quiz_id}`);
+      const response = await axios.get(
+        `/quiz/answers/${quiz_id}?user_id=${user_id}`
+      );
       if (response.status === 200) {
         const answers = response.data;
+        console.log(answers);
         set({ answerHistory: answers, status: "Loaded" });
       } else {
         set({ error: response.data.error, status: "Error" });
@@ -153,7 +160,7 @@ const useQuizStore = create<QuizStore>((set) => ({
         set({ error: response.data.error, status: "Error" });
       }
     } catch (error: unknown) {
-      console.error(error)
+      console.error(error);
       set({ error: (error as Error).message || "Error", status: "Error" });
     }
   },

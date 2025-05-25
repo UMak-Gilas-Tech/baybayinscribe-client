@@ -7,7 +7,7 @@ import {
   json,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { user } from "./auth-schema";
 
 export const quizDifficultyEnum = pgEnum("quiz_difficulty", [
@@ -60,6 +60,7 @@ export const quiz_question = pgTable("quiz_question", {
 export const quiz_answer_question = pgTable("quiz_answer_question", {
   id: uuid("id").defaultRandom().primaryKey(),
   attempt: integer("attempt").notNull(),
+  user_id: text("user_id").references(() => user.id, { onDelete: "cascade" }),
   quiz_question_id: uuid("quiz_question_id")
     .notNull()
     .references(() => quiz_question.id, { onDelete: "cascade" }),
@@ -68,7 +69,9 @@ export const quiz_answer_question = pgTable("quiz_answer_question", {
     .references(() => QuizSchema.id, { onDelete: "cascade" }),
   user_answer: text("user_answer"),
   is_correct: boolean("is_correct").notNull(),
-  answered_at: timestamp("answered_at").notNull(),
+  answered_at: timestamp("answered_at", { withTimezone: true, mode: "string" })
+    .$onUpdate(() => sql`NOW()`)
+    .notNull(),
 });
 
 export const quizRelations = relations(QuizSchema, ({ one, many }) => ({

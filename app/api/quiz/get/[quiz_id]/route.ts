@@ -38,12 +38,3 @@ export async function GET(
     questions,
   });
 }
-
-export async function generateStaticParams() {
-  const quizzes = db.select().from(QuizSchema);
-  const quizData = await quizzes;
-  const quizIds = quizData
-    .map((quiz) => quiz.id)
-    .map((id) => ({ quiz_id: id }));
-  return quizIds;
-}
