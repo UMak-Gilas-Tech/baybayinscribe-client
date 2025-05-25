@@ -12,8 +12,6 @@ import {
   UserCog,
   LayoutDashboard,
   Users,
-  Shield,
-  FileText,
   LogOut,
   ListChecks,
   Pencil,
@@ -84,21 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/admin/lesson",
           icon: Pencil,
         },
-      ],
-    },
-    {
-      label: "System Controls",
-      items: [
-        {
-          title: "Admin Settings",
-          url: "/admin/settings",
-          icon: Shield,
-        },
-        {
-          title: "Logs and Security",
-          url: "/admin/logs",
-          icon: FileText,
-        },
+
         {
           title: "Return to User Dashboard",
           url: "/",
