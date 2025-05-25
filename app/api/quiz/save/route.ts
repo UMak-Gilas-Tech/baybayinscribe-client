@@ -119,6 +119,8 @@ async function saveQuizToDB(quiz: Quiz, created_by: string, id?: string) {
         }
       }
     }
+
+
   } catch (error) {
     console.error("Error saving quiz to DB:", error);
     return NextResponse.json(
@@ -148,9 +150,8 @@ export async function POST(request: Request) {
       quiz.id
     );
 
-    console.log(savedQuiz);
 
-    return NextResponse.json(savedQuiz, { status: 200 });
+    return NextResponse.json({...savedQuiz, metadata: quiz.metadata, questions: quiz.questions}, { status: 200 });
   } catch (error: unknown) {
     console.error("API error:", error);
     return NextResponse.json(
