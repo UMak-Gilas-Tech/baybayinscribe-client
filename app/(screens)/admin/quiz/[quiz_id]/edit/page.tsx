@@ -96,10 +96,15 @@ const EditQuizScreenInner = () => {
     undefined
   ); // new state for error action
   const [isPublic, setIsPublic] = useState(false); // new state for public toggle
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (params.quiz_id != "new") {
       loadExistingQuiz();
+    } 
+
+    return () => {
+      quizStore?.clearQuiz();
     }
   }, []);
 
@@ -172,6 +177,10 @@ const EditQuizScreenInner = () => {
   }, [fields, setQuizQuestions]);
 
   useEffect(() => {
+    if (params.quiz_id === "new") {
+      return;
+    }
+
     if (quizStore?.error) {
       setErrorMessage(quizStore.error);
       setShowErrorDialog(true);
@@ -188,13 +197,18 @@ const EditQuizScreenInner = () => {
         ? quiz.questions.map((question, index) => {
             const data: any = { ...question, question_number: index + 1 };
             if (question.type === "MCQ" || question.type === "multipleChoice") {
-              data.correctAnswer = question.correct_answer || question.correct_answer || "";
+              data.correctAnswer =
+                question.correct_answer || question.correct_answer || "";
             }
             if (question.type === "IDT" || question.type === "quiz") {
               data.correct_answer = question.correct_answer || "";
               data.display_text = question.display_text || "";
             }
-            if ((question.type === "SKT" || question.type === "sketch") && !data.options && data.character) {
+            if (
+              (question.type === "SKT" || question.type === "sketch") &&
+              !data.options &&
+              data.character
+            ) {
               data.options = [data.character];
             }
             return {
@@ -211,11 +225,12 @@ const EditQuizScreenInner = () => {
             };
           })
         : [];
-      const fieldsChanged = JSON.stringify(fields) !== JSON.stringify(newFields);
+      const fieldsChanged =
+        JSON.stringify(fields) !== JSON.stringify(newFields);
       if (fieldsChanged) {
         setFields(newFields);
       }
-      console.log(quiz)
+      console.log(quiz);
       // Only update quizInformation if it is different
       const newQuizInfo = {
         quiz_id: params.quiz_id || "",
@@ -225,34 +240,21 @@ const EditQuizScreenInner = () => {
         time_limit: quiz.metadata.time_limit || 0,
         difficulty: quiz.metadata.difficulty || "Easy",
         is_public: quiz.metadata.is_public || false,
-        created_at: quiz.metadata.created_at ? new Date(quiz.metadata.created_at) : new Date(),
-        updated_at: quiz.metadata.updated_at ? new Date(quiz.metadata.updated_at) : new Date(),
+        created_at: quiz.metadata.created_at
+          ? new Date(quiz.metadata.created_at)
+          : new Date(),
+        updated_at: quiz.metadata.updated_at
+          ? new Date(quiz.metadata.updated_at)
+          : new Date(),
       };
-      const quizInfoChanged = JSON.stringify(quizInformation) !== JSON.stringify(newQuizInfo);
+      const quizInfoChanged =
+        JSON.stringify(quizInformation) !== JSON.stringify(newQuizInfo);
       if (quizInfoChanged) {
         setQuizInformation(newQuizInfo);
       }
       setIsPublic(quiz.metadata.is_public || false);
     }
-  }, [quizStore?.quiz, quizStore?.error]);
-
-  useEffect(() => {
-    // Only redirect if quiz_id is valid and not "new"
-    if (
-      params.quiz_id === "new" &&
-      quizStore &&
-      quizStore.quiz &&
-      quizStore.quiz.metadata &&
-      typeof quizStore.quiz.metadata.quiz_id === "string" &&
-      quizStore.quiz.metadata.quiz_id !== "new" &&
-      quizStore.quiz.metadata.quiz_id !== undefined &&
-      quizStore.status === "Loaded"
-    ) {
-      router.replace(
-        "/admin/quiz/" + quizStore.quiz.metadata.quiz_id + "/edit"
-      );
-    }
-  }, [quizStore?.quiz, quizStore?.status, params.quiz_id, router]);
+  }, [quizStore?.quiz, quizStore?.error, params.quiz_id]);
 
   const loadExistingQuiz = async () => {
     const quizId = params.quiz_id as string;
@@ -266,13 +268,56 @@ const EditQuizScreenInner = () => {
   };
 
   const updateFieldData = (id: string, newData: any) => {
-    unstable_batchedUpdates(() => {
+    unstable_batchedUpdates(() =>
       setFields((prev) =>
-        prev.map((field) =>
-          field.id === id ? { ...field, data: newData } : field
-        )
-      );
-    });
+        prev.map((field) => {
+          if (field.id !== id) return field;
+
+          // 1) normalize incoming payload (Event, primitive or object)
+          let dataPatch: any = {};
+          if (newData?.target?.value !== undefined) {
+            // native onChange event
+            dataPatch =
+              field.type === "sketch"
+                ? { description: newData.target.value }
+                : { question: newData.target.value };
+          } else if (Array.isArray(newData)) {
+            // array of options
+            dataPatch = { options: newData };
+          } else if (typeof newData === "object" && newData !== null) {
+            // full data object
+            dataPatch = newData;
+          } else {
+            // raw string/number
+            dataPatch =
+              field.type === "sketch"
+                ? { description: newData }
+                : { question: newData };
+          }
+
+          // 2) merge into existing data
+          const mergedData = { ...field.data, ...dataPatch };
+
+          // 3) keep MCQ answer keys in sync
+          if (field.type === "multipleChoice") {
+            if (mergedData.correctAnswer && !mergedData.correct_answer)
+              mergedData.correct_answer = mergedData.correctAnswer;
+            if (mergedData.correct_answer && !mergedData.correctAnswer)
+              mergedData.correctAnswer = mergedData.correct_answer;
+          }
+
+          // 4) keep quiz answer keys in sync
+          if (field.type === "quiz") {
+            if (mergedData.answer && !mergedData.correct_answer)
+              mergedData.correct_answer = mergedData.answer;
+            if (mergedData.correct_answer && !mergedData.answer)
+              mergedData.answer = mergedData.correct_answer;
+          }
+
+          return { ...field, data: mergedData };
+        })
+      )
+    );
   };
 
   const removeField = (id: string) => {
@@ -410,7 +455,8 @@ const EditQuizScreenInner = () => {
     const questions = fields.map((field, index) => {
       let correct_answer = field.data.correct_answer;
       if (field.type === "multipleChoice") {
-        correct_answer = field.data.correct_answer || field.data.correctAnswer || "";
+        correct_answer =
+          field.data.correct_answer || field.data.correctAnswer || "";
       }
       if (field.type === "quiz") {
         correct_answer = field.data.correct_answer || field.data.answer || "";
@@ -458,6 +504,14 @@ const EditQuizScreenInner = () => {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    setShowDeleteDialog(false);
+    if (params.quiz_id) {
+      await quizStore?.deleteQuiz(params.quiz_id as string);
+      router.back();
+    }
+  };
+
   // Add a dataLoaded variable to check if all required data is loaded
   const isNewQuiz = params.quiz_id === "new";
   const dataLoaded =
@@ -481,9 +535,17 @@ const EditQuizScreenInner = () => {
             <div className="md:w-3/4 w-[90%]">
               <div className="py-6 flex items-center justify-between">
                 <ChevronLeft onClick={() => router.back()} />
-                <div className="flex flex-row gap-4 items-end justify-end">
+                <div className="flex flex-row gap-4 items-center justify-end">
                   <Switch checked={isPublic} onCheckedChange={setIsPublic} />
                   <span>Is public</span>
+                  {params.quiz_id != "new" && (
+                    <div
+                      className="bg-red-400 px-4 py-4 rounded-full hover:bg-red-500 shadow-xl hover:shadow-2xl transition-colors cursor-pointer"
+                      onClick={() => setShowDeleteDialog(true)}
+                    >
+                      <Trash />
+                    </div>
+                  )}
                 </div>
               </div>
               {quizInformation && (
@@ -688,6 +750,30 @@ const EditQuizScreenInner = () => {
               className="px-4 py-2 bg-blue-500 text-white rounded"
             >
               Close
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* delete confirmation modal */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Are you sure you wanna delete this quiz?</div>
+          <div className="flex justify-end gap-2">
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              onClick={handleConfirmDelete}
+            >
+              Confirm
             </button>
           </div>
         </DialogContent>

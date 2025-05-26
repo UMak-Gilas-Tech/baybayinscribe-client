@@ -77,9 +77,7 @@ export const MultipleChoice = forwardRef(
         isMounted.current = true;
         return;
       }
-      if (!existingEntries) {
-        isMounted.current = true;
-      }
+      isMounted.current = true;
     }, [existingEntries]);
 
     useEffect(() => {

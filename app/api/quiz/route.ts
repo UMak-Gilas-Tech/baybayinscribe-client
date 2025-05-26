@@ -7,18 +7,19 @@ import {
 } from "../../../db/schema/quiz-schema";
 import db from "@/db/drizzle";
 import { Quiz } from "../../../types/type.quiz";
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-static";
 
 async function saveQuizToDB(quiz: Quiz) {
   const quizId = crypto.randomUUID();
 
-  console.log(quiz)
+  console.log(quiz);
 
   // Insert master quiz record
-  await db.insert(QuizSchema).values({ 
+  await db.insert(QuizSchema).values({
     id: quizId,
-    created_by: "" // Add a default created_by value or pass from the request
+    created_by: "", // Add a default created_by value or pass from the request
   });
 
   // Insert quiz metadata record
@@ -88,3 +89,26 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const { quizId } = await request.json();
+    if (!quizId) {
+      return NextResponse.json(
+        { error: "Quiz ID is required." },
+        { status: 400 }
+      );
+    }
+
+    // Delete quiz metadata and questions based on quizId
+    await db.delete(metadata).where(eq(metadata.quiz_id, quizId));
+    await db.delete(quiz_question).where(eq(quiz_question.quiz_id, quizId));
+    await db.delete(QuizSchema).where(eq(QuizSchema.id, quizId));
+    return NextResponse.json({ message: "Quiz deleted successfully" });
+  } catch (error: unknown) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      { error: (error as Error).message || "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
