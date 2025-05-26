@@ -53,7 +53,6 @@ export default function TopNavbar() {
           </Tooltip>
         </TooltipProvider>
       </div>
-
       <div className="ml-auto flex items-center">
         <button
           onClick={toggleSidebar}

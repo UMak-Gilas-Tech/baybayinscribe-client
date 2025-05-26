@@ -62,7 +62,7 @@ const WebcamConfig = ({
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="translate-x-1/4 w-96 bg-white shadow-lg rounded-md p-4">
+        <PopoverContent className="translate-x-1/4 w-full max-w-sm bg-white shadow-lg rounded-md p-4">
           <div className="flex flex-col">
             <h2 className="text-xl">Camera Preferences</h2>
             <p>Camera</p>
@@ -75,7 +75,7 @@ const WebcamConfig = ({
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-90 rounded-xl shadow-xl bg-white p-2">
+              <DropdownMenuContent className="w-full max-w-xs rounded-xl shadow-xl bg-white p-2">
                 {cameras.map((camera, index) => (
                   <DropdownMenuItem
                     key={camera.deviceId}
@@ -105,7 +105,7 @@ const WebcamConfig = ({
             <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 flex-1 rounded-xl shadow-xl bg-white p-2">
+        <DropdownMenuContent className="w-full max-w-xs rounded-xl shadow-xl bg-white p-2">
           <DropdownMenuItem>Agos AI - Local</DropdownMenuItem>
           <DropdownMenuItem>Agos AI - Online</DropdownMenuItem>
         </DropdownMenuContent>
@@ -189,8 +189,8 @@ const VisionScreen = () => {
   };
 
   return (
-    <div className="flex flex-row h-full w-full gap-10 p-10">
-      <div className="h-full w-full flex flex-col items-center z-10 flex-1">
+    <div className="relative flex flex-col md:flex-row h-full w-full gap-6 p-4 md:gap-10 md:p-10">
+      <div className="flex-1 w-full flex flex-col items-center z-10 mb-6 md:mb-0">
         <WebcamConfig
           disable={!realTimeDetection}
           onSelectCamera={handleSelectCamera}
@@ -242,7 +242,7 @@ const VisionScreen = () => {
             }
           }}
           ref={webcamRef}
-          sizeClass="aspect-[8/6] w-full"
+          sizeClass="w-full aspect-[4/3] md:aspect-[8/6]"
           showScannerGrid={displayScannerGrid}
         />
 
@@ -254,8 +254,8 @@ const VisionScreen = () => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col gap-4">
-        <Tabs defaultValue="translit" className="w-full h-full">
+      <div className="flex-1 w-full flex flex-col gap-4">
+        <Tabs defaultValue="translit" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger
               value="translit"
@@ -273,8 +273,8 @@ const VisionScreen = () => {
           </TabsList>
 
           <TabsContent value="translit">
-            <Card className="h-[90%] mt-4">
-              <CardContent className="h-[80%]">
+            <Card className="w-full h-auto mt-4 flex flex-col">
+              <CardContent className="w-full flex-grow">
                 {detectedBaybayinText == undefined ? (
                   <span>Detected baybayin text will go here.</span>
                 ) : (
@@ -287,8 +287,8 @@ const VisionScreen = () => {
           </TabsContent>
 
           <TabsContent value="history">
-            <Card className="max-h-[24rem] h-full mt-4 overflow-y-auto">
-              <CardContent className="max-h-[80%] h-full">
+            <Card className="w-full h-auto mt-4 overflow-y-auto">
+              <CardContent className="w-full">
                 <div className="flex justify-end mb-2">
                   <Button onClick={clearHistory}>Clear History</Button>
                 </div>
@@ -330,18 +330,21 @@ const VisionScreen = () => {
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-row justify-end items-end h-[20%]">
-          {/* Butty Character */}
-          <div className="h-24 w-54 relative">
+        {/* Butty Character */}
+        <div className="mt-6 w-full flex justify-center md:justify-end md:absolute md:bottom-4 md:right-4">
+          <div className="relative w-40 h-24 md:w-48 md:h-32">
             <img
-              className="-translate-x-10 -translate-y-20 absolute"
-              src={ButtyTextBubble.src}
+              src={ButtyRead.src}
+              className="absolute bottom-0 right-0 w-full h-full object-contain"
             />
-            <span className="text-center -translate-x-9 -translate-y-14 absolute w-44">
+            <img
+              src={ButtyTextBubble.src}
+              className="absolute top-0 left-0 w-3/4 object-contain"
+            />
+            <span className="absolute top-4 left-6 w-24 text-center text-sm px-1">
               {bubbleText}
             </span>
           </div>
-          <img className="h-full scale-150" src={ButtyRead.src} />
         </div>
       </div>
     </div>

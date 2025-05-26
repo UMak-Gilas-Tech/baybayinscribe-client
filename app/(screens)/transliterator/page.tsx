@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   InputContainer,
   SwitchButton,
@@ -15,24 +15,78 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import Image from "next/image";
+import { useTranslate } from "@/app/store/store.translate";
 
 export default function TransliterationScreen() {
   const [latinText, setLatinText] = useState("");
   const [baybayinText, setBaybayinText] = useState(baybayifyWord(""));
   const [switchOrder, setSwitchOrder] = useState(false);
-  const [latinLang, setLatinLang] = useState("default");
+  const [latinLang, setLatinLang] = useState("filipino");
+  const [loading, setLoading] = useState(false);
+
+  const translate = useTranslate((s) => s.translate);
+  const translateFilToEng = useTranslate((s) => s.translateFilToEng);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced translation effect for English and Filipino-to-English
+  useEffect(() => {
+    if (latinLang === "filipino") {
+      setLoading(false);
+      return;
+    }
+    if (switchOrder) {
+      // Baybayin -> Latin (baybayinText to latinText)
+      if (latinLang === "english" && baybayinText) {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+          setLoading(true);
+          const latin = baybayinToLatin(baybayinText);
+          setLatinText(latin);
+          if (latin) {
+            const translated = await translateFilToEng(latin);
+            setLatinText(translated ?? latin);
+          }
+          setLoading(false);
+        }, 1000);
+        return () => {
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+      }
+    } else {
+      // Latin -> Baybayin (latinText to baybayinText)
+      if (latinLang === "english" && latinText) {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+          setLoading(true);
+          const translated = await translate(latinText);
+          setBaybayinText(translated ? baybayifyWord(translated) : "");
+          setLoading(false);
+        }, 1000);
+        return () => {
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+      }
+    }
+    if (!latinText && !baybayinText) setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latinText, baybayinText, latinLang, switchOrder]);
 
   const handleLatinChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setLatinText(value);
-    setBaybayinText(value === "" ? "" : baybayifyWord(value));
+    if (latinLang !== "english") {
+      setBaybayinText(value === "" ? "" : baybayifyWord(value));
+    }
+    // If english, effect will handle translation
   };
 
   const handleBaybayinChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    const wrapped = value === "" ? "" : baybayifyWord(value);
-    setBaybayinText(wrapped);
-    setLatinText(wrapped === "" ? "" : baybayinToLatin(wrapped));
+    setBaybayinText(value);
+    if (latinLang !== "english") {
+      setLatinText(value === "" ? "" : baybayinToLatin(value));
+    }
+    // If english, effect will handle translation
   };
 
   const latinInput = (
@@ -42,14 +96,11 @@ export default function TransliterationScreen() {
       onChange={handleLatinChange}
       placeholder="Type Latin..."
       headerRight={
-        <Select value={latinLang} onValueChange={setLatinLang}>
+        <Select value={latinLang} onValueChange={setLatinLang} disabled={loading}>
           <SelectTrigger className="w-fit bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500 ">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
           <SelectContent className="bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500">
-            <SelectItem className="hover:bg-blue-900" value="default">
-              🌐 Auto-Detect (Default)
-            </SelectItem>
             <SelectItem
               className="hover:bg-blue-900 flex items-center gap-2"
               value="filipino"
@@ -85,7 +136,7 @@ export default function TransliterationScreen() {
       title="Baybayin"
       value={baybayinText}
       onChange={handleBaybayinChange}
-      placeholder="Type Baybayin..."
+      placeholder="Ilgy+"
       className="font-[Baybayin_Simple_TAWBID] text-xl sm:text-2xl md:text-3xl lg:text-4xl"
     />
   );
@@ -110,7 +161,14 @@ export default function TransliterationScreen() {
           />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-2 sm:gap-3 md:gap-4 items-center">
+        <div className="flex flex-col md:flex-row gap-2 sm:gap-3 md:gap-4 items-center relative">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/30 z-10 pointer-events-none">
+              <span className="text-blue-200 text-sm animate-pulse bg-neutral-800/80 px-4 py-2 rounded">
+                Translating...
+              </span>
+            </div>
+          )}
           {switchOrder
             ? [baybayinInput, switchBtn, latinInput]
             : [latinInput, switchBtn, baybayinInput]}
