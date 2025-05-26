@@ -49,12 +49,23 @@ export type QuizStore = {
 
   loadAllQuiz: () => void;
   loadMyQuizzes: (userId: string) => void;
+  deleteQuiz: (quizId: string) => void;
+
+  clearQuiz: () => void;
 };
 
 const useQuizStore = create<QuizStore>((set) => ({
   status: "Idle",
   quizAnswerUploadStatus: "Idle",
   answerHistory: undefined,
+  clearQuiz: () => {
+    set({
+      quiz: undefined,
+      answerHistory: undefined,
+      status: "Idle",
+      quizAnswerUploadStatus: "Idle"
+    });
+  },
   loadQuiz: async (quiz_id: string) => {
     set({ status: "Loading" });
     try {
@@ -176,6 +187,21 @@ const useQuizStore = create<QuizStore>((set) => ({
         }
         set({ quizzes, status: "Loaded" });
         return quizzes;
+      } else {
+        set({ error: response.data.error, status: "Error" });
+      }
+    } catch (error: unknown) {
+      set({ error: (error as Error).message || "Error", status: "Error" });
+    }
+  },
+  deleteQuiz: async (quizId: string) => {
+    set({ status: "Loading" });
+    try {
+      const response = await axios.delete(`/quiz`, {
+        data: { quizId: quizId },
+      });
+      if (response.status === 200) {
+        set({ status: "Loaded" });
       } else {
         set({ error: response.data.error, status: "Error" });
       }

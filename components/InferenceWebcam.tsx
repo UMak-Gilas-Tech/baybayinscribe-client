@@ -19,6 +19,7 @@ interface InferenceWebcamProps {
   onDetect?: (result: InferenceResult[]) => void;
   imageOnly?: boolean;
   showScannerGrid?: boolean;
+  setModelLoading?: (loading: boolean) => void;
 }
 
 export interface InferenceWebcamHandle {
@@ -28,7 +29,13 @@ export interface InferenceWebcamHandle {
 
 const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
   function InferenceWebcam(
-    { sizeClass = "w-96 h-96", onDetect, imageOnly, showScannerGrid },
+    {
+      sizeClass = "w-96 h-96",
+      onDetect,
+      imageOnly,
+      showScannerGrid,
+      setModelLoading,
+    },
     ref
   ) {
     const inference = useInferenceStore();
@@ -80,13 +87,17 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
       }
     }, [imageOnly]);
 
+    // trigger loading when model init starts
     useEffect(() => {
+      setModelLoading?.(true);
       if (usingLocal) inference.initLocalModel();
       else inference.init();
     }, []);
 
+    // once model is ready, stop loading and continue
     useEffect(() => {
       if (inference.status === InferenceStatus.READY) {
+        setModelLoading?.(false);
         if (imageOnly && imageSrc && imageRef.current) {
           inference.inferLocal(
             imageRef.current,

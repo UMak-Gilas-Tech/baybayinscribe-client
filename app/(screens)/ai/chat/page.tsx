@@ -1,10 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAiStore } from "@/app/store/store.ai";
 import AppLogo from "@/public/images/BaybayInscribe-AppIcon.png";
 import { SendIcon, ChevronLeft } from "lucide-react";
 import Markdown from "react-markdown";
-import { parseSentence } from "@/lib/parse_baybayin";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import remarkParse from "remark-parse";
@@ -18,7 +17,7 @@ type ChatBubbleProps = {
 const ChatPageHeader = () => {
   const router = useRouter();
   return (
-    <div className="bg-[#e7ecfe] w-full h-20 border-b-2 border-black flex flex-row items-center justify-start px-4 gap-4">
+    <div className="sticky top-0 z-20 w-full h-20 bg-[#e7ecfe] border-b-2 border-black flex flex-row items-center justify-start px-4 gap-4">
       <button
         className="p-2 rounded-full hover:bg-[#d3ddfd] transition-colors"
         onClick={() => router.back()}
@@ -57,21 +56,11 @@ const ChatBubble = (props: ChatBubbleProps) => {
     .trim();
 
   return (
-    <div
-      className={`w-full h-auto flex flex-row items-start ${
-        props.isUser ? "justify-end" : "justify-start items-center"
-      }`}
-    >
-      {!props.isUser && (
-        <img src={AppLogo.src} alt="BaybayInscribe Logo" className="w-12 h-12 rounded-full mx-6" />
-      )}
-
-      <div
-        className={`p-4 rounded-xl w-1/2 flex ${
-          props.isUser
-            ? "items-center gap-2 bg-[#d3ddfd] border-[0.5px] border-[#3f5187] text-black"
-            : "flex-col items-start gap-2 bg-[#e7ecfc] border-[0.5px] border-[#3f5187] text-black"
-        }`}
+    <div className={`w-full flex ${props.isUser ? "justify-end" : "justify-start"} px-4`}>
+      <div className={`max-w-[60%] p-4 shadow-lg transition-colors
+        ${props.isUser
+          ? "bg-blue-500 text-white rounded-bl-lg rounded-tl-lg rounded-tr-lg"
+          : "bg-white text-gray-800 rounded-br-lg rounded-tr-lg rounded-tl-lg"}`}
       >
         <span
           className={`${
@@ -111,49 +100,52 @@ const ChatBubble = (props: ChatBubbleProps) => {
   );
 };
 
-const ChatPageChatBody = ({
-  messages,
-}: {
-  messages: { text: string; isUser: boolean }[];
-}) => (
-  <div className="flex-1 w-full overflow-y-auto">
-    {messages.length > 0 ? (
-      <div className="w-3/4 mx-auto flex flex-col gap-4 p-4">
-        {messages.map((m, i) => (
-          <ChatBubble key={i} text={m.text} isUser={m.isUser} />
-        ))}
-      </div>
-    ) : (
-      <div className="w-full h-full mx-auto flex flex-col items-center justify-center gap-4 p-4 ">
-        <div className="bg-[#e7ecfc] w-1/2 p-4 px-6 shadow-xl rounded-xl flex flex-col items-start justify-center">
-          <div className="flex flex-row gap-4">
-            <img
-              src={AppLogo.src}
-              className="h-14 rounded-xl shadow-xl aspect-square"
-              alt=""
-            />
-
-            <div className="flex flex-col items-start justify-start">
-              <h2 className="font-bold text-2xl">Kamusta!</h2>
-              <span>Ano ang maitutulong ko sa iyo ngayon?</span>
-            </div>
-          </div>
-
-          <div className="h-[0.5px] bg-black w-full my-6"></div>
-
-          <div className="flex flex-row gap-4 *:hover:bg-black *:hover:text-white *:transition-all *:duration-200 *:ease-in-out p-2 px-4 rounded-full cursor-pointer">
-            <span className="p-2 px-4 border-[0.5px] border-black rounded-full">
-              Paano isulat ang...
-            </span>
-            <span className="p-2 px-4 border-[0.5px] border-black rounded-full">
-              Ano ang transliterasyon ng...
-            </span>
-          </div>
-        </div>
-      </div>
-    )}
+// Loading placeholder with bouncing dots
+const LoadingBubble = () => (
+  <div className="w-full h-auto flex flex-row items-start justify-start">
+    <div className="p-4 rounded-xl w-1/2 flex items-center gap-2 bg-[#e7ecfc] border-[0.5px] border-[#3f5187]">
+      <span className="flex space-x-1">
+        <span
+          className="block w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "0s" }}
+        />
+        <span
+          className="block w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "0.2s" }}
+        />
+        <span
+          className="block w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "0.4s" }}
+        />
+      </span>
+    </div>
   </div>
 );
+
+const ChatPageChatBody = ({
+  messages,
+  animating,
+}: {
+  messages: { text: string; isUser: boolean }[];
+  animating: boolean;
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, animating]);
+
+  return (
+    <div
+      ref={scrollRef}
+      className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+    >
+      {messages.map((m, i) => (
+        <ChatBubble key={i} text={m.text} isUser={m.isUser} />
+      ))}
+      {animating && <LoadingBubble />}
+    </div>
+  );
+};
 
 const ChatPageInput = ({
   input,
@@ -166,8 +158,8 @@ const ChatPageInput = ({
   onSend: () => void;
   disabled: boolean;
 }) => (
-  <div className="w-full flex justify-center items-center">
-    <div className="relative w-1/2 h-16 flex items-center gap-4 px-4">
+  <div className="sticky bottom-0 p-4 flex justify-center">
+    <div className="relative w-full max-w-xl">
       <input
         type="text"
         value={input}
@@ -181,14 +173,14 @@ const ChatPageInput = ({
         }}
         disabled={disabled}
         placeholder="Type your message here..."
-        className="w-full h-full border-2 border-[#122254] rounded-full px-4 text-sm"
+        className="w-full h-14 border border-gray-300 rounded-full px-6 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-transparent"
       />
       <button
         onClick={onSend}
         disabled={disabled}
-        className="absolute right-9 hover:cursor-pointer rounded-full px-4 py-2 text-sm"
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 transition"
       >
-        <SendIcon size={20} className="text-black" />
+        <SendIcon size={24} />
       </button>
     </div>
   </div>
@@ -238,9 +230,9 @@ const ChatPage = () => {
   }, [status]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-screen">
       <ChatPageHeader />
-      <ChatPageChatBody messages={messages} />
+      <ChatPageChatBody messages={messages} animating={animating} />
       <ChatPageInput
         input={input}
         setInput={setInput}
