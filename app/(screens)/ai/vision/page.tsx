@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect} from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown.menu";
 import { Popover } from "@/components/ui/popover";
@@ -13,8 +13,10 @@ import {
   ChevronDown,
   ChevronsUpDown,
   History,
+  MessageSquareWarning,
   Settings,
   TextQuote,
+  TriangleAlert,
   Webcam,
 } from "lucide-react";
 import SwitchControls from "./SwitchControls";
@@ -31,6 +33,7 @@ import {
   InferenceResult,
   InferenceResultHistory,
 } from "@/types/type.inference";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface WebcamConfigProps {
   onSelectCamera: (deviceId: string) => void;
@@ -127,6 +130,8 @@ const VisionScreen = () => {
   const [history, setHistory] = useState<InferenceResultHistory[] | undefined>(
     undefined
   );
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [modelLoading, setModelLoading] = useState(true);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [seenText, setSeenText] = useState(false);
@@ -148,6 +153,12 @@ const VisionScreen = () => {
       changeButtyCharacterBubbleText();
     }
   }, [detectedBaybayinText]);
+
+  // on mount, show dialog only if not already agreed
+  useEffect(() => {
+    const agreed = localStorage.getItem("agreedAccuracyNotice");
+    if (!agreed) setInfoOpen(true);
+  }, []);
 
   const loadHistory = () => {
     const history = localStorage.getItem("detectedBaybayinText");
@@ -189,165 +200,199 @@ const VisionScreen = () => {
   };
 
   return (
-    <div className="relative flex flex-col md:flex-row h-full w-full gap-6 p-4 md:gap-10 md:p-10">
-      <div className="flex-1 w-full flex flex-col items-center z-10 mb-6 md:mb-0">
-        <WebcamConfig
-          disable={!realTimeDetection}
-          onSelectCamera={handleSelectCamera}
-          cameras={cameras}
-        />
+    <>
+      <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex flex-row items-center justify-center gap-4 text-red-500">Model Accuracy Notice <TriangleAlert /> </DialogTitle>
+              <br />
 
-        <InferenceWebcam
-          imageOnly={!realTimeDetection}
-          onDetect={(text) => {
-            // If text is null/undefined or empty, do nothing.
-            if (!text || text.length === 0) return;
+              The AI model may not be 100% accurate. Expect occasional misreads and always verify the output.
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                localStorage.setItem("agreedAccuracyNotice", "true");
+                setInfoOpen(false);
+              }}
+            >
+              I Understand
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            // Create a list of current characters.
-            const currentDetection = text.map((i) => i.className);
+      {/* AI model loading overlay */}
+      {modelLoading && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0E1425]/80">
+          <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-400 mb-6" />
+          <span className="text-white text-xl font-semibold tracking-wide drop-shadow-lg">
+            Loading AI Model...
+          </span>
+        </div>
+      )}
 
-            // Prevent duplicate submissions: compare with the last history entry.
-            if (history && history.length > 0) {
-              const lastDetection =
-                history[history.length - 1].detectedBaybayinString;
-              if (
-                JSON.stringify(lastDetection) ===
-                JSON.stringify(currentDetection)
-              ) {
-                return;
+      <div className="relative flex flex-col md:flex-row h-full w-full gap-6 p-4 md:gap-10 md:p-10">
+        <div className="flex-1 w-full flex flex-col items-center z-10 mb-6 md:mb-0">
+          <WebcamConfig
+            disable={!realTimeDetection}
+            onSelectCamera={handleSelectCamera}
+            cameras={cameras}
+          />
+
+          <InferenceWebcam
+            setModelLoading={setModelLoading}
+            imageOnly={!realTimeDetection}
+            onDetect={(text) => {
+              // If text is null/undefined or empty, do nothing.
+              if (!text || text.length === 0) return;
+
+              // Create a list of current characters.
+              const currentDetection = text.map((i) => i.className);
+
+              // Prevent duplicate submissions: compare with the last history entry.
+              if (history && history.length > 0) {
+                const lastDetection =
+                  history[history.length - 1].detectedBaybayinString;
+                if (
+                  JSON.stringify(lastDetection) ===
+                  JSON.stringify(currentDetection)
+                ) {
+                  return;
+                }
               }
-            }
 
-            setDetectedBaybayinText(text);
+              setDetectedBaybayinText(text);
 
-            if (!realTimeDetection) {
-              const confidenceAvg =
-                text.reduce((acc, curr) => acc + curr.confidence, 0) /
-                text.length;
-              const tempHistory = history ?? [];
+              if (!realTimeDetection) {
+                const confidenceAvg =
+                  text.reduce((acc, curr) => acc + curr.confidence, 0) /
+                  text.length;
+                const tempHistory = history ?? [];
 
-              tempHistory.push({
-                detectedBaybayinString: currentDetection,
-                timestamp: new Date().toISOString(),
-                avgConfidence: confidenceAvg,
-              } as InferenceResultHistory);
+                tempHistory.push({
+                  detectedBaybayinString: currentDetection,
+                  timestamp: new Date().toISOString(),
+                  avgConfidence: confidenceAvg,
+                } as InferenceResultHistory);
 
-              console.log(tempHistory);
-              localStorage.setItem(
-                "detectedBaybayinText",
-                JSON.stringify(tempHistory)
-              );
+                console.log(tempHistory);
+                localStorage.setItem(
+                  "detectedBaybayinText",
+                  JSON.stringify(tempHistory)
+                );
 
-              setHistory(tempHistory);
-            }
-          }}
-          ref={webcamRef}
-          sizeClass="w-full aspect-[4/3] md:aspect-[8/6]"
-          showScannerGrid={displayScannerGrid}
-        />
+                setHistory(tempHistory);
+              }
+            }}
+            ref={webcamRef}
+            sizeClass="w-full aspect-[4/3] md:aspect-[8/6]"
+            showScannerGrid={displayScannerGrid}
+          />
 
-        <SwitchControls
-          displayScannerGrid={displayScannerGrid}
-          onToggleScannerGrid={(v) => setDisplayScannerGrid(v)}
-          onToggleRealTimeDetection={(v) => setRealTimeDetection(v)}
-          realTimeDetection={realTimeDetection}
-        />
-      </div>
+          <SwitchControls
+            displayScannerGrid={displayScannerGrid}
+            onToggleScannerGrid={(v) => setDisplayScannerGrid(v)}
+            onToggleRealTimeDetection={(v) => setRealTimeDetection(v)}
+            realTimeDetection={realTimeDetection}
+          />
+        </div>
 
-      <div className="flex-1 w-full flex flex-col gap-4">
-        <Tabs defaultValue="translit" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger
-              value="translit"
-              className="flex flex-row justify-evenly"
-            >
-              <TextQuote /> Detected Transliteration
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="flex flex-row justify-evenly"
-            >
-              <History />
-              History
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex-1 w-full flex flex-col gap-4">
+          <Tabs defaultValue="translit" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger
+                value="translit"
+                className="flex flex-row justify-evenly"
+              >
+                <TextQuote /> Detected Transliteration
+              </TabsTrigger>
+              <TabsTrigger
+                value="history"
+                className="flex flex-row justify-evenly"
+              >
+                <History />
+                History
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="translit">
-            <Card className="w-full h-auto mt-4 flex flex-col">
-              <CardContent className="w-full flex-grow">
-                {detectedBaybayinText == undefined ? (
-                  <span>Detected baybayin text will go here.</span>
-                ) : (
-                  <BaybayinLatin
-                    characters={detectedBaybayinText.map((i) => i.className)}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="translit">
+              <Card className="w-full h-auto mt-4 flex flex-col">
+                <CardContent className="w-full flex-grow">
+                  {detectedBaybayinText == undefined ? (
+                    <span>Detected baybayin text will go here.</span>
+                  ) : (
+                    <BaybayinLatin
+                      characters={detectedBaybayinText.map((i) => i.className)}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="history">
-            <Card className="w-full h-auto mt-4 overflow-y-auto">
-              <CardContent className="w-full">
-                <div className="flex justify-end mb-2">
-                  <Button onClick={clearHistory}>Clear History</Button>
-                </div>
-                {history && history.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    {history.map((i, index) => {
-                      return (
-                        <>
-                          <div className="flex flex-row items-end">
-                            <span className="pl-2 pr-6">{index + 1}. </span>
-                            <div className="flex-1">
-                              <BaybayinLatin
-                                key={index}
-                                characters={i.detectedBaybayinString}
-                              />
-                            </div>
-
-                            <div className="flex flex-col items-end gap-2">
-                              <span>
-                                Avg Confidence:{" "}
-                                {Math.round(i.avgConfidence * 100)}%
-                              </span>
-                              <span>
-                                Scanned on:{" "}
-                                {new Date(i.timestamp).toDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="h-[0.2px] opacity-50 bg-gray-500 w-full"></div>
-                        </>
-                      );
-                    })}
+            <TabsContent value="history">
+              <Card className="w-full h-auto mt-4 overflow-y-auto">
+                <CardContent className="w-full">
+                  <div className="flex justify-end mb-2">
+                    <Button onClick={clearHistory}>Clear History</Button>
                   </div>
-                ) : (
-                  <span>History of detected baybayin text will go here.</span>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                  {history && history.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {history.map((i, index) => {
+                        return (
+                          <>
+                            <div className="flex flex-row items-end">
+                              <span className="pl-2 pr-6">{index + 1}. </span>
+                              <div className="flex-1">
+                                <BaybayinLatin
+                                  key={index}
+                                  characters={i.detectedBaybayinString}
+                                />
+                              </div>
 
-        {/* Butty Character */}
-        <div className="mt-6 w-full flex justify-center md:justify-end md:absolute md:bottom-4 md:right-4">
-          <div className="relative w-40 h-24 md:w-48 md:h-32">
-            <img
-              src={ButtyRead.src}
-              className="absolute bottom-0 right-0 w-full h-full object-contain"
-            />
-            <img
-              src={ButtyTextBubble.src}
-              className="absolute top-0 left-0 w-3/4 object-contain"
-            />
-            <span className="absolute top-4 left-6 w-24 text-center text-sm px-1">
-              {bubbleText}
-            </span>
+                              <div className="flex flex-col items-end gap-2">
+                                <span>
+                                  Avg Confidence:{" "}
+                                  {Math.round(i.avgConfidence * 100)}%
+                                </span>
+                                <span>
+                                  Scanned on:{" "}
+                                  {new Date(i.timestamp).toDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="h-[0.2px] opacity-50 bg-gray-500 w-full"></div>
+                          </>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span>History of detected baybayin text will go here.</span>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          {/* Butty Character */}
+          <div className="mt-6 w-full flex justify-center md:justify-end md:absolute md:bottom-4 md:right-4">
+            <div className="relative w-40 h-24 md:w-48 md:h-32">
+              <img
+                src={ButtyRead.src}
+                className="absolute bottom-0 right-0 w-full h-full object-contain"
+              />
+              <img
+                src={ButtyTextBubble.src}
+                className="absolute top-0 left-0 w-3/4 object-contain"
+              />
+              <span className="absolute top-4 left-6 w-24 text-center text-sm px-1">
+                {bubbleText}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
