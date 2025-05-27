@@ -219,9 +219,10 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
             <button className="w-full py-2 text-blue-300 font-medium text-left cursor-pointer">
               Account
             </button>
-            <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
+
+            {/* <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Preferences
-            </button>
+            </button> */}
             <button className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Terms of service
             </button>

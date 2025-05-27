@@ -8,12 +8,12 @@ import { authClient } from '@/app/lib/auth-client';
 
 interface DesktopTermsProps {
     onClose: () => void;
-    onProfileClick?: () => void;
-    onShowAbout?: () => void;
-    onShowPreferences?: () => void;
+    onProfileClick: () => void;
+    onShowAbout: () => void;
+    // onShowPreferences?: () => void;
 }
 
-export default function DesktopTerms({ onClose, onProfileClick, onShowAbout, onShowPreferences }: DesktopTermsProps) {
+export default function DesktopTerms({ onClose, onProfileClick, onShowAbout }: DesktopTermsProps) {
     const router = useRouter();
 
     const handleSignOut = async () => {
@@ -41,11 +41,7 @@ export default function DesktopTerms({ onClose, onProfileClick, onShowAbout, onS
                         >
                             Account
                         </button>
-                        <button
-                            onClick={onShowPreferences}
-                            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
-                            Preferences
-                        </button>
+                        
                         <button className="w-full py-2 text-blue-300 font-bold text-left cursor-pointer">
                             Terms of service
                         </button>
@@ -151,8 +147,6 @@ export default function DesktopTerms({ onClose, onProfileClick, onShowAbout, onS
                             please contact support
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>

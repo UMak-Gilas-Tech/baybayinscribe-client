@@ -38,10 +38,10 @@ type ProfileModalDesktopProps = {
   onEdit?: () => void;
   onShowTerms?: () => void;
   onShowAbout?: () => void;
-  onShowPreferences?: () => void;
+  // onShowPreferences?: () => void;
 };
 
-export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowTerms, onShowAbout, onShowPreferences }: ProfileModalDesktopProps) {
+export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowTerms, onShowAbout }: ProfileModalDesktopProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(userData);
@@ -149,11 +149,11 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
               Account
             </button>
 
-            <button
+            {/* <button
               onClick={onShowPreferences}
               className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
               Preferences
-            </button>
+            </button> */}
 
             <button
               onClick={onShowTerms}
