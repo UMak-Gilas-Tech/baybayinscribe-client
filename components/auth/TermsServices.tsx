@@ -47,7 +47,7 @@ export const TermsServices = ({
   const isRequired = mode === "required";
 
   return (
-    <div className="flex items-start space-x-2 text-neutral-white font-light font-sans w-full max-w-md">
+    <div className="flex items-start space-x-2 text-neutral-black w-full max-w-md">
       {isRequired && (
         <Checkbox
           id="terms"
@@ -56,21 +56,21 @@ export const TermsServices = ({
           className="mt-1"
         />
       )}
-      <div className="grid gap-1.5 leading-none">
+      <div className="grid gap-1.5 leading-none mx-auto w-fit">
         <Label
           htmlFor={isRequired ? "terms" : undefined}
-          className="text-sm font-light leading-none"
+          className="text-xs font-light text-grey-200/80 leading-none"
         >
           {isRequired ? "I agree to the" : "By continuing, you agree to our"}{" "}
           <Dialog>
-            <DialogTrigger className="text-blue-900 hover:underline cursor-pointer">
+            <DialogTrigger className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal">
               Terms of Service
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Terms of Service</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 text-sm">
+              <div className="space-y-4 text-xs">
                 <section>
                   <h3 className="font-semibold mb-2">1. Acceptance of Terms</h3>
                   <p>
@@ -144,7 +144,7 @@ export const TermsServices = ({
           </Dialog>{" "}
           &{" "}
           <Dialog>
-            <DialogTrigger className="text-blue-900 hover:underline cursor-pointer">
+            <DialogTrigger className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal">
               Privacy Policy
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

@@ -30,7 +30,7 @@ export const Background = ({ children }: BackgroundProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center fixed top-7/12 left-6/12 -z-0 -rotate-[20deg] scale-[280%]	">
+      <div className="flex flex-col items-center fixed top-7/12 left-6/12 -z-0 -rotate-[20deg] scale-[280%] pointer-events-none">
         <h2 className="text-8xl xl:text-[130px] text-blue-900/10 font-medium font-baybayin">
           mtuto
         </h2>

@@ -4,8 +4,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createLoginHandlers } from "./handlers";
-import { LoginForm } from "./components/login-form";
-import { Background } from "./components/Background";
+import { LoginForm } from "./LoginForm";
+import { Background } from "../components/Background";
 
 const LoginPage = () => {
   // --- Hooks ---

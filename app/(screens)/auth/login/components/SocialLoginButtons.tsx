@@ -1,6 +1,5 @@
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -16,7 +15,7 @@ export const SocialLoginButtons = ({
   return (
     <>
       {/* Social Login Buttons */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex gap-4 my-3">
         <Button
           variant="outline"
           className="flex-1 flex items-center gap-2 border-blue-400 text-blue-400 bg-neutral-white hover:bg-blue-900 transition"
@@ -38,9 +37,9 @@ export const SocialLoginButtons = ({
       </div>
 
       {/* Divider */}
-      <div className="flex items-center my-6 w-full justify-center">
+      <div className="flex items-center my-4 w-full justify-center">
         <Separator className="flex-1 bg-blue-400" />
-        <span className="px-4 text-sm font-medium text-blue-400 text-center whitespace-nowrap">
+        <span className="px-4 text-xs font-medium text-grey-300 text-center whitespace-nowrap">
           Enter your details below to login
         </span>
         <Separator className="flex-1 bg-blue-400" />
