@@ -13,20 +13,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SocialLoginButtons } from "./components/SocialLoginButtons";
-import { FooterLinks } from "./components/AccountPassword";
-import { PasswordInput } from "../components/PasswordInput";
-import { TermsServices } from "@/components/auth/TermsServices";
-import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
-import { AuthFooterLink } from "./components/AccountHelper";
+import { motion, AnimatePresence } from "framer-motion";
+import { TermsServices } from "@/components/auth/TermsServices";
+import { SocialLoginButtons } from "../components/SocialLoginButtons";
+import { PasswordInput } from "../components/PasswordInput";
+import { AccountHelper } from "../components/AccountHelper";
+import { AccountPwHelper } from "../components/AccountPwHelper";
 
 // Memoize the schema to prevent recreation on each render
 const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -35,6 +33,7 @@ interface LoginFormProps {
   onSubmit: (values: LoginFormData & { rememberMe: boolean }) => Promise<void>;
   onFacebookSignIn: () => Promise<void>;
   onGoogleSignIn: () => Promise<void>;
+  error: string;
   loginError: string;
   validationError?: string;
   isLoading: boolean;
@@ -61,11 +60,11 @@ export const LoginForm = ({
   onSubmit,
   onFacebookSignIn,
   onGoogleSignIn,
+  error,
   loginError,
   validationError,
   isLoading,
 }: LoginFormProps) => {
-  const [termsChecked, setTermsChecked] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -81,10 +80,6 @@ export const LoginForm = ({
     },
     [onSubmit, rememberMe]
   );
-
-  const handleTermsChange = useCallback((checked: boolean) => {
-    setTermsChecked(checked);
-  }, []);
 
   // Memoize social login handlers
   const memoizedSocialHandlers = useMemo(
@@ -104,9 +99,11 @@ export const LoginForm = ({
         aria-label="Login form"
       >
         <CardHeader>
-          <CardTitle className="text-blue-400">Login</CardTitle>
-          <CardDescription className="text-grey-300">
-            Log through your social media account to continue
+          <CardTitle className="text-blue-400 text-2xl font-bold">
+            Welcome Back
+          </CardTitle>
+          <CardDescription className="text-grey-300 mt-2">
+            Sign in to continue your journey with BaybayInscribe
           </CardDescription>
         </CardHeader>
         <CardContent className="max-w-full">
@@ -115,7 +112,7 @@ export const LoginForm = ({
           <ShadcnForm {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-2"
+              className="space-y-4"
               noValidate
             >
               <EmailInput />
@@ -126,7 +123,13 @@ export const LoginForm = ({
                 {loginError && (
                   <ErrorMessage
                     message={loginError}
-                    className="text-red-800 border border-red-700 bg-red-100 rounded px-2 py-1 mb-2 text-sm font-medium animate-shake"
+                    className="text-red-800 border border-red-700 bg-red-100/50 rounded-md p-3 mb-2 text-sm font-medium animate-shake"
+                  />
+                )}
+                {error && (
+                  <ErrorMessage
+                    message={error}
+                    className="text-red-800 border border-red-700 bg-red-100/50 rounded-md p-3 mb-2 text-sm font-medium animate-shake"
                   />
                 )}
                 {form.formState.errors.root && (
@@ -135,7 +138,7 @@ export const LoginForm = ({
                   />
                 )}
               </AnimatePresence>
-              <FooterLinks
+              <AccountPwHelper
                 rememberMe={rememberMe}
                 onRememberMeChange={setRememberMe}
               />
@@ -144,24 +147,20 @@ export const LoginForm = ({
                 variant="blue"
                 disabled={isLoading}
                 aria-busy={isLoading}
-                className="relative"
+                className="relative w-full h-10 text-base font-medium"
               >
                 {isLoading ? (
-                  <LoadingSpinner loadingText="Logging in..." />
+                  <LoadingSpinner loadingText="Signing in..." />
                 ) : (
-                  "Login"
+                  "Sign In"
                 )}
               </Button>
 
-              <AuthFooterLink />
+              <AccountHelper />
             </form>
           </ShadcnForm>
         </CardContent>
-        <TermsServices
-          mode="info"
-          checked={termsChecked}
-          onCheckedChange={handleTermsChange}
-        />
+        <TermsServices mode="info" />
       </Card>
     </div>
   );

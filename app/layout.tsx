@@ -35,7 +35,6 @@ export default function RootLayout({
     pathname === "/auth/userinfo" ||
     pathname === "/auth/profpic" ||
     pathname === "/auth/terms" ||
-    pathname === "/auth/forgotpassword" ||
     pathname === "/auth/resetpassword" ||
     pathname === "/admin/forbidden";
 

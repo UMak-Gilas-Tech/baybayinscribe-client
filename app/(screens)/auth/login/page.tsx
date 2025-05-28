@@ -26,6 +26,7 @@ const LoginPage = () => {
   return (
     <Background>
       <LoginForm
+        error={""}
         onSubmit={handleLogin}
         onFacebookSignIn={handleFacebookSignIn}
         onGoogleSignIn={handleGoogleSignIn}

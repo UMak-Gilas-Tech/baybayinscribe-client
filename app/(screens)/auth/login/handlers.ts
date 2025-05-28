@@ -1,5 +1,6 @@
 import { authClient } from "../../../lib/auth-client";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { createSocialHandlers } from "../../../../lib/auth/socialHandlers";
 
 interface LoginValues {
   email: string;
@@ -47,27 +48,10 @@ export const createLoginHandlers = ({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      });
-    } catch {
-      setLoginError("Failed to sign in with Google. Please try again.");
-    }
-  };
-
-  const handleFacebookSignIn = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "facebook",
-        callbackURL: "/",
-      });
-    } catch {
-      setLoginError("Failed to sign in with Facebook. Please try again.");
-    }
-  };
+  const { handleGoogleSignIn, handleFacebookSignIn } = createSocialHandlers({
+    setLoginError,
+    callbackURL: "/",
+  });
 
   return {
     handleLogin,
