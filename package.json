@@ -52,6 +52,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
+    "framer-motion": "^12.15.0",
     "html-to-image": "^1.11.13",
     "inferencejs": "^1.0.21",
     "init": "^0.1.2",
