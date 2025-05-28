@@ -24,8 +24,10 @@ function GuideCard({
   isComingSoon = false,
 }: NavCardProps & { image?: string; isComingSoon?: boolean }) {
   return (
-    <div className="relative bg-gray-200 rounded-lg overflow-hidden shadow-sm border border-blue-200">
-      <div className="relative">
+    <div
+      className={`relative bg-gray-200 rounded-lg overflow-hidden shadow-sm ${!isComingSoon ? "border border-blue-200" : "border-dashed border-2 border-blue-200 opacity-30"} h-full flex flex-col`}
+    >
+      <div className="flex-1 flex flex-col">
         <div className="relative h-44 bg-[#e9f5f2] flex items-center justify-center p-4">
           {image ? (
             <div className="relative w-full h-full">
@@ -58,26 +60,29 @@ function GuideCard({
             </div>
           )}
         </div>
-        <div className="p-4">
-          <h3 className="font-medium text-[#1e3e59] mb-1">{title}</h3>
-          <p className="text-xs text-gray-500 mb-4 line-clamp-2">
+        <div className="p-4 flex flex-col flex-1">
+          <h3 className="font-medium text-[#1e3e59] mb-2">{title}</h3>
+          <p className="text-xs text-gray-500 mb-6 line-clamp-2 flex-1">
             {description}
           </p>
-          <Link
-            href={href}
-            className={`block w-full py-2 text-center text-white rounded-md text-xs font-medium transition-colors ${
-              isComingSoon
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#1e3e59] hover:bg-[#152d42]"
-            }`}
-          >
-            {buttonText}
-          </Link>
+          <div className="mt-auto">
+            <Link
+              href={href}
+              className={`block w-full py-2 text-center text-white rounded-md text-xs font-medium transition-colors ${
+                isComingSoon
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#1e3e59] hover:bg-[#152d42]"
+              }`}
+              tabIndex={isComingSoon ? -1 : 0}
+              aria-disabled={isComingSoon}
+            >
+              {buttonText}
+            </Link>
+          </div>
         </div>
       </div>
-
       {isComingSoon && (
-        <div className="bg-white bg-opacity-80 flex items-center justify-center"></div>
+        <div className="bg-white bg-opacity-80 flex items-center justify-center absolute inset-0 "></div>
       )}
     </div>
   );
@@ -89,9 +94,10 @@ function QuizCard({
   href,
   buttonText = "Start Learning",
   image,
-}: NavCardProps & { image?: string }) {
+  isComingSoon = false,
+}: NavCardProps & { image?: string; isComingSoon?: boolean }) {
   return (
-    <div className="bg-gray-200 rounded-lg overflow-hidden shadow-sm border border-blue-200">
+    <div className="bg-gray-200 rounded-lg overflow-hidden shadow-sm border border-blue-200 h-full flex flex-col relative">
       <div className="relative h-44 bg-[#e9f5f2] flex items-center justify-center p-4">
         {image ? (
           <div className="relative w-full h-full">
@@ -124,16 +130,29 @@ function QuizCard({
           </div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="font-medium text-[#1e3e59] mb-1">{title}</h3>
-        <p className="text-xs text-gray-500 mb-4 line-clamp-2">{description}</p>
-        <Link
-          href={href}
-          className="block w-full py-2 text-center text-white bg-[#1e3e59] rounded-md text-xs font-medium hover:bg-[#152d42] transition-colors"
-        >
-          {buttonText}
-        </Link>
+      <div className="relative p-4 flex flex-col flex-1">
+        <h3 className="font-medium text-[#1e3e59] mb-2">{title}</h3>
+        <p className="text-xs text-gray-500 mb-6 line-clamp-2">{description}</p>
+        <div className="mt-auto">
+          <Link
+            href={href}
+            className={`block w-full py-2 text-center text-white rounded-md text-xs font-medium transition-colors ${
+              isComingSoon
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#1e3e59] hover:bg-[#152d42]"
+            }`}
+            tabIndex={isComingSoon ? -1 : 0}
+            aria-disabled={isComingSoon}
+          >
+            {buttonText}
+          </Link>
+        </div>
       </div>
+      {isComingSoon && (
+        <div className="bg-white bg-opacity-80 flex items-center justify-center absolute inset-0">
+
+        </div>
+      )}
     </div>
   );
 }
