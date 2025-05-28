@@ -9,5 +9,9 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: process.env.DATABASE_URL!,
+    ssl: {
+      rejectUnauthorized: true,
+      ca: process.env.SSL_CA ? fs.readFileSync(process.env.SSL_CA, "utf-8") : undefined,
+    }
   },
 });
