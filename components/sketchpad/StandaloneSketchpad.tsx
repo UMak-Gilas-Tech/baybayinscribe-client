@@ -1,10 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { Pencil, Undo, Trash, ChevronDown, InfoIcon } from "lucide-react";
-import {
-  useInferenceStore,
-  InferenceState,
-} from "@/app/store/store.inference";
+import { useInferenceStore, InferenceState } from "@/app/store/store.inference";
 import { baybayinToLatin } from "@/lib/baybayify";
 import {
   DropdownMenu,
@@ -32,7 +29,9 @@ interface StandaloneSketchpadProps {
   setModelLoading?: (loading: boolean) => void;
 }
 
-const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoading }) => {
+const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
+  setModelLoading,
+}) => {
   const sketchpadContext = useSketchpad();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [drawing, setDrawing] = useState(false);
@@ -226,26 +225,26 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoadi
         <div className="flex flex-row px-10 md:px-0 md:flex-col space-x-2 md:space-x-0 md:space-y-2">
           <button
             onClick={clear}
-            className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-[#576eb6] hover:bg-[#6e81b9] hover:scale-95"
+            className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-blue-500 hover:bg-[#6e81b9] hover:scale-95"
           >
-            <Trash size={20} className="text-[#ffd8b9]" />
+            <Trash size={20} className="text-yellow-200" />
           </button>
           <button
             onClick={undo}
-            className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-[#576eb6] hover:bg-[#6e81b9] hover:scale-95"
+            className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-blue-500 hover:bg-[#6e81b9] hover:scale-95"
           >
-            <Undo size={20} className="text-[#ffd8b9]" />
+            <Undo size={20} className="text-yellow-200" />
           </button>
-          <button className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-[#576eb6] hover:bg-[#6e81b9] hover:scale-95">
-            <Pencil size={20} className="text-[#ffd8b9]" />
+          <button className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-blue-500 hover:bg-[#6e81b9] hover:scale-95">
+            <Pencil size={20} className="text-yellow-200" />
           </button>
           <div className="h-full w-[1px] md:w-full md:h-[1px] my-0 md:my-4  bg-black"></div>
           <div
             onMouseDown={handleWidthMouseDown}
-            className="w-13 h-13 aspect-square rounded-full bg-[#576eb6] flex items-center justify-center cursor-ns-resize shadow-xl transition"
+            className="w-13 h-13 aspect-square rounded-full bg-blue-500 flex items-center justify-center cursor-ns-resize shadow-xl transition"
           >
             <div
-              className="bg-[#ffd8b9] rounded-full"
+              className="bg-yellow-200 rounded-full"
               style={{
                 width: `${Math.max(4, strokeWidth)}px`,
                 height: `${Math.max(4, strokeWidth)}px`,
@@ -253,8 +252,11 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoadi
             />
           </div>
 
-          <button onClick={() => setOpenGuide(true)} className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-[#576eb6] hover:bg-[#6e81b9] hover:scale-95">
-            <InfoIcon size={20} className="text-[#ffd8b9]" />
+          <button
+            onClick={() => setOpenGuide(true)}
+            className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-blue-500 hover:bg-[#6e81b9] hover:scale-95"
+          >
+            <InfoIcon size={20} className="text-yellow-200" />
           </button>
         </div>
         <div className="relative w-full h-full">
@@ -275,7 +277,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoadi
                     Math.min(
                       (canvasRef.current?.width || 0) /
                         sketchpadContext.selectedCharacters.length,
-                      (canvasRef.current?.height || 0)
+                      canvasRef.current?.height || 0
                     ) || 20
                   }px`,
                 }}
@@ -289,7 +291,10 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoadi
 
       {/* submit button below canvas */}
       <div className="mt-4 w-full px-10 lg:w-3/4 lg:px-2 ">
-        <Button onClick={handleSubmit} className="bg-blue-500 hover:bg-blue-600">
+        <Button
+          onClick={handleSubmit}
+          className="bg-blue-500 hover:bg-blue-600"
+        >
           Submit
         </Button>
       </div>
@@ -304,34 +309,43 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({ setModelLoadi
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 mt-2">
-            {inference.localInferenceResult && inference.localInferenceResult.length > 0 ? (
+            {inference.localInferenceResult &&
+            inference.localInferenceResult.length > 0 ? (
               inference.localInferenceResult.map((item, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-4 p-3 rounded-md bg-muted border"
                 >
-                  <span className="text-3xl font-[Baybayin_Simple_TAWBID]">{item.className}</span>
-                  <span className="text-lg text-muted-foreground">{baybayinToLatin(item.className)}</span>
+                  <span className="text-3xl font-[Baybayin_Simple_TAWBID]">
+                    {item.className}
+                  </span>
+                  <span className="text-lg text-muted-foreground">
+                    {baybayinToLatin(item.className)}
+                  </span>
                   <span className="ml-auto text-xs text-gray-500">
                     {(item.confidence * 100).toFixed(1)}%
                   </span>
                 </div>
               ))
             ) : (
-              <div className="text-muted-foreground text-center">No results</div>
-            )}
-            {inference.localInferenceResult && inference.localInferenceResult.length > 0 && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                <b>Bounding Boxes:</b>
-                <ul className="list-disc ml-5">
-                  {inference.localInferenceResult.map((item, idx) => (
-                    <li key={idx}>
-                      x: {item.x.toFixed(1)}, y: {item.y.toFixed(1)}, w: {item.width.toFixed(1)}, h: {item.height.toFixed(1)}
-                    </li>
-                  ))}
-                </ul>
+              <div className="text-muted-foreground text-center">
+                No results
               </div>
             )}
+            {inference.localInferenceResult &&
+              inference.localInferenceResult.length > 0 && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <b>Bounding Boxes:</b>
+                  <ul className="list-disc ml-5">
+                    {inference.localInferenceResult.map((item, idx) => (
+                      <li key={idx}>
+                        x: {item.x.toFixed(1)}, y: {item.y.toFixed(1)}, w:{" "}
+                        {item.width.toFixed(1)}, h: {item.height.toFixed(1)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </div>
         </DialogContent>
       </Dialog>
