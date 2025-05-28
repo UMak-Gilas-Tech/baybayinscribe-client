@@ -3,7 +3,7 @@
 import React from 'react';
 import { MobileTerms } from './terms/mobile.terms';
 import { MobileAbout } from './about/mobile.about';
-import { MobilePreference } from './preferences/mobile.preferences';
+// import { MobilePreference } from './preferences/mobile.preferences';
 
 interface MobileSettingsProps {
   onSignOut: () => void;
@@ -16,7 +16,7 @@ interface MobileSettingsProps {
 export default function MobileSettings({ onSignOut, isVisible, onClose, onProfileClick }: MobileSettingsProps) {
   const [showTerms, setShowTerms] = React.useState(false);
   const [showAbout, setShowAbout] = React.useState(false);
-  const [showPreferences, setShowPreferences] = React.useState(false);
+  // const [showPreferences, setShowPreferences] = React.useState(false);
 
   if (!isVisible) return null;
 
@@ -30,10 +30,10 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
     // Don't close settings here, let Terms component handle its own state
   };
 
-  const handlePreferencesShow = () => {
-    setShowPreferences(true);
-    // Don't close settings here, let Terms component handle its own state
-  };
+  // const handlePreferencesShow = () => {
+  //   setShowPreferences(true);
+  //   // Don't close settings here, let Terms component handle its own state
+  // };
 
   return (
     <>
@@ -71,11 +71,11 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
                 Terms of service
               </button>
 
-              <button
+              {/* <button
                 className="w-full text-center py-3 text-blue-300 hover:text-blue-400 cursor-pointer"
                 onClick={handlePreferencesShow}>
                 Preferences
-              </button>
+              </button> */}
 
               <button
                 onClick={onSignOut}
@@ -119,7 +119,7 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
         />
       )}
 
-      {showPreferences && (
+      {/* {showPreferences && (
         <MobilePreference
           onClose={() => {
             setShowPreferences(false);
@@ -133,7 +133,7 @@ export default function MobileSettings({ onSignOut, isVisible, onClose, onProfil
             }
           }}
         />
-      )}
+      )} */}
     </>
   );
 }

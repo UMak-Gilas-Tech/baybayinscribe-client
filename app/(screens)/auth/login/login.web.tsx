@@ -276,7 +276,7 @@ const LoginWeb = () => {
                   )}
                 />
                 {loginError && (
-                  <p className="text-red-800 bg-red-700 border border-red-700 rounded px-2 py-1 mb-2 text-xs font-medium animate-shake">
+                  <p className="text-red-800 border border-red-700 rounded px-2 py-1 mb-2 text-xs font-medium animate-shake">
                     {loginError}
                   </p>
                 )}
