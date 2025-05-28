@@ -8,11 +8,9 @@ dotenv.config({path: "../.env"});
 
 const poolConfig: PoolConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.SSL_CA
-        ? {
-            ca: Buffer.from(process.env.SSL_CA, 'base64'),
-        }
-        : undefined,
+    ssl: {
+        ca: process.env.SSL_CA,
+    }
 };
 
 const pool = new Pool(poolConfig);
