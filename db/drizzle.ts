@@ -9,6 +9,7 @@ dotenv.config({path: "../.env"});
 const poolConfig: PoolConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
+        rejectUnauthorized: false,
         ca: process.env.SSL_CA,
     }
 };
