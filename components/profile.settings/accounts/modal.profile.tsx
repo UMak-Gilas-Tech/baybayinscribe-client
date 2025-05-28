@@ -6,7 +6,7 @@ import ProfileModalMobile from "./mobile.profile";
 import ProfileModalDesktop from "./desktop.profile";
 import DesktopTerms from "./terms/desktop.terms";
 import DesktopAbout from "./about/desktop.about";
-import DesktopPreference from "./preferences/desktop.pref";
+// import DesktopPreference from "./preferences/desktop.pref";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; 
 import MobileEditProfile from "./edit.profile/mobile.edit";
@@ -41,7 +41,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
   const [isEditing, setIsEditing] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [showPreferences, setShowPreferences] = useState(false);
+  // const [showPreferences, setShowPreferences] = useState(false);
   const [localUserData, setLocalUserData] = useState(initialUserData);
 
   // Update local state when initialUserData changes
@@ -55,7 +55,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
       setIsEditing(false);
       setShowTerms(false);
       setShowAbout(false);
-      setShowPreferences(false);
+      // setShowPreferences(false);
     }
   }, [isOpen]);
 
@@ -120,10 +120,10 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
           setShowTerms(false);
           setShowAbout(true);
         }}
-        onShowPreferences={() => {
-          setShowTerms(false);
-          setShowPreferences(true);
-        }}
+        // onShowPreferences={() => {
+        //   setShowTerms(false);
+        //   setShowPreferences(true);
+        // }}
       />
     );
   }
@@ -136,29 +136,30 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
           setShowAbout(false);
           setShowTerms(true);
         }}
-        onShowPreferences={() => {
-          setShowAbout(false);
-          setShowPreferences(true);
-        }}
+        // onShowPreferences={() => {
+        //   setShowAbout(false);
+        //   setShowPreferences(true);
+        // }}
       />
     );
   }
-  else if (showPreferences) {
-    modalContent = (
-      <DesktopPreference
-        onClose={onClose}
-        onProfileClick={() => setShowPreferences(false)}
-        onShowTerms={() => {
-          setShowPreferences(false);
-          setShowTerms(true);
-        }}
-        onShowAbout={() => {
-          setShowPreferences(false);
-          setShowAbout(true);
-        }}
-      />
-    );
-  } else if (isEditing && isMobile) {
+  // else if (showPreferences) {
+  //   modalContent = (
+  //     <DesktopPreference
+  //       onClose={onClose}
+  //       onProfileClick={() => setShowPreferences(false)}
+  //       onShowTerms={() => {
+  //         setShowPreferences(false);
+  //         setShowTerms(true);
+  //       }}
+  //       onShowAbout={() => {
+  //         setShowPreferences(false);
+  //         setShowAbout(true);
+  //       }}
+  //     />
+  //   );
+  // }
+  else if (isEditing && isMobile) {
     modalContent = (
       <MobileEditProfile
         onClose={() => setIsEditing(false)}
@@ -189,7 +190,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
         onEdit={() => setIsEditing(true)}
         onShowTerms={() => setShowTerms(true)}
         onShowAbout={() => setShowAbout(true)}
-        onShowPreferences={() => setShowPreferences(true)}
+        // onShowPreferences={() => setShowPreferences(true)}
       />
     );
   }
@@ -204,7 +205,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
           <VisuallyHidden>
             {showTerms ? "Terms of Service" : "Edit Profile"}
             {showAbout ? "About us" : "Edit Profile"}
-            {showPreferences ? "Preferences" : "Edit Profile"}
+            {/* {showPreferences ? "Preferences" : "Edit Profile"} */}
           </VisuallyHidden>
         </DialogTitle>
         {modalContent}

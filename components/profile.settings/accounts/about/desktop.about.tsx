@@ -8,12 +8,12 @@ import { authClient } from '@/app/lib/auth-client';
 
 interface DesktopAboutProps {
     onClose: () => void;
-    onProfileClick?: () => void;
-    onShowTerms?: () => void;
-    onShowPreferences?: () => void;
+    onProfileClick: () => void;
+    onShowTerms: () => void;
+    // onShowPreferences?: () => void;
 }
 
-export default function DesktopAbout({ onClose, onProfileClick, onShowTerms, onShowPreferences }: DesktopAboutProps) {
+export default function DesktopAbout({ onClose, onProfileClick, onShowTerms }: DesktopAboutProps) {
     const router = useRouter();
 
     const handleSignOut = async () => {
@@ -40,11 +40,6 @@ export default function DesktopAbout({ onClose, onProfileClick, onShowTerms, onS
                             className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer"
                         >
                             Account
-                        </button>
-                        <button
-                            onClick={onShowPreferences}
-                            className="w-full py-2 text-blue-500 hover:text-blue-600 text-left cursor-pointer">
-                            Preferences
                         </button>
                         <button
                             onClick={onShowTerms}
