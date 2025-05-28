@@ -92,7 +92,7 @@ const ForgotPasswordWeb = () => {
 
       {/* Title */}
       <h1
-        className="absolute z-30 font-bold text-[#FFD8B9]"
+        className="absolute z-30 font-bold text-yellow-200"
         style={{
           top: "50%",
           left: "28%",
@@ -107,7 +107,7 @@ const ForgotPasswordWeb = () => {
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
       {/* Right Section */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
+      <div className="flex-1 flex flex-col items-center justify-center bg-blue-500 relative z-20 w-[50%] ml-70">
         {/* Register Form */}
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
@@ -149,10 +149,16 @@ const ForgotPasswordWeb = () => {
                 type="submit"
                 disabled={status === "loading" || isLoading}
                 className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative ${
-                  status === "loading" || isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  status === "loading" || isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
-                {isLoading ? <LoadingSpinner loadingText="Sending..." /> : "Send Reset Link"}
+                {isLoading ? (
+                  <LoadingSpinner loadingText="Sending..." />
+                ) : (
+                  "Send Reset Link"
+                )}
               </button>
             </form>
           )}

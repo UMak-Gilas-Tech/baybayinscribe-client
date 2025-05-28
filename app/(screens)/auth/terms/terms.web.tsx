@@ -79,7 +79,6 @@ const TermsServicesWeb = () => {
 
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-
       {/* Vector SVG Design */}
       <svg
         className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none"
@@ -107,35 +106,32 @@ const TermsServicesWeb = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "left center",
           minHeight: "600px",
-
+        }}
+      ></div>
+      <h1
+        className="absolute z-20 text-4xl lg:text-5xl font-bold text-yellow-200"
+        style={{
+          top: "50%",
+          left: "28%",
+          transform: "translateX(-50%)",
+          fontSize: "4vw",
         }}
       >
-
-      </div>
-      <h1 className="absolute z-20 text-4xl lg:text-5xl font-bold text-[#FFD8B9]" style={{
-        top: '50%',
-        left: '28%',
-        transform: 'translateX(-50%)',
-        fontSize: '4vw',
-      }}>
         TERMS AND AGREEMENT
       </h1>
 
       {/* Left Section */}
-      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0">
-
-      </div>
+      <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0"></div>
 
       {/* Right Section */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
-
+      <div className="flex-1 flex flex-col items-center justify-center bg-blue-500 relative z-20 w-[50%] ml-70">
         {/* Content Box */}
-        <div className="w-full max-w-sm p-8 rounded-lg shadow-lg bg-white z-30 relative flex flex-col items-center"
+        <div
+          className="w-full max-w-sm p-8 rounded-lg shadow-lg bg-white z-30 relative flex flex-col items-center"
           style={{
-            transform: 'translateX(-35px)',
-          }}>
-
-
+            transform: "translateX(-35px)",
+          }}
+        >
           {/* Instructions Text */}
           <p className="text-[#585858] text-center mb-6">
             Please check the box below
@@ -144,24 +140,29 @@ const TermsServicesWeb = () => {
           {/* Checkboxes */}
           <div className="w-full flex flex-col items-start space-y-3 mb-6 px-4">
             <div className="flex items-center">
-              <input type="checkbox"
+              <input
+                type="checkbox"
                 id="agree"
                 checked={agree}
                 onChange={handleCheckboxChange}
-                className="mr-2 accent-[#837EFF]" required />
+                className="mr-2 accent-[#837EFF]"
+                required
+              />
               <label htmlFor="agree" className="text-sm text-[#585858]">
                 I agree to the Terms of Service and Privacy Policy.
               </label>
-
             </div>
             <div className="flex items-center">
-              <input type="checkbox"
+              <input
+                type="checkbox"
                 id="notifications"
                 checked={wantsNotifications}
                 onChange={handleNotificationChange}
-                className="mr-2 accent-[#837EFF]" />
+                className="mr-2 accent-[#837EFF]"
+              />
               <label htmlFor="notifications" className="text-sm text-[#585858]">
-                I want to be notified of upcoming offers, events, and latest news.
+                I want to be notified of upcoming offers, events, and latest
+                news.
               </label>
             </div>
           </div>
@@ -178,7 +179,11 @@ const TermsServicesWeb = () => {
               isSubmitting || isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {isLoading ? <LoadingSpinner loadingText="Finishing..." /> : "Finish Registration"}
+            {isLoading ? (
+              <LoadingSpinner loadingText="Finishing..." />
+            ) : (
+              "Finish Registration"
+            )}
           </button>
         </div>
       </div>
