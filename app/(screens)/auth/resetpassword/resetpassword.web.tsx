@@ -12,7 +12,9 @@ const ResetPasswordWebInner = () => {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +27,7 @@ const ResetPasswordWebInner = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       setStatus("error");
       setErrorMessage("Passwords do not match");
@@ -37,7 +39,7 @@ const ResetPasswordWebInner = () => {
       setErrorMessage("Password must be at least 8 characters long");
       return;
     }
-    
+
     if (!token) {
       setStatus("error");
       setErrorMessage("Invalid reset token");
@@ -48,25 +50,31 @@ const ResetPasswordWebInner = () => {
     setIsLoading(true);
 
     try {
-      await authClient.resetPassword({
-        newPassword: password,
-        token,
-      }, {
-        onSuccess: () => {
-          setStatus("success");
-          setIsLoading(false);
-          // Redirect to login page after 2 seconds
-          setTimeout(() => {
-            router.push("/auth/login");
-          }, 2000);
+      await authClient.resetPassword(
+        {
+          newPassword: password,
+          token,
         },
-        onError: (ctx) => {
-          setStatus("error");
-          setErrorMessage(ctx.error?.message || "Failed to reset password. Please try again.");
-          setIsLoading(false);
+        {
+          onSuccess: () => {
+            setStatus("success");
+            setIsLoading(false);
+            // Redirect to login page after 2 seconds
+            setTimeout(() => {
+              router.push("/auth/login");
+            }, 2000);
+          },
+          onError: (ctx) => {
+            setStatus("error");
+            setErrorMessage(
+              ctx.error?.message ||
+                "Failed to reset password. Please try again."
+            );
+            setIsLoading(false);
+          },
         }
-      });
-    } catch{
+      );
+    } catch {
       setStatus("error");
       setErrorMessage("An unexpected error occurred. Please try again.");
       setIsLoading(false);
@@ -107,7 +115,7 @@ const ResetPasswordWebInner = () => {
 
       {/* Title */}
       <h1
-        className="absolute z-30 font-bold text-[#FFD8B9]"
+        className="absolute z-30 font-bold text-yellow-200"
         style={{
           top: "50%",
           left: "28%",
@@ -122,7 +130,7 @@ const ResetPasswordWebInner = () => {
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
       {/* Right Section */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
+      <div className="flex-1 flex flex-col items-center justify-center bg-blue-500 relative z-20 w-[50%] ml-70">
         {/* Register Form */}
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
@@ -131,7 +139,7 @@ const ResetPasswordWebInner = () => {
           <h1 className="text-gray-600 font-bold mb-6">
             Enter your new password
           </h1>
-          
+
           {status === "success" ? (
             <div className="text-green-600 mb-4">
               Password reset successful! Redirecting to login...
@@ -140,7 +148,10 @@ const ResetPasswordWebInner = () => {
             /* Manual Registration Form */
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   New Password
                 </label>
                 <input
@@ -154,7 +165,10 @@ const ResetPasswordWebInner = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Confirm New Password
                 </label>
                 <input
@@ -167,19 +181,25 @@ const ResetPasswordWebInner = () => {
                   required
                 />
               </div>
-              
+
               {status === "error" && (
                 <div className="text-red-600 mb-4">{errorMessage}</div>
               )}
-              
+
               <button
                 type="submit"
                 disabled={status === "loading" || !token || isLoading}
                 className={`w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative ${
-                  (status === "loading" || !token || isLoading) ? "opacity-50 cursor-not-allowed" : ""
+                  status === "loading" || !token || isLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
-                {isLoading ? <LoadingSpinner loadingText="Resetting..." /> : "Reset Password"}
+                {isLoading ? (
+                  <LoadingSpinner loadingText="Resetting..." />
+                ) : (
+                  "Reset Password"
+                )}
               </button>
             </form>
           )}

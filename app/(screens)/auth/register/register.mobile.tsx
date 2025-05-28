@@ -22,14 +22,18 @@ const RegisterMobile = () => {
   const [validationError, setValidationError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const registerSchema = z.object({
-    email: z.string().email({ message: "Invalid email address." }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-    confirmPassword: z.string(),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+  const registerSchema = z
+    .object({
+      email: z.string().email({ message: "Invalid email address." }),
+      password: z
+        .string()
+        .min(6, { message: "Password must be at least 6 characters." }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,14 +48,22 @@ const RegisterMobile = () => {
       return;
     }
     // Zod validation
-    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    const result = registerSchema.safeParse({
+      email,
+      password,
+      confirmPassword,
+    });
     if (!result.success) {
       setValidationError(result.error.errors[0].message);
       setIsLoading(false);
       return;
     }
     try {
-      const response = await authClient.signUp.email({ email, password, name: "New user" });
+      const response = await authClient.signUp.email({
+        email,
+        password,
+        name: "New user",
+      });
       if (response?.error) {
         setError(response.error.message || "Registration failed");
         setIsLoading(false);
@@ -94,7 +106,6 @@ const RegisterMobile = () => {
         backgroundImage: "url('/images/bg.phone.login.png')",
       }}
     >
-
       {/* Wave Design */}
       <div
         className="absolute z-20 bg-cover bg-center"
@@ -193,7 +204,7 @@ const RegisterMobile = () => {
                     className="w-full px-3 py-3 bg-white text-gray-800 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
+                  />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -210,30 +221,42 @@ const RegisterMobile = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col justify-between text-xs text-[#FFD8B9]">
+              <div className="flex flex-col justify-between text-xs text-yellow-200">
                 <span>
                   Already have an account?{" "}
-                  <Link href="/auth/login" className="underline text-[#00C8FF] hover:text-[#00eeff]">
+                  <Link
+                    href="/auth/login"
+                    className="underline text-[#00C8FF] hover:text-[#00eeff]"
+                  >
                     Login here
                   </Link>
                 </span>
               </div>
               <div className="flex flex-col">
                 <p className="text-xs text-[#FAD6A5]">
-                  By clicking continue, you agree to our Terms and Privacy Policy.
+                  By clicking continue, you agree to our Terms and Privacy
+                  Policy.
                 </p>
               </div>
-              
+
               {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-              {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
-              {validationError && <p className="text-red-500 text-sm mb-3">{validationError}</p>}
+              {loginError && (
+                <p className="text-red-500 text-sm mb-3">{loginError}</p>
+              )}
+              {validationError && (
+                <p className="text-red-500 text-sm mb-3">{validationError}</p>
+              )}
 
               <button
                 type="submit"
                 className="w-full py-3 bg-[#837EFF] text-[#FAD6A5] font-bold rounded-full hover:bg-[#7C67E8] transition cursor-pointer relative"
                 disabled={isLoading}
               >
-                {isLoading ? <LoadingSpinner loadingText="Registering..." /> : "Continue"}
+                {isLoading ? (
+                  <LoadingSpinner loadingText="Registering..." />
+                ) : (
+                  "Continue"
+                )}
               </button>
             </form>
 
@@ -245,7 +268,8 @@ const RegisterMobile = () => {
 
             {/* Social Login */}
             <div className="flex justify-center gap-12">
-              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md cursor-pointer"
+              <button
+                className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md cursor-pointer"
                 onClick={handleFacebookSignIn}
               >
                 <Image
@@ -255,7 +279,8 @@ const RegisterMobile = () => {
                   height={48}
                 />
               </button>
-              <button className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md cursor-pointer"
+              <button
+                className="w-12 h-12 bg-transparent flex items-center justify-center rounded-md shadow-md cursor-pointer"
                 onClick={handleGoogleSignIn}
               >
                 <Image

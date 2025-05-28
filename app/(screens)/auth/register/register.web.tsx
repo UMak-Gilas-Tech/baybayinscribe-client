@@ -7,14 +7,18 @@ import { authClient } from "../../../lib/auth-client";
 import { z } from "zod";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
-const registerSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    email: z.string().email({ message: "Invalid email address." }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const RegisterWeb = () => {
   const router = useRouter();
@@ -40,14 +44,22 @@ const RegisterWeb = () => {
       return;
     }
     // Zod validation
-    const result = registerSchema.safeParse({ email, password, confirmPassword });
+    const result = registerSchema.safeParse({
+      email,
+      password,
+      confirmPassword,
+    });
     if (!result.success) {
       setValidationError(result.error.errors[0].message);
       setIsLoading(false);
       return;
     }
     try {
-      const response = await authClient.signUp.email({ email, password, name: "New user" });
+      const response = await authClient.signUp.email({
+        email,
+        password,
+        name: "New user",
+      });
       if (response?.error) {
         setError(response.error.message || "Registration failed");
         setIsLoading(false);
@@ -117,7 +129,7 @@ const RegisterWeb = () => {
 
       {/* Title */}
       <h1
-        className="absolute z-30 font-bold text-[#FFD8B9]"
+        className="absolute z-30 font-bold text-yellow-200"
         style={{
           top: "40%",
           left: "25%",
@@ -132,7 +144,7 @@ const RegisterWeb = () => {
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
       {/* Right Section */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
+      <div className="flex-1 flex flex-col items-center justify-center bg-blue-500 relative z-20 w-[50%] ml-70">
         {/* Register Form */}
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
@@ -169,7 +181,10 @@ const RegisterWeb = () => {
           {/* Manual Registration Form */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email
               </label>
               <input
@@ -182,7 +197,10 @@ const RegisterWeb = () => {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
               <input
@@ -195,7 +213,10 @@ const RegisterWeb = () => {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirm Password
               </label>
               <input
@@ -209,15 +230,23 @@ const RegisterWeb = () => {
             </div>
 
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-            {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
-            {validationError && <p className="text-red-500 text-sm mb-3">{validationError}</p>}
+            {loginError && (
+              <p className="text-red-500 text-sm mb-3">{loginError}</p>
+            )}
+            {validationError && (
+              <p className="text-red-500 text-sm mb-3">{validationError}</p>
+            )}
 
             <button
               type="submit"
               className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative"
               disabled={isLoading}
             >
-              {isLoading ? <LoadingSpinner loadingText="Registering..." /> : "Continue"}
+              {isLoading ? (
+                <LoadingSpinner loadingText="Registering..." />
+              ) : (
+                "Continue"
+              )}
             </button>
           </form>
         </div>

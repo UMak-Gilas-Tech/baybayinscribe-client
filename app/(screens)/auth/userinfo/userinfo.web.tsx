@@ -14,7 +14,7 @@ const UserInfoWeb = () => {
     contactNumber: "",
     dateOfBirth: "",
     agreedToTerms: true,
-    wantsNotifications: false
+    wantsNotifications: false,
   });
 
   const [fieldErrors, setFieldErrors] = useState({
@@ -22,7 +22,7 @@ const UserInfoWeb = () => {
     firstName: "",
     lastName: "",
     contactNumber: "",
-    dateOfBirth: ""
+    dateOfBirth: "",
   });
 
   const [generalError, setGeneralError] = useState("");
@@ -30,20 +30,26 @@ const UserInfoWeb = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setForm(prev => ({ ...prev, [id]: value }));
+    setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.username || !form.firstName || !form.lastName || !form.contactNumber || !form.dateOfBirth) {
+    if (
+      !form.username ||
+      !form.firstName ||
+      !form.lastName ||
+      !form.contactNumber ||
+      !form.dateOfBirth
+    ) {
       setGeneralError("Enter correct credentials.");
       setFieldErrors({
-        username: '',
-        firstName: '',
-        lastName: '',
-        contactNumber: '',
-        dateOfBirth: ''
+        username: "",
+        firstName: "",
+        lastName: "",
+        contactNumber: "",
+        dateOfBirth: "",
       });
       return;
     }
@@ -54,7 +60,7 @@ const UserInfoWeb = () => {
       firstName: "",
       lastName: "",
       contactNumber: "",
-      dateOfBirth: ""
+      dateOfBirth: "",
     };
 
     if (form.contactNumber && !/^\d{11}$/.test(form.contactNumber)) {
@@ -76,7 +82,7 @@ const UserInfoWeb = () => {
       newFieldErrors.lastName = "Last name must be less than 15 characters.";
       hasErrors = true;
     }
-    
+
     if (form.dateOfBirth) {
       const dob = new Date(form.dateOfBirth);
       const today = new Date();
@@ -90,7 +96,7 @@ const UserInfoWeb = () => {
         hasErrors = true;
       }
     }
-    
+
     if (hasErrors) {
       setFieldErrors(newFieldErrors);
       setGeneralError("");
@@ -98,11 +104,11 @@ const UserInfoWeb = () => {
       return;
     } else {
       setFieldErrors({
-        username: '',
-        firstName: '',
-        lastName: '',
-        contactNumber: '',
-        dateOfBirth: ''
+        username: "",
+        firstName: "",
+        lastName: "",
+        contactNumber: "",
+        dateOfBirth: "",
       });
     }
 
@@ -120,17 +126,17 @@ const UserInfoWeb = () => {
         router.push("/auth/terms");
       } else {
         const data = await res.json();
-        
+
         if (data.error && data.error === "Username already taken") {
-          setFieldErrors(prevErrors => ({
+          setFieldErrors((prevErrors) => ({
             ...prevErrors,
             username: data.error,
           }));
           setGeneralError("");
         } else if (data.error) {
-           setGeneralError(data.error);
+          setGeneralError(data.error);
         } else {
-           setGeneralError("Failed to submit information.");
+          setGeneralError("Failed to submit information.");
         }
       }
     } catch (err) {
@@ -143,7 +149,10 @@ const UserInfoWeb = () => {
 
   return (
     <div className="h-screen flex relative overflow-hidden bg-blue-400 z-0">
-      <svg className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none" viewBox="0 0 953 1117">
+      <svg
+        className="absolute top-0 right-0 left-60 w-full h-full z-20 pointer-events-none"
+        viewBox="0 0 953 1117"
+      >
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -167,24 +176,34 @@ const UserInfoWeb = () => {
       />
 
       <h1
-        className="absolute z-30 text-4xl lg:text-5xl font-bold text-[#FFD8B9]"
-        style={{ top: "50%", left: "28%", transform: "translateX(-50%)", fontSize: "5vw" }}
+        className="absolute z-30 text-4xl lg:text-5xl font-bold text-yellow-200"
+        style={{
+          top: "50%",
+          left: "28%",
+          transform: "translateX(-50%)",
+          fontSize: "5vw",
+        }}
       >
         USER INFORMATION
       </h1>
 
       <div className="flex-1 relative flex items-center justify-center bg-blue-400 z-0" />
 
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#576EB6] relative z-20 w-[50%] ml-70">
+      <div className="flex-1 flex flex-col items-center justify-center bg-blue-500 relative z-20 w-[50%] ml-70">
         <div
           className="w-full max-w-sm p-4 rounded-lg shadow-lg bg-white z-30 relative"
           style={{ transform: "translateX(-35px)" }}
         >
-          <h1 className="text-sm font-bold text-gray-600 mb-6">Great let us continue! Enter your details below</h1>
+          <h1 className="text-sm font-bold text-gray-600 mb-6">
+            Great let us continue! Enter your details below
+          </h1>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Username
               </label>
               <input
@@ -196,11 +215,18 @@ const UserInfoWeb = () => {
                 placeholder="Enter your username"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {fieldErrors.username && <p className="text-red-500 text-sm mb-4">{fieldErrors.username}</p>}
+              {fieldErrors.username && (
+                <p className="text-red-500 text-sm mb-4">
+                  {fieldErrors.username}
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 First Name
               </label>
               <input
@@ -212,11 +238,18 @@ const UserInfoWeb = () => {
                 placeholder="Enter your first name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {fieldErrors.firstName && <p className="text-red-500 text-sm mb-4">{fieldErrors.firstName}</p>}
+              {fieldErrors.firstName && (
+                <p className="text-red-500 text-sm mb-4">
+                  {fieldErrors.firstName}
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Last Name
               </label>
               <input
@@ -228,11 +261,18 @@ const UserInfoWeb = () => {
                 placeholder="Enter your last name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {fieldErrors.lastName && <p className="text-red-500 text-sm mb-4">{fieldErrors.lastName}</p>}
+              {fieldErrors.lastName && (
+                <p className="text-red-500 text-sm mb-4">
+                  {fieldErrors.lastName}
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
-              <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="contactNumber"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Contact Number
               </label>
               <input
@@ -243,11 +283,18 @@ const UserInfoWeb = () => {
                 placeholder="Enter your contact number"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {fieldErrors.contactNumber && <p className="text-red-500 text-sm mb-4">{fieldErrors.contactNumber}</p>}
+              {fieldErrors.contactNumber && (
+                <p className="text-red-500 text-sm mb-4">
+                  {fieldErrors.contactNumber}
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="dateOfBirth"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Date of Birth
               </label>
               <input
@@ -257,13 +304,27 @@ const UserInfoWeb = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm mb-4">{fieldErrors.dateOfBirth}</p>}
+              {fieldErrors.dateOfBirth && (
+                <p className="text-red-500 text-sm mb-4">
+                  {fieldErrors.dateOfBirth}
+                </p>
+              )}
             </div>
 
-            {generalError && <p className="text-red-500 text-sm mb-4">{generalError}</p>}
+            {generalError && (
+              <p className="text-red-500 text-sm mb-4">{generalError}</p>
+            )}
 
-            <button type="submit" className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative" disabled={isLoading}>
-              {isLoading ? <LoadingSpinner loadingText="Saving..." /> : "Continue"}
+            <button
+              type="submit"
+              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition cursor-pointer relative"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <LoadingSpinner loadingText="Saving..." />
+              ) : (
+                "Continue"
+              )}
             </button>
           </form>
         </div>
