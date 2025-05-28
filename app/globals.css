@@ -257,7 +257,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    @apply bg-[#f0f0f0];
+    @apply bg-neutral-white;
     @apply font-sans;
   }
 }
