@@ -1,20 +1,41 @@
 "use client";
 
-import React from "react";
-import LoginMobile from "./login.mobile";
-import LoginWeb from "./login.web";
+// --- Imports ---
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createLoginHandlers } from "./handlers";
+import { LoginForm } from "./LoginForm";
+import { Background } from "../components/Background";
 
-const LoginResponsiveness = () => {
+const LoginPage = () => {
+  // --- Hooks ---
+  const router = useRouter();
+  const [loginError, setLoginError] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // --- Handlers ---
+  const { handleLogin, handleGoogleSignIn, handleFacebookSignIn } =
+    createLoginHandlers({
+      router,
+      setLoginError,
+      setValidationError,
+      setIsLoading,
+    });
+
   return (
-    <div>
-      <div className="block lg:hidden">
-        <LoginMobile />
-      </div>
-      <div className="hidden lg:block">
-        <LoginWeb />
-      </div>
-    </div>
+    <Background>
+      <LoginForm
+        error={""}
+        onSubmit={handleLogin}
+        onFacebookSignIn={handleFacebookSignIn}
+        onGoogleSignIn={handleGoogleSignIn}
+        loginError={loginError}
+        validationError={validationError}
+        isLoading={isLoading}
+      />
+    </Background>
   );
 };
 
-export default LoginResponsiveness;
+export default LoginPage;

@@ -10,8 +10,8 @@ type CharacterSelectionItemProps = {
   character: string;
   onClick?: () => void;
   arrow?: boolean;
-  bgClassName?: string;         // new: custom bg class
-  hoverBgClassName?: string;    // new: custom hover bg/scale classes
+  bgClassName?: string; // new: custom bg class
+  hoverBgClassName?: string; // new: custom hover bg/scale classes
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CharacterSelectionDrawer = () => {
@@ -24,9 +24,13 @@ export const CharacterSelectionDrawer = () => {
       <DrawerContent className="h-[60%] flex flex-col items-center">
         <DrawerHeader>
           <DrawerTitle className="flex flex-col items-center justify-center gap-2">
-            <span className="text-2xl font-bold">Select Baybayin Characters</span>
-            <span className="text-stone-400">This will guide you in sketching.</span>
-            </DrawerTitle>
+            <span className="text-2xl font-bold">
+              Select Baybayin Characters
+            </span>
+            <span className="text-stone-400">
+              This will guide you in sketching.
+            </span>
+          </DrawerTitle>
         </DrawerHeader>
         <div className="h-full grid grid-cols-6 gap-2 place-items-center overflow-y-auto pb-6">
           {baybayinCharacters.map((label, index) => (
@@ -39,7 +43,6 @@ export const CharacterSelectionDrawer = () => {
                   ...sketchpadContext.selectedCharacters,
                   baybayify(Array.isArray(label) ? label[0] : label),
                 ]);
-               
               }}
             />
           ))}
@@ -80,8 +83,11 @@ export const CharacterSelectionItem = (props: CharacterSelectionItemProps) => {
       <div
         className={`w-full aspect-square font-[Baybayin_Simple_TAWBID] rounded-xl shadow-xl 
                     flex items-center justify-center cursor-pointer transition duration-300 ease-in-out 
-                    ${props.bgClassName ?? 'bg-[#576eb6]'} 
-                    ${props.hoverBgClassName ?? 'hover:bg-[#6e81b9] hover:scale-95'}`}
+                    ${props.bgClassName ?? "bg-blue-500"} 
+                    ${
+                      props.hoverBgClassName ??
+                      "hover:bg-[#6e81b9] hover:scale-95"
+                    }`}
         onClick={handleClick}
         onDoubleClick={handleDoubleClick}
         onMouseDown={start}
@@ -91,7 +97,7 @@ export const CharacterSelectionItem = (props: CharacterSelectionItemProps) => {
       >
         {!props.arrow && (
           <p
-            className={`text-center text-[#ffd8b9] font-bold text-2xl ${
+            className={`text-center text-yellow-200 font-bold text-2xl ${
               showLatin ? "font-[Poppins]" : "font-[Baybayin_Simple_TAWBID]"
             }`}
           >
@@ -102,9 +108,9 @@ export const CharacterSelectionItem = (props: CharacterSelectionItemProps) => {
               : props.character}
           </p>
         )}
-        {props.arrow && <ChevronDown size={40} className="text-[#ffd8b9]" />}
+        {props.arrow && <ChevronDown size={40} className="text-yellow-200" />}
         {!props.character && !props.arrow && (
-          <Plus size={40} className="text-[#ffd8b9]" />
+          <Plus size={40} className="text-yellow-200" />
         )}
       </div>
     </div>

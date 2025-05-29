@@ -18,7 +18,7 @@ import { authClient } from "@/app/lib/auth-client";
 export const SubmitButton = () => {
   const { onSubmit } = useQuizTakeContext();
   return (
-    <Button className="z-10 bg-[#576eb6] w-1/2" onClick={onSubmit}>
+    <Button className="z-10 bg-blue-500 w-1/2" onClick={onSubmit}>
       Submit
     </Button>
   );
