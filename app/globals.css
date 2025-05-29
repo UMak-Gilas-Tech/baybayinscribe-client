@@ -115,6 +115,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --max-width-8xl: 1400px;
   --border-width-1.25: 1.25px;
+  --border-width-1.4: 1.4px;
   --stroke-width-1.25: 1.25px;
  
   --font-baybayin: "Baybayin Simple TAWBID";
@@ -184,7 +185,7 @@
   --background: var(--color-neutral-white);
   --foreground: var(--color-neutral-black);
   --card: var(--color-neutral-white);
-  --card-foreground: var(--color-neutral-black);
+  --card-foreground: var(--color-blue-400);
   --popover: var(--color-neutral-white);
   --popover-foreground: var(--color-neutral-black);
   --primary: var(--color-blue-400);
