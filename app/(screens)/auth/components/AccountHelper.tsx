@@ -15,7 +15,7 @@ export const AccountHelper = () => {
       {descriptionText}{" "}
       <Link
         href={isRegisterPage ? "/auth/login" : "/auth/register"}
-        className="underline text-grey-200/80 hover:no-underline hover:text-grey-300 transition-colors duration-200"
+        className="underline text-grey-200/80 hover:no-underline hover:text-blue-300 transition-colors duration-200 font-semibold py-2"
       >
         {linkText}
       </Link>

@@ -24,11 +24,13 @@ export const BackButton = ({ className = "" }: BackButtonProps) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.back()}
+            onClick={() => router.push("/auth/login")}
             className={`hover:bg-blue-800 ${className}`}
-            aria-label="Go back"
+            aria-label="Go back to login"
+            tabIndex={0}
+            role="link"
           >
-            <HouseIcon className="h-5 w-5 text-blue-400" />
+            <HouseIcon className="text-blue-400" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>
