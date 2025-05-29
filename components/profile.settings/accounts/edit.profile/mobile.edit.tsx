@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 
@@ -24,6 +24,12 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
     const [formData, setFormData] = useState<UserData>(userData);
     const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
     const [errors, setErrors] = useState<Partial<Record<keyof UserData | 'profilePicture', string>>>({});
+
+    // Update internal state when userData prop changes
+    useEffect(() => {
+      setFormData(userData);
+      setProfileImage(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
+    }, [userData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -67,12 +73,12 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
             setProfileImage(URL.createObjectURL(file));
 
             try {
-                const formData = new FormData();
-                formData.append('file', file);
+                const fileFormData = new FormData();
+                fileFormData.append('file', file);
 
                 const response = await fetch('/api/user.information/upload-profile-picture', {
                     method: 'POST',
-                    body: formData,
+                    body: fileFormData,
                 });
 
                 const data = await response.json();
@@ -82,11 +88,19 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                 }
 
                 setProfileImage(data.url);
-                // Update the form data with the new profile picture URL
-                setFormData(prev => ({
-                    ...prev,
-                    profilePictureUrl: data.url
-                }));
+                // Update the form data state with the new profile picture URL
+                const updatedFormData = {
+                  ...formData,
+                  profilePictureUrl: data.url
+                };
+                setFormData(updatedFormData);
+
+                // Call onSave with the complete updated data to immediately update the parent component
+                onSave({
+                  ...userData,
+                  ...updatedFormData,
+                });
+
             } catch (error) {
                 console.error('Error uploading profile picture:', error);
                 setErrors(prev => ({
@@ -101,6 +115,17 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
         setProfileImage("/images/user.profile/user.avatar.png");
         
         try {
+            // Call backend API to delete profile picture from blob storage
+            const deleteResponse = await fetch('/api/user.information/delete-profile-picture', {
+                method: 'DELETE',
+            });
+
+            if (!deleteResponse.ok) {
+                // Log the error but don't block the profile update if blob deletion fails
+                console.error('Failed to delete profile picture from blob storage', await deleteResponse.text());
+            }
+
+            // Update user information in database with null profile picture URL
             const response = await fetch('/api/user.information/update', {
                 method: 'PUT',
                 headers: {
@@ -118,8 +143,23 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
 
             setFormData(prev => ({
                 ...prev,
-                profilePictureUrl: null
+                profilePictureUrl: null // The backend will handle setting this to null in the DB
             }));
+
+            // Update local state and inform parent
+            const updatedFormData = {
+              ...formData,
+              profilePictureUrl: null, // Set to null in modal state
+            };
+            setFormData(updatedFormData);
+            setProfileImage("/images/user.profile/user.avatar.png"); // Update modal's preview image
+
+            // Call onSave with the complete updated data including null profilePictureUrl
+            onSave({
+              ...userData, // Start with original user data
+              ...updatedFormData, // Overlay with current form data (now with profilePictureUrl: null)
+            });
+
         } catch (error) {
             console.error('Error removing profile picture:', error);
             setErrors(prev => ({

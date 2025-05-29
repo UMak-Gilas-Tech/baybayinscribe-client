@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 
@@ -14,6 +14,11 @@ type UserData = {
   profilePictureUrl?: string | null;
 };
 
+type FormDataWithFile = Omit<UserData, 'profilePictureUrl'> & {
+  profilePictureUrl?: string | File | null;
+  profilePicture?: File | null;
+};
+
 type EditProfileDesktopProps = {
   onClose: () => void;
   userData: UserData;
@@ -21,10 +26,17 @@ type EditProfileDesktopProps = {
 };
 
 export default function DesktopEditProfile({ onClose, userData, onSave }: EditProfileDesktopProps) {
-  const [formData, setFormData] = useState<UserData>(userData);  const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
+  const [formData, setFormData] = useState<FormDataWithFile>(userData as FormDataWithFile);
+  const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Update internal state when userData prop changes
+  useEffect(() => {
+    setFormData(userData as FormDataWithFile);
+    setProfileImage(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
+  }, [userData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -84,61 +96,60 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           profilePicture: "File size too large. Maximum size is 4MB."
         }));
         return;
-      } // Create temporary URL for preview
-      setProfileImage(URL.createObjectURL(file));
-
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch('/api/user.information/upload-profile-picture', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to upload profile picture');
-        }
-
-        setProfileImage(data.url);
-        // Update the form data with the new profile picture URL
-        setFormData(prev => ({
-          ...prev,
-          profilePictureUrl: data.url
-        }));
-      } catch (error) {
-        console.error('Error uploading profile picture:', error);
-        setErrors(prev => ({
-          ...prev,
-          profilePicture: "Failed to upload profile picture. Please try again."
-        }));
-      }
-    }
-  };  const removeProfileImage = async () => {
-    setProfileImage("/images/user.profile/user.avatar.png");
-    
-    try {
-      const response = await fetch('/api/user.information/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          profilePictureUrl: null
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to remove profile picture');
       }
 
+      // Create temporary URL for preview and update local state immediately
+      const previewUrl = URL.createObjectURL(file);
+      setProfileImage(previewUrl);
+
+      // Update form data with the file object for later upload on save
       setFormData(prev => ({
         ...prev,
-        profilePictureUrl: null
+        profilePicture: file, // Store the file object itself temporarily
+        profilePictureUrl: previewUrl // Store the preview URL temporarily
       }));
+
+      // Clear any previous profile picture errors
+      if (errors.profilePicture) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.profilePicture;
+          return newErrors;
+        });
+      }
+
+      // Do NOT call onSave here, wait for the main submit button
+
+    }
+  };
+
+  const removeProfileImage = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent default button behavior
+    try {
+      // Call backend API to delete profile picture from blob storage
+      const deleteResponse = await fetch('/api/user.information/delete-profile-picture', {
+        method: 'DELETE',
+      });
+
+      if (!deleteResponse.ok) {
+        // Log the error but don't block the profile update if blob deletion fails
+        console.error('Failed to delete profile picture from blob storage', await deleteResponse.text());
+        // Continue with state updates even if blob deletion fails
+      }
+
+      // Update local state only - don't save to database yet
+      const updatedFormData = {
+        ...formData,
+        profilePicture: null, // Clear the file object as well
+        profilePictureUrl: null,
+      };
+      
+      // Update both form data and profile image state
+      setFormData(updatedFormData);
+      setProfileImage("/images/user.profile/user.avatar.png");
+
+      // Do NOT call onSave here, wait for the main submit button
+
     } catch (error) {
       console.error('Error removing profile picture:', error);
       setErrors(prev => ({
@@ -168,11 +179,30 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
     e.preventDefault();
     if (validateForm()) {
       try {
-        // Include the profile picture URL in the update data
-        const dataToUpdate = {
+        let finalProfilePictureUrl = formData.profilePictureUrl;
+
+        // If a new file was selected, upload it first
+        if (formData.profilePicture && formData.profilePicture instanceof File) {
+          const fileFormData = new FormData();
+          fileFormData.append('file', formData.profilePicture);
+
+          const uploadResponse = await fetch('/api/user.information/upload-profile-picture', {
+            method: 'POST',
+            body: fileFormData,
+          });
+
+          const uploadData = await uploadResponse.json();
+
+          if (!uploadResponse.ok) {
+            throw new Error(uploadData.error || 'Failed to upload new profile picture');
+          }
+          finalProfilePictureUrl = uploadData.url; // Use the URL from the upload response
+        }
+
+        // Prepare the data to update user information in the database
+        const dataToUpdate: UserData = {
           ...formData,
-          // If we have a profile picture URL in the form data, use it, otherwise use null
-          profilePictureUrl: formData.profilePictureUrl
+          profilePictureUrl: typeof finalProfilePictureUrl === 'string' ? finalProfilePictureUrl : null,
         };
 
         const response = await fetch('/api/user.information/update', {
@@ -183,10 +213,10 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           body: JSON.stringify(dataToUpdate),
         });
 
-        const data = await response.json();
+        const responseData = await response.json();
 
         if (!response.ok) {
-          const error = data.error || 'Failed to update profile';
+          const error = responseData.error || await response.text() || 'Failed to update profile';
           setErrors(prev => ({
             ...prev,
             submit: error
@@ -194,8 +224,9 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           return;
         }
 
-        // Pass the updated data to the onSave callback including the profile picture URL
+        // Pass the updated data to the onSave callback
         onSave(dataToUpdate);
+
       } catch (error) {
         console.error('Error updating profile:', error);
         setErrors(prev => ({
@@ -256,13 +287,27 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
               <div className="flex items-center mb-2">
                 <div className="relative">
                   <div className="h-25 w-25 bg-blue-900 rounded-md flex items-center justify-center overflow-hidden">
-                    <Image
-                      src={profileImage}
-                      alt="User Profile"
-                      width={80}
-                      height={80}
-                      className="object-cover w-full h-full"
-                    />
+                    {profileImage ? (
+                      <Image
+                        key={profileImage}
+                        src={profileImage}
+                        alt="User Profile"
+                        width={80}
+                        height={80}
+                        className="object-cover w-full h-full"
+                        unoptimized
+                      />
+                    ) : (
+                      <Image
+                        key="default-avatar"
+                        src="/images/user.profile/user.avatar.png"
+                        alt="Default Profile"
+                        width={80}
+                        height={80}
+                        className="object-cover w-full h-full"
+                        unoptimized
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="ml-4">

@@ -102,6 +102,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
       // Update the local state with new data
       setCurrentUserData({
         ...updatedData,
+        // Remove cache-busting from state update
         profilePictureUrl: dataToUpdate.profilePictureUrl,
         authProviders: updatedData.authProviders || currentUserData.authProviders
       });
@@ -174,8 +175,9 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
       {/* Profile Section */}
       <div className="p-4">
         <div className="flex items-center">
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-4">
+          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4 overflow-hidden">
             <Image
+              key={currentUserData.profilePictureUrl ? `${currentUserData.profilePictureUrl}-${new Date().getTime()}` : 'default-avatar'}
               src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
               alt="User Profile"
               width={64}

@@ -79,11 +79,14 @@ export const handleSubmit = async (
 ) => {
   if (!agree) {
     setError("Please agree to the terms and conditions to proceed.");
+    setIsSubmitting(false);
+    setIsLoading(false);
     return;
   }
 
   setIsSubmitting(true);
   setIsLoading(true);
+  setError(""); // Clear any existing errors when starting submission
 
   try {
     // First update terms agreement

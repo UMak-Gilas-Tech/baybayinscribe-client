@@ -113,7 +113,21 @@ export const TermsPolicyForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="max-w-full">
-          <form className="space-y-6" noValidate>
+          <form 
+            className="space-y-6" 
+            noValidate 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(
+                agree,
+                wantsNotifications,
+                setError,
+                setIsSubmitting,
+                setIsLoading,
+                router
+              );
+            }}
+          >
             <div className="space-y-4">
               {/* Terms Agreement using TermsServices component */}
               <TermsServices
@@ -158,16 +172,7 @@ export const TermsPolicyForm = () => {
 
             {/* Submit Button */}
             <Button
-              onClick={() =>
-                handleSubmit(
-                  agree,
-                  wantsNotifications,
-                  setError,
-                  setIsSubmitting,
-                  setIsLoading,
-                  router
-                )
-              }
+              type="submit"
               disabled={isSubmitting || isLoading}
               variant="blue"
               aria-busy={isLoading}
