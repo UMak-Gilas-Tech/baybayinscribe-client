@@ -210,14 +210,14 @@ export function LearningMaterialsNav() {
       getAllLessons();
     }
     // eslint-disable-next-line
-  }, []);
+  }, [lessonsStatus]);
 
   useEffect(() => {
     if (quizzesStatus !== "Loaded" && quizzesStatus !== "Loading") {
       loadAllQuiz();
     }
     // eslint-disable-next-line
-  }, []);
+  }, [quizzesStatus]);
 
   function SkeletonCard() {
     return (
