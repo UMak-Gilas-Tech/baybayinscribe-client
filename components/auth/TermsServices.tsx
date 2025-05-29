@@ -91,16 +91,6 @@ const RequiredCheckbox = memo(
     checked: boolean;
     onCheckedChange: (checked: boolean) => void;
   }) => {
-    const handleKeyPress = useCallback(
-      (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onCheckedChange(!checked);
-        }
-      },
-      [checked, onCheckedChange]
-    );
-
     return (
       <div className="inline-block items-start space-x-2 w-full">
         <Checkbox
@@ -108,8 +98,6 @@ const RequiredCheckbox = memo(
           onCheckedChange={onCheckedChange}
           className="mt-1 inline focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors duration-200"
           aria-required="true"
-          aria-invalid={!checked}
-          onKeyPress={handleKeyPress}
         />
         <Label className="text-sm text-gray-700 inline relative cursor-pointer">
           I agree to the <PolicyDialog content={termsOfServiceContent} /> &{" "}
