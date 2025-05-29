@@ -142,25 +142,27 @@ export const LoginForm = ({
                 rememberMe={rememberMe}
                 onRememberMeChange={setRememberMe}
               />
-              <Button
-                type="submit"
-                variant="blue"
-                disabled={isLoading}
-                aria-busy={isLoading}
-                className="relative w-full h-10 text-base font-medium"
-              >
-                {isLoading ? (
-                  <LoadingSpinner loadingText="Signing in..." />
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
+              <div className="flex-col space-y-1.5">
+                <Button
+                  type="submit"
+                  variant="blue"
+                  disabled={isLoading}
+                  aria-busy={isLoading}
+                  className="relative w-full h-10 text-base font-medium"
+                >
+                  {isLoading ? (
+                    <LoadingSpinner loadingText="Signing in..." />
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
 
-              <AccountHelper />
+                <AccountHelper />
+              </div>
             </form>
           </ShadcnForm>
+          <TermsServices mode="info" />
         </CardContent>
-        <TermsServices mode="info" />
       </Card>
     </div>
   );
