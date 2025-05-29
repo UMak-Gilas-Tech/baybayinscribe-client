@@ -56,11 +56,18 @@ const ChatBubble = (props: ChatBubbleProps) => {
     .trim();
 
   return (
-    <div className={`w-full flex ${props.isUser ? "justify-end" : "justify-start"} px-4`}>
-      <div className={`max-w-[60%] p-4 shadow-lg transition-colors
-        ${props.isUser
-          ? "bg-blue-500 text-white rounded-bl-lg rounded-tl-lg rounded-tr-lg"
-          : "bg-white text-gray-800 rounded-br-lg rounded-tr-lg rounded-tl-lg"}`}
+    <div
+      className={`w-full flex ${
+        props.isUser ? "justify-end" : "justify-start"
+      } px-4`}
+    >
+      <div
+        className={`max-w-[60%] p-4 shadow-lg transition-colors
+        ${
+          props.isUser
+            ? "bg-blue-500 text-white rounded-bl-lg rounded-tl-lg rounded-tr-lg"
+            : "bg-white text-gray-800 rounded-br-lg rounded-tr-lg rounded-tl-lg"
+        }`}
       >
         <span
           className={`${
@@ -68,9 +75,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
           }`}
         ></span>
 
-        <Markdown
-          remarkPlugins={[remarkParse, remarkBaybayin]}
-        >
+        <Markdown remarkPlugins={[remarkParse, remarkBaybayin]}>
           {displayText}
         </Markdown>
 
@@ -131,7 +136,10 @@ const ChatPageChatBody = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages, animating]);
 
   return (
@@ -142,6 +150,33 @@ const ChatPageChatBody = ({
       {messages.map((m, i) => (
         <ChatBubble key={i} text={m.text} isUser={m.isUser} />
       ))}
+      {messages.length === 0 && !animating && (
+        <div className="h-full flex flex-row items-center justify-center w-full py-8">
+          <div className="flex flex-col items-start justify-center text-left">
+            <span className="text-2xl md:text-3xl font-semibold mb-1 text-[#122254]">
+              Kamusta! Ako si
+            </span>
+            <span className="text-5xl md:text-6xl font-extrabold mb-2 text-blue-600 drop-shadow-lg font-sans">
+              Butty
+            </span>
+            <span className="text-lg md:text-xl text-gray-600 font-medium max-w-xl">
+              Isa akong maliit, pero matalinong butanding na handa kang tulungan sa
+              iyong mga katanungan tungkol sa{" "}
+              <span className="font-bold text-blue-700">Baybayin</span> at iba
+              pang mga paksa.
+              <br />
+              <span className="block mt-2">
+                Ano ang maitutulong ko sa iyo ngayon?
+              </span>
+            </span>
+          </div>
+          <img
+            src="/images/ButtyWave.png"
+            className="h-40 md:h-64 mb-4 md:mb-0 md:ml-8"
+            alt="Butty waving"
+          />
+        </div>
+      )}
       {animating && <LoadingBubble />}
     </div>
   );
@@ -172,8 +207,8 @@ const ChatPageInput = ({
           }
         }}
         disabled={disabled}
-        placeholder="Type your message here..."
-        className="w-full h-14 border border-gray-300 rounded-full px-6 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-transparent"
+        placeholder="Ilagay ang mensahe mo dito..."
+        className="w-full h-14 border border-gray-600 rounded-full px-6 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-transparent"
       />
       <button
         onClick={onSend}
