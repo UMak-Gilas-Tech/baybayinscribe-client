@@ -266,7 +266,13 @@ const VisionScreen = () => {
             imageOnly={!realTimeDetection}
             onDetect={(text) => {
               // If text is null/undefined or empty, do nothing.
-              if (!text || text.length === 0) return;
+              if (!text || text.length === 0) {
+                setBubbleText(
+                  "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+                );
+                setDetectedBaybayinText(undefined);
+                return;
+              }
 
               // Create a list of current characters.
               const currentDetection = text.map((i) => i.className);

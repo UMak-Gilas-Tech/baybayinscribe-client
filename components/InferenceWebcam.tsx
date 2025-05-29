@@ -319,7 +319,11 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                     onClick={() => secondFileInputRef.current?.click()}
                     className=" "
                   >
-                    Upload an image
+                    {
+                      imageSrc
+                        ? "Retry Scan"
+                        : "Upload an Image"
+                    }
                   </Button>
                 </div>
 
