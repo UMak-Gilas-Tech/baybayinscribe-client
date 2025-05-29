@@ -5,31 +5,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  termsOfServiceContent,
+  privacyPolicyContent,
+} from "./TermsServicesContent";
+import { memo, useCallback } from "react";
 
-/**
- * TermsServices Component
- *
- * A component that displays Terms of Service and Privacy Policy links with optional checkbox.
- *
- * Usage:
- * 1. Required mode (with checkbox):
- * ```tsx
- * const [termsChecked, setTermsChecked] = useState(false);
- *
- * <TermsServices
- *   mode="required"
- *   checked={termsChecked}
- *   onCheckedChange={setTermsChecked}
- * />
- * ```
- *
- * 2. Info mode (without checkbox):
- * ```tsx
- * <TermsServices mode="info" />
- * ```
- */
 interface TermsProps {
   /** The mode of the component - 'required' shows checkbox, 'info' shows only links */
   mode: "required" | "info";
@@ -39,177 +23,148 @@ interface TermsProps {
   onCheckedChange?: (checked: boolean) => void;
 }
 
-export const TermsServices = ({
-  mode = "info",
-  checked = false,
-  onCheckedChange = () => {},
-}: TermsProps) => {
-  const isRequired = mode === "required";
+/**
+ * Renders a section of the policy content
+ */
+const PolicySection = memo(
+  ({ title, content }: { title: string; content: string }) => {
+    const sectionId = `section-${title.toLowerCase().replace(/\s+/g, "-")}`;
 
-  return (
-    <div className="flex items-start space-x-2 text-neutral-black w-full max-w-md">
-      {isRequired && (
+    return (
+      <section aria-labelledby={sectionId} className="mb-4 last:mb-0">
+        <h3 id={sectionId} className="font-semibold mb-2 text-base">
+          {title}
+        </h3>
+        <p className="text-sm leading-relaxed">{content}</p>
+      </section>
+    );
+  }
+);
+
+PolicySection.displayName = "PolicySection";
+
+/**
+ * Renders the policy content in a dialog
+ */
+const PolicyDialog = memo(
+  ({ content }: { content: typeof termsOfServiceContent }) => {
+    return (
+      <Dialog>
+        <DialogTrigger
+          className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-sm transition-colors duration-200"
+          aria-label={`Open ${content.title}`}
+          aria-haspopup="dialog"
+          aria-expanded="false"
+        >
+          {content.title}
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold mb-4">
+              {content.title}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 mb-4">
+              Please review our {content.title.toLowerCase()} carefully.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            {content.sections.map((section, index) => (
+              <PolicySection key={index} {...section} />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+);
+
+PolicyDialog.displayName = "PolicyDialog";
+
+/**
+ * Renders the required checkbox with label
+ */
+const RequiredCheckbox = memo(
+  ({
+    checked,
+    onCheckedChange,
+  }: {
+    checked: boolean;
+    onCheckedChange: (checked: boolean) => void;
+  }) => {
+    const handleKeyPress = useCallback(
+      (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onCheckedChange(!checked);
+        }
+      },
+      [checked, onCheckedChange]
+    );
+
+    return (
+      <div className="inline-block items-start space-x-2 w-full">
         <Checkbox
-          id="terms"
           checked={checked}
           onCheckedChange={onCheckedChange}
-          className="mt-1"
+          className="mt-1 inline focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors duration-200"
+          aria-required="true"
+          aria-invalid={!checked}
+          onKeyPress={handleKeyPress}
         />
-      )}
-      <div className="grid gap-1.5 leading-none mx-auto w-fit">
-        <Label
-          htmlFor={isRequired ? "terms" : undefined}
-          className="text-xs font-light text-grey-200/80 leading-none"
-        >
-          {isRequired ? "I agree to the" : "By continuing, you agree to our"}{" "}
-          <Dialog>
-            <DialogTrigger className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal">
-              Terms of Service
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Terms of Service</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-xs">
-                <section>
-                  <h3 className="font-semibold mb-2">1. Acceptance of Terms</h3>
-                  <p>
-                    By accessing and using BaybayInscribe, you accept and agree
-                    to be bound by the terms and provision of this agreement.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">2. Use License</h3>
-                  <p>
-                    Permission is granted to temporarily use BaybayInscribe for
-                    personal, non-commercial transitory viewing only.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">3. User Account</h3>
-                  <p>
-                    You are responsible for maintaining the confidentiality of
-                    your account and password. You agree to accept
-                    responsibility for all activities that occur under your
-                    account.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">4. Privacy Policy</h3>
-                  <p>
-                    Your use of BaybayInscribe is also governed by our Privacy
-                    Policy. Please review our Privacy Policy, which also governs
-                    the site and informs users of our data collection practices.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">5. Disclaimer</h3>
-                  <p>
-                    The materials on BaybayInscribe are provided on an &apos;as
-                    is&apos; basis. BaybayInscribe makes no warranties,
-                    expressed or implied, and hereby disclaims and negates all
-                    other warranties including, without limitation, implied
-                    warranties or conditions of merchantability, fitness for a
-                    particular purpose, or non-infringement of intellectual
-                    property or other violation of rights.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">6. Limitations</h3>
-                  <p>
-                    In no event shall BaybayInscribe or its suppliers be liable
-                    for any damages (including, without limitation, damages for
-                    loss of data or profit, or due to business interruption)
-                    arising out of the use or inability to use the materials on
-                    BaybayInscribe.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">7. Revisions</h3>
-                  <p>
-                    BaybayInscribe may revise these terms of service at any time
-                    without notice. By using this website, you are agreeing to
-                    be bound by the then current version of these terms of
-                    service.
-                  </p>
-                </section>
-              </div>
-            </DialogContent>
-          </Dialog>{" "}
-          &{" "}
-          <Dialog>
-            <DialogTrigger className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal">
-              Privacy Policy
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Privacy Policy</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-sm">
-                <section>
-                  <h3 className="font-semibold mb-2">
-                    1. Information Collection
-                  </h3>
-                  <p>
-                    We collect information that you provide directly to us,
-                    including but not limited to your name, email address, and
-                    any other information you choose to provide.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">2. Use of Information</h3>
-                  <p>
-                    We use the information we collect to provide, maintain, and
-                    improve our services, to develop new ones, and to protect
-                    BaybayInscribe and our users.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">3. Information Sharing</h3>
-                  <p>
-                    We do not share your personal information with third parties
-                    except as described in this privacy policy.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">4. Data Security</h3>
-                  <p>
-                    We take reasonable measures to help protect information
-                    about you from loss, theft, misuse, unauthorized access,
-                    disclosure, alteration, and destruction.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">5. Your Rights</h3>
-                  <p>
-                    You have the right to access, correct, or delete your
-                    personal information. You can also object to our processing
-                    of your personal information.
-                  </p>
-                </section>
-
-                <section>
-                  <h3 className="font-semibold mb-2">6. Changes to Policy</h3>
-                  <p>
-                    We may change this privacy policy from time to time. We will
-                    post any privacy policy changes on this page.
-                  </p>
-                </section>
-              </div>
-            </DialogContent>
-          </Dialog>
+        <Label className="text-sm text-gray-700 inline relative cursor-pointer">
+          I agree to the <PolicyDialog content={termsOfServiceContent} /> &{" "}
+          <PolicyDialog content={privacyPolicyContent} />
+          <span
+            className="absolute text-red-500 -top-2 -right-2.5 text-lg"
+            aria-hidden="true"
+          >
+            *
+          </span>
+          <span className="sr-only">(required)</span>
         </Label>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+RequiredCheckbox.displayName = "RequiredCheckbox";
+
+/**
+ * Renders the info mode label
+ */
+const InfoLabel = memo(() => (
+  <div className="grid gap-1.5 leading-none mx-auto w-fit">
+    <Label className="text-xs font-light text-grey-200/80 leading-none">
+      By continuing, you agree to our{" "}
+      <PolicyDialog content={termsOfServiceContent} /> &{" "}
+      <PolicyDialog content={privacyPolicyContent} />
+    </Label>
+  </div>
+));
+
+InfoLabel.displayName = "InfoLabel";
+
+export const TermsServices = memo(
+  ({
+    mode = "info",
+    checked = false,
+    onCheckedChange = () => {},
+  }: TermsProps) => {
+    const isRequired = mode === "required";
+
+    return (
+      <div className="flex items-start space-x-2 text-neutral-black w-full max-w-md">
+        {isRequired ? (
+          <RequiredCheckbox
+            checked={checked}
+            onCheckedChange={onCheckedChange}
+          />
+        ) : (
+          <InfoLabel />
+        )}
+      </div>
+    );
+  }
+);
+
+TermsServices.displayName = "TermsServices";

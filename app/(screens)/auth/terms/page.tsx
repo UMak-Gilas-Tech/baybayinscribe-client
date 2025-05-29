@@ -1,20 +1,15 @@
 "use client";
 
 import React from "react";
-import TermsServicesMobile from "./terms.mobile";
-import TermsServicesWeb from "./terms.web";
+import { TermsPolicyForm } from "./TermsPolicyForm";
+import { Background } from "../components/Background";
 
-const LoginResponsiveness = () => {
+const TermsPage = () => {
   return (
-    <div>
-      <div className="block lg:hidden">
-        <TermsServicesMobile />
-      </div>
-      <div className="hidden lg:block">
-        <TermsServicesWeb />
-      </div>
-    </div>
+    <Background>
+      <TermsPolicyForm />
+    </Background>
   );
 };
 
-export default LoginResponsiveness;
+export default TermsPage;
