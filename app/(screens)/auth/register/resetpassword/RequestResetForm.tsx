@@ -126,7 +126,7 @@ export const RequestResetForm = ({
           <ShadcnForm {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4"
+              className="space-y-2"
               noValidate
             >
               {/* Email input with validation */}
@@ -148,28 +148,30 @@ export const RequestResetForm = ({
                 )}
               </AnimatePresence>
 
-              {/* Submit button with loading state */}
-              <Button
-                type="submit"
-                variant="blue"
-                disabled={isLoading}
-                aria-busy={isLoading}
-                className="relative w-full h-10 text-base font-medium"
-              >
-                {isLoading ? (
-                  <LoadingSpinner loadingText="Sending reset link..." />
-                ) : (
-                  "Send Reset Link"
-                )}
-              </Button>
+              <div className="flex-col space-y-1.5">
+                {/* Submit button with loading state */}
+                <Button
+                  type="submit"
+                  variant="blue"
+                  disabled={isLoading}
+                  aria-busy={isLoading}
+                  className="relative w-full h-10 text-base font-medium"
+                >
+                  {isLoading ? (
+                    <LoadingSpinner loadingText="Sending reset link..." />
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </Button>
 
-              {/* Account helper links */}
-              <AccountHelper />
+                {/* Account helper links */}
+                <AccountHelper />
+              </div>
             </form>
           </ShadcnForm>
+          <TermsServices mode="info" />
         </CardContent>
         {/* Terms and services footer */}
-        <TermsServices mode="info" />
       </Card>
     </div>
   );

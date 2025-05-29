@@ -51,7 +51,7 @@ const PolicyDialog = memo(
     return (
       <Dialog>
         <DialogTrigger
-          className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-sm transition-colors duration-200"
+          className="text-grey-300 hover:underline hover:text-grey-200 cursor-pointer font-normal focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-sm transition-colors duration-200 inline-block px-1 py-0.5 -my-0.5 -mx-1"
           aria-label={`Open ${content.title}`}
           aria-haspopup="dialog"
           aria-expanded="false"
@@ -96,10 +96,10 @@ const RequiredCheckbox = memo(
         <Checkbox
           checked={checked}
           onCheckedChange={onCheckedChange}
-          className="mt-1 inline focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors duration-200"
+          className="mt-0.5 inline focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors duration-200"
           aria-required="true"
         />
-        <Label className="text-sm text-gray-700 inline relative cursor-pointer">
+        <Label className="text-sm text-gray-700 inline relative cursor-pointer pl-2">
           I agree to the <PolicyDialog content={termsOfServiceContent} /> &{" "}
           <PolicyDialog content={privacyPolicyContent} />
           <span
@@ -121,13 +121,11 @@ RequiredCheckbox.displayName = "RequiredCheckbox";
  * Renders the info mode label
  */
 const InfoLabel = memo(() => (
-  <div className="grid gap-1.5 leading-none mx-auto w-fit">
-    <Label className="text-xs font-light text-grey-200/80 leading-none">
-      By continuing, you agree to our{" "}
-      <PolicyDialog content={termsOfServiceContent} /> &{" "}
-      <PolicyDialog content={privacyPolicyContent} />
-    </Label>
-  </div>
+  <Label className="block w-full mt-1.5 mx-auto text-xs font-light text-grey-200/80 leading-relaxed">
+    By continuing, you agree to our{" "}
+    <PolicyDialog content={termsOfServiceContent} /> &{" "}
+    <PolicyDialog content={privacyPolicyContent} />
+  </Label>
 ));
 
 InfoLabel.displayName = "InfoLabel";

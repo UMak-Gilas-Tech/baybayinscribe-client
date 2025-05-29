@@ -13,8 +13,8 @@ export const AccountPwHelper = ({
 }: AccountPwHelperProps) => {
   return (
     <div className="w-full max-w-md mt-2 mb-4 text-sm text-center z-30">
-      <div className="flex flex-col xs:flex-row gap-y-1.5 sm:gap-y-0 justify-between mb-4 text-grey-300">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-col xs:flex-row gap-y-4 sm:gap-y-0 justify-between items-start mb-4 text-grey-300">
+        <div className="flex items-center space-x-2 min-h-5">
           <Checkbox
             id="remember-me"
             checked={rememberMe}
