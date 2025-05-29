@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import { EmailInput } from "../components/EmailInput";
+import { EmailInput } from "../components/InputEmail";
 import { Form as ShadcnForm } from "@/components/ui/form";
 import {
   Card,

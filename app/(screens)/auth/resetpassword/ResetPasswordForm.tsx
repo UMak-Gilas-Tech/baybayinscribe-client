@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PasswordInput } from "../components/PasswordInput";
+import { PasswordInput } from "../components/InputPassword";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
 import {
