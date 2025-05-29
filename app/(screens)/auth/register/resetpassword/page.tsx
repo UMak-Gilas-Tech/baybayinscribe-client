@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RequestResetForm } from "./RequestResetForm";
 import { ResetPasswordForm } from "./ResetPasswordForm";
@@ -19,6 +19,15 @@ import { Background } from "../../components/Background";
  * - With token: Shows ResetPasswordForm for new password input
  */
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordPageInner />
+    </Suspense>
+  );
+}
+
+// Move the main logic into an inner component
+function ResetPasswordPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Get the reset token from URL query parameters
