@@ -101,7 +101,7 @@ const QuizPlayerStatistics = ({
             : null}
         </div>
         <div className="px-6 py-2 bg-violet-200 rounded-3xl flex justify-start items-center gap-6">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-full bg-[#576Eb6] p-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-full bg-blue-500 p-4">
             <span className="absolute inset-0 flex items-center justify-center text-orange-200 text-xl sm:text-2xl font-bold font-['Work_Sans']">
               {timeRemaining}
             </span>

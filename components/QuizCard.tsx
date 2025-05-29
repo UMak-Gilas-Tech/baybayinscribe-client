@@ -9,7 +9,7 @@ type QuizCardProps = {
 };
 
 export default function QuizCard({ quiz }: QuizCardProps) {
-    const router = useRouter();
+  const router = useRouter();
   return (
     <div className="flex flex-col aspect-square max-h-48 w-full border rounded-lg shadow-md p-4 bg-[#dbe3fa] hover:bg-[#BFCCF8] cursor-pointer transition duration-200 ease-in-out gap-2 justify-between">
       <div className="flex flex-col gap-1">
@@ -45,7 +45,12 @@ export default function QuizCard({ quiz }: QuizCardProps) {
         </div>
       </div>
 
-      <Button className="bg-[#576eb6]" onClick={() => router.push(`/quiz/view/${quiz.metadata.quiz_id}`)}>Take Quiz</Button>
+      <Button
+        className="bg-blue-500"
+        onClick={() => router.push(`/quiz/view/${quiz.metadata.quiz_id}`)}
+      >
+        Take Quiz
+      </Button>
     </div>
   );
 }

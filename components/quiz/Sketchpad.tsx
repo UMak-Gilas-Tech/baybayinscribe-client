@@ -40,7 +40,7 @@ const SketchpadQuestionHolder = () => {
   return (
     <div className="z-20 flex flex-col justify-center items-center">
       <div className="z-10 grid place-items-center bg-[#3f5087] border-2 border-[#31384D] w-full md:w-3/4 lg:w-[60%] h-20 rounded-xl shadow-xl">
-        <p className="text-center text-[#ffd8b9] font-bold text-2xl">
+        <p className="text-center text-yellow-200 font-bold text-2xl">
           {props.question?.includes("==")
             ? parseSentence(props.question)
             : props.question}
@@ -143,14 +143,16 @@ const SketchpadCanvas = () => {
   }, []);
 
   useEffect(() => {
-    const inference: InferenceState = props.inference as unknown as InferenceState;
+    const inference: InferenceState =
+      props.inference as unknown as InferenceState;
 
     if (inference.status == InferenceStatus.READY)
       quizContext.subscribeToSubmit(handleSubmit);
   }, [(props.inference as InferenceState).status]);
 
   useEffect(() => {
-    const inference: InferenceState = props.inference as unknown as InferenceState;
+    const inference: InferenceState =
+      props.inference as unknown as InferenceState;
     if (inference && inference.localInferenceResult) {
       const result = inference.localInferenceResult;
       if (result.length > 0) {
@@ -194,14 +196,16 @@ const SketchpadCanvas = () => {
 
   const handleSubmit = () => {
     const canvas = canvasRef.current;
-    const inference: InferenceState = props.inference as unknown as InferenceState;
+    const inference: InferenceState =
+      props.inference as unknown as InferenceState;
     if (
       canvas &&
       inference &&
       inference.status === InferenceStatus.READY &&
       inference.localModel
     ) {
-      const inference: InferenceState = props.inference as unknown as InferenceState;
+      const inference: InferenceState =
+        props.inference as unknown as InferenceState;
       inference.inferLocal(undefined, canvas, false);
     } else {
       console.error("Inference is not ready or canvas is not available");
@@ -212,24 +216,24 @@ const SketchpadCanvas = () => {
     return (
       <div className="absolute flex flex-col justify-evenly h-full -left-8 z-20">
         <div
-          className="aspect-square h-14 bg-[#576eb6] rounded-lg shadow-lg grid place-items-center cursor-pointer"
+          className="aspect-square h-14 bg-blue-500 rounded-lg shadow-lg grid place-items-center cursor-pointer"
           onClick={handleDraw}
         >
-          <Pencil size={30} className="text-[#ffd8b9]" />
+          <Pencil size={30} className="text-yellow-200" />
         </div>
 
         <div
-          className="aspect-square h-14 bg-[#576eb6] rounded-lg shadow-lg grid place-items-center cursor-pointer"
+          className="aspect-square h-14 bg-blue-500 rounded-lg shadow-lg grid place-items-center cursor-pointer"
           onClick={handleUndo}
         >
-          <Undo size={30} className="text-[#ffd8b9]" />
+          <Undo size={30} className="text-yellow-200" />
         </div>
 
         <div
-          className="aspect-square h-14 bg-[#576eb6] rounded-lg shadow-lg grid place-items-center cursor-pointer"
+          className="aspect-square h-14 bg-blue-500 rounded-lg shadow-lg grid place-items-center cursor-pointer"
           onClick={handleClear}
         >
-          <Trash size={30} className="text-[#ffd8b9]" />
+          <Trash size={30} className="text-yellow-200" />
         </div>
       </div>
     );
