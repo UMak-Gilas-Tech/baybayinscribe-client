@@ -7,12 +7,12 @@ import { RESTRICTED_PATTERNS } from "@/lib/patterns/restricted";
 // ============================================================================
 
 // Basic patterns
-export const NAME_PATTERN = /^[A-Za-z]+$/; // Only letters
+export const NAME_PATTERN = /^[A-Za-z\s]+$/; // Only letters and spaces
 export const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/; // Letters, numbers, and underscores only
 
 // Common patterns for gibberish detection
 export const REPEATED_CHARS = /(.)\1{3,}/; // More than 3 repeated characters
-export const RANDOM_PATTERN = /[a-z]{4,}[a-z]{4,}/i; // More than 4 consecutive random letters
+export const RANDOM_PATTERN = /[a-z]{16,}/i; // More than 15 consecutive letters
 export const VOWEL_PATTERN = /[aeiou]/i; // Vowel pattern for names
 
 // Minimum length for meaningful names
@@ -155,7 +155,7 @@ export const userInfoSchema = z
       .string()
       .min(MIN_NAME_LENGTH, "First name must be at least 2 characters")
       .max(15, "First name must be less than 15 characters")
-      .regex(NAME_PATTERN, "First name can only contain letters")
+      .regex(NAME_PATTERN, "First name can only contain letters and spaces")
       .refine(
         (name) => name.trim().length > 0,
         "First name cannot be only spaces"
@@ -172,7 +172,7 @@ export const userInfoSchema = z
       .string()
       .min(MIN_NAME_LENGTH, "Last name must be at least 2 characters")
       .max(15, "Last name must be less than 15 characters")
-      .regex(NAME_PATTERN, "Last name can only contain letters")
+      .regex(NAME_PATTERN, "Last name can only contain letters and spaces")
       .refine(
         (name) => name.trim().length > 0,
         "Last name cannot be only spaces"
@@ -190,6 +190,7 @@ export const userInfoSchema = z
       .string()
       .min(1, "Date of birth is required")
       .refine(validateAge, "You must be at least 6 years old"),
+    wantsNotifications: z.boolean().optional(),
   })
   .strict();
 
@@ -202,6 +203,7 @@ export const defaultFormValues: UserInfoFormData = {
   lastName: "",
   contactNumber: "",
   dateOfBirth: "",
+  wantsNotifications: false,
 };
 
 // ============================================================================
@@ -251,6 +253,7 @@ export const handleUserInfoSubmit = async (
     const requestData = {
       ...values,
       contactNumber: normalizedContactNumber,
+      wantsNotifications: values.wantsNotifications ?? false,
     };
 
     // Make API request
@@ -273,7 +276,8 @@ export const handleUserInfoSubmit = async (
         );
       }
       if (data.error === "Username already taken") {
-        throw new Error("Username already taken");
+        // Throw a specific error object for username taken
+        throw { type: "apiError", data: data };
       }
       throw new Error(data.error || "Failed to submit information");
     }
@@ -285,6 +289,10 @@ export const handleUserInfoSubmit = async (
     await onSubmit(values);
   } catch (error) {
     console.error("Error in handleUserInfoSubmit:", error);
+    // Re-throw the specific error object if it exists
+    if (typeof error === 'object' && error !== null && 'type' in error && error.type === 'apiError') {
+       throw error;
+    }
     throw error instanceof Error
       ? error
       : new Error("Failed to submit user info");

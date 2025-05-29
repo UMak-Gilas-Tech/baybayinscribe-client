@@ -30,6 +30,7 @@ import { InputUsername } from "../../components/InputUsername";
 import { InputFirstName } from "../../components/InputFirstName";
 import { InputLastName } from "../../components/InputLastName";
 import Head from "next/head";
+import { useSearchParams } from "next/navigation";
 
 // Custom hook for date handling
 const useDatePicker = (initialDate?: string) => {
@@ -91,16 +92,29 @@ export const UserInfoForm = ({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [announcement, setAnnouncement] = useState<string>("");
+  const [generalError, setGeneralError] = useState<string>("");
+
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Check for registration session on component mount
-    const registrationSession = localStorage.getItem("registrationSession");
-    if (!registrationSession) {
+    // Check for registration session in localStorage or query parameter on component mount
+    const registrationSessionInStorage = localStorage.getItem("registrationSession");
+    const registrationSessionParam = searchParams.get("registrationSession");
+
+    if (!registrationSessionInStorage && registrationSessionParam === "true") {
+      // If not in storage but in query param, set it in storage
+      localStorage.setItem("registrationSession", "true");
+      setSessionError(null); // Clear the error if the session is now set
+    } else if (!registrationSessionInStorage) {
+      // If not in storage and not in query param, show the error
       setSessionError(
         "Registration session not found. Please start registration again."
       );
+    } else {
+       // If already in storage, clear any session error
+       setSessionError(null);
     }
-  }, []);
+  }, [searchParams]); // Depend on searchParams to re-run if query params change
 
   const form = useForm<UserInfoFormData>({
     resolver: zodResolver(userInfoSchema),
@@ -127,17 +141,32 @@ export const UserInfoForm = ({
         setAnnouncement("Information submitted successfully!");
       } catch (error) {
         console.error("Form submission error:", error);
-        if (error instanceof Error) {
+        setGeneralError(""); // Clear any general errors before displaying field errors
+
+        if (typeof error === 'object' && error !== null && 'type' in error && error.type === 'apiError' && 'data' in error && typeof error.data === 'object' && error.data !== null && 'error'
+           in error.data && error.data.error === "Username already taken") {
+          // Handle username already taken error
+          form.setError("username", { message: error.data.error });
+          setAnnouncement("Error: Username already taken.");
+        } else if (error instanceof Error) {
           if (error.message.includes("session")) {
             setSessionError(error.message);
             setAnnouncement("Error: " + error.message);
+          } else {
+             // Handle other generic errors from handleUserInfoSubmit
+             setGeneralError(error.message);
+             setAnnouncement("Error: " + error.message);
           }
+        } else {
+           // Handle unexpected error types
+           setGeneralError("An unexpected error occurred.");
+           setAnnouncement("An unexpected error occurred.");
         }
       } finally {
         setIsSubmitting(false);
       }
     },
-    [onSubmit]
+    [onSubmit, form]
   );
 
   const formContent = (
@@ -254,6 +283,13 @@ export const UserInfoForm = ({
           {validationError && (
             <ErrorMessage message={validationError} id="validation-error" />
           )}
+          {generalError && (
+             <ErrorMessage
+               message={generalError}
+               className="text-red-800 border border-red-700 bg-red-100/50 rounded-md p-3 mb-2 text-sm font-medium animate-shake"
+               id="general-error"
+             />
+          )}
           {error && (
             <ErrorMessage
               message={error}
@@ -335,7 +371,9 @@ export const UserInfoForm = ({
               Please provide your details to continue
             </CardDescription>
           </CardHeader>
-          <CardContent className="max-w-full">{formContent}</CardContent>
+          <CardContent className="max-w-full">
+            {formContent}
+          </CardContent>
         </Card>
       </main>
     </>

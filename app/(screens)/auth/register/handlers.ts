@@ -49,10 +49,15 @@ export const createRegisterHandlers = ({
         name: "New user",
       });
 
+      console.log("authClient.signUp.email response:", response);
+
       if (response?.error) {
+        console.error("Signup error:", response.error);
         setError(response.error.message || "Registration failed");
         setIsLoading(false);
       } else {
+        // Registration successful
+        localStorage.setItem("registrationSession", "true"); // Set registration session
         router.push("/auth/register/userinfo");
         setIsLoading(false);
       }
@@ -64,7 +69,7 @@ export const createRegisterHandlers = ({
 
   const { handleGoogleSignIn, handleFacebookSignIn } = createSocialHandlers({
     setLoginError,
-    callbackURL: "/api/auth/check.user.info",
+    callbackURL: "/",
   });
 
   return {
