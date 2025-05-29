@@ -46,6 +46,7 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(userData);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [profilePicVersion, setProfilePicVersion] = useState(0);
 
   // Update currentUserData when userData prop changes
   useEffect(() => {
@@ -88,8 +89,8 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
       // Prepare the data to be sent to the server
       const dataToUpdate = {
         ...updatedData,
-        // Use the new profile picture URL if provided, otherwise keep the existing one
-        profilePictureUrl: updatedData.profilePictureUrl ?? currentUserData.profilePictureUrl
+        // Explicitly handle null profile picture URL
+        profilePictureUrl: updatedData.profilePictureUrl
       };
 
       const response = await fetch('/api/user.information/update', {
@@ -104,15 +105,21 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
         throw new Error('Failed to update profile');
       }
 
-      // Update the local state with new data
+      // Update the local state with new data received from the edit modal
+      // Ensure profilePictureUrl is correctly set to default if null
       setCurrentUserData({
-        ...updatedData,
-        profilePictureUrl: dataToUpdate.profilePictureUrl,
+        ...dataToUpdate,
+        profilePictureUrl: dataToUpdate.profilePictureUrl === null ? "/images/user.profile/user.avatar.png" : dataToUpdate.profilePictureUrl,
         authProviders: updatedData.authProviders || currentUserData.authProviders
       });
+
+      // Increment version to force Image component re-render
+      setProfilePicVersion(prevVersion => prevVersion + 1);
+
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
+      // Optionally handle displaying an error message in the profile view
     }
   };
 
@@ -124,11 +131,17 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
     }
   };
 
+  const handleEditModalClose = () => {
+    setIsEditing(false);
+    // If savedData is provided, the handleSaveProfile would have already updated currentUserData
+    // No need to update here unless we want to handle cases where save wasn't clicked but modal closed
+    // For now, we rely on handleSaveProfile for state updates after a save.
+  };
 
   if (isEditing && !onEdit) {
     return (
       <DesktopEditProfile
-        onClose={() => setIsEditing(false)}
+        onClose={handleEditModalClose}
         userData={currentUserData}
         onSave={handleSaveProfile}
       />
@@ -280,14 +293,27 @@ export default function ProfileModalDesktop({ onClose, userData, onEdit, onShowT
           {/* User Profile */}
           <div className="flex items-center mb-4">
             <div className="h-20 w-20 bg-gray-200 rounded-full flex items-center justify-center mr-4 overflow-hidden">
-              <Image
-                src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
-                alt="User Profile"
-                width={64}
-                height={64}
-                className="object-cover w-full h-full"
-                priority
-              />
+              {currentUserData.profilePictureUrl ? (
+                <Image
+                  key={`profile-${currentUserData.profilePictureUrl}-${profilePicVersion}`}
+                  src={`${currentUserData.profilePictureUrl}?t=${Date.now()}`}
+                  alt="User Profile"
+                  width={64}
+                  height={64}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              ) : (
+                <Image
+                  key={`default-avatar-${profilePicVersion}`}
+                  src="/images/user.profile/user.avatar.png"
+                  alt="Default Profile"
+                  width={64}
+                  height={64}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              )}
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">{currentUserData.firstName} {currentUserData.lastName}</h3>
