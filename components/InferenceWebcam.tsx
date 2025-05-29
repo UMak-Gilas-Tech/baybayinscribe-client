@@ -125,9 +125,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
     }, [facingMode, cameraDevice]);
 
     useEffect(() => {
-      if (inference.localInferenceResult) {
-        onDetect?.(inference.localInferenceResult);
-      }
+      onDetect?.(inference.localInferenceResult ?? []);
     }, [inference.localInferenceResult]);
 
     const startWebcam = () => {
@@ -227,7 +225,12 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
       if (canvasRef.current) {
         const ctx = canvasRef.current.getContext("2d");
         if (ctx) {
-          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          ctx.clearRect(
+            0,
+            0,
+            canvasRef.current.width,
+            canvasRef.current.height
+          );
         }
       }
     };

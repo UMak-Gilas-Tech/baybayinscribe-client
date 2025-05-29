@@ -33,7 +33,14 @@ import {
   InferenceResult,
   InferenceResultHistory,
 } from "@/types/type.inference";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface WebcamConfigProps {
   onSelectCamera: (deviceId: string) => void;
@@ -151,6 +158,10 @@ const VisionScreen = () => {
   useEffect(() => {
     if (detectedBaybayinText && !seenText) {
       changeButtyCharacterBubbleText();
+    } else if (!detectedBaybayinText) {
+      setBubbleText(
+        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+      );
     }
   }, [detectedBaybayinText]);
 
@@ -184,15 +195,23 @@ const VisionScreen = () => {
     console.log(confidenceAvg);
     if (confidenceAvg > 0.8) {
       setBubbleText("Wow! I can read Baybayin!");
-    } else if (confidenceAvg > 0.5) {
+    } else if (confidenceAvg > 0.5 && confidenceAvg <= 0.8) {
       setBubbleText("I think I can read Baybayin!");
-    } else if (confidenceAvg > 0.3) {
-      setBubbleText("I can read some Baybayin!");
-    } else if (confidenceAvg > 0.1) {
-      setBubbleText("I can read a little Baybayin!");
+    } else if (confidenceAvg > 0.3 && confidenceAvg <= 0.5) {
+      setBubbleText(
+        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+      );
+    } else if (confidenceAvg > 0.1 && confidenceAvg <= 0.3) {
+      setBubbleText(
+        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+      );
     } else {
-      setBubbleText("Let me see those characters!");
+      setBubbleText(
+        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+      );
     }
+
+    console.log(confidenceAvg);
   };
 
   const handleSelectCamera = (deviceId: string) => {
@@ -204,10 +223,12 @@ const VisionScreen = () => {
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex flex-row items-center justify-center gap-4 text-red-500">Model Accuracy Notice <TriangleAlert /> </DialogTitle>
-              <br />
-
-              The AI model may not be 100% accurate. Expect occasional misreads and always verify the output.
+            <DialogTitle className="flex flex-row items-center justify-center gap-4 text-red-500">
+              Model Accuracy Notice <TriangleAlert />{" "}
+            </DialogTitle>
+            <br />
+            The AI model may not be 100% accurate. Expect occasional misreads
+            and always verify the output.
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -376,18 +397,22 @@ const VisionScreen = () => {
 
           {/* Butty Character */}
           <div className="mt-6 w-full flex justify-center md:justify-end md:absolute md:bottom-4 md:right-4">
-            <div className="relative w-40 h-24 md:w-48 md:h-32">
+            <div className="relative w-40 h-24 md:w-56 md:h-32">
               <img
                 src={ButtyRead.src}
                 className="absolute bottom-0 right-0 w-full h-full object-contain"
               />
-              <img
-                src={ButtyTextBubble.src}
-                className="absolute top-0 left-0 w-3/4 object-contain"
-              />
-              <span className="absolute top-4 left-6 w-24 text-center text-sm px-1">
-                {bubbleText}
-              </span>
+              <div className="absolute -top-24 -left-40 w-full h-full flex items-center justify-center">
+                <img
+                  src={ButtyTextBubble.src}
+                  className="absolute object-contain"
+                />
+                <div className="flex items-center justify-center">
+                  <span className="relative z-10 -top-3 text-center text-xs px-1 h-full">
+                    {bubbleText}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

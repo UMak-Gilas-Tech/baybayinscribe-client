@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { LABELS } from "@/constants";
 
 import { InferenceResult } from "@/types/type.inference";
+import "@tensorflow/tfjs-backend-webgl"
 import { InferenceEngine, CVImage } from "inferencejs";
 
 // import { InferenceEngine } from "@tensorflow/tfjs-tflite";
@@ -49,6 +50,9 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
   localModel: undefined,
   localInferenceResult: undefined,
   inferLocal: async (image, canvas, renderToCanvas = false, isSketch = false) => {
+    // Ensure TensorFlow is ready before inference
+    await tf.ready();
+
     const model = get().localModel;
     if (!model)
       throw new Error("Model not initialized. Call initLocalModel() first.");
@@ -59,56 +63,62 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
 
     const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
     console.log(modelWidth, modelHeight);
-    const ctx = canvas.getContext("2d");
 
-    const input = tf.tidy(() => {
-      const imageTensor = tf.browser
-        .fromPixels(image ? image : canvas)
-        .resizeBilinear([modelWidth, modelHeight])
-        .div(255.0)
-        .expandDims(0);
-      return imageTensor;
-    });
-
-    const result: tf.Tensor[] = (await model.executeAsync(
-      input
-    )) as tf.Tensor[];
-    const inferenceResult: number[][][] = result[0].arraySync() as number[][][];
-    console.log("Inference result:", inferenceResult[0]);
-    const filteredResult = inferenceResult[0]
-      .filter((item) => item[4] > 0.5)
-      .map((item) => {
-        const className = LABELS[item[5]];
-
-        return {
-          x: item[0],
-          y: item[1],
-          width: item[2],
-          height: item[3],
-          confidence: item[4],
-          className: className,
-        } as InferenceResult;
-      })
-      .sort((a, b) => {
-        return a.x - b.x;
+    try {
+      const input = tf.tidy(() => {
+        const imageTensor = tf.browser
+          .fromPixels(image ? image : canvas)
+          .resizeBilinear([modelWidth, modelHeight])
+          .div(255.0)
+          .expandDims(0);
+        return imageTensor;
       });
 
-    set({ localInferenceResult: filteredResult });
+      const result: tf.Tensor[] = (await model.executeAsync(
+        input
+      )) as tf.Tensor[];
+      const inferenceResult: number[][][] = result[0].arraySync() as number[][][];
+      console.log("Inference result:", inferenceResult[0]);
+      const filteredResult = inferenceResult[0]
+        .filter((item) => item[4] > 0.5)
+        .map((item) => {
+          const className = LABELS[item[5]];
 
-    // DO NOT restore originalImageData here!
-    // The canvas should already have the image drawn by the component.
-    // Only draw the bounding box on top.
+          return {
+            x: item[0],
+            y: item[1],
+            width: item[2],
+            height: item[3],
+            confidence: item[4],
+            className: className,
+          } as InferenceResult;
+        })
+        .sort((a, b) => {
+          return a.x - b.x;
+        });
 
-    if (result.length > 0 && renderToCanvas)
-      get().renderToCanvas(filteredResult, canvas);
+      set({ localInferenceResult: filteredResult });
 
-    tf.dispose(input);
-    tf.engine().endScope();
+      // DO NOT restore originalImageData here!
+      // The canvas should already have the image drawn by the component.
+      // Only draw the bounding box on top.
+
+      if (result.length > 0 && renderToCanvas)
+        get().renderToCanvas(filteredResult, canvas);
+
+      tf.dispose(input);
+    } catch (err) {
+      console.error("Inference error:", err);
+      set({ status: InferenceStatus.ERROR });
+    } finally {
+      tf.engine().endScope();
+    }
   },
   initLocalModel: async () => {
-    // Ensure TensorFlow is ready before loading the model.
+    await tf.setBackend("webgl");
     await tf.ready();
     set({ status: InferenceStatus.LOADING });
+   
     const model = await tf.loadGraphModel("../../models/model.json");
 
     // Set warming up state
