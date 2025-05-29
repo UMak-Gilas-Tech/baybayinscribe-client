@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { UserInfoForm } from "./UserInfoForm";
 import type { UserInfoFormData } from "./handlers";
@@ -29,11 +29,13 @@ export default function UserInfoPage() {
 
   return (
     <Background>
-      <UserInfoForm
-        onSubmit={handleSubmit}
-        error={error}
-        isLoading={isLoading}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <UserInfoForm
+          onSubmit={handleSubmit}
+          error={error}
+          isLoading={isLoading}
+        />
+      </Suspense>
     </Background>
   );
 }
