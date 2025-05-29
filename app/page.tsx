@@ -16,19 +16,23 @@ export const HomeContext = React.createContext<HomeContextType | undefined>(
 );
 
 export default function Home() {
-  const [isSmallScreen, setIsSmallScreen] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 640 : true
-  );
+  const [mounted, setMounted] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleResize = () => {
-        setIsSmallScreen(window.innerWidth < 640);
-      };
-      handleResize();
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }
+    setMounted(true);
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <HomeContext.Provider
