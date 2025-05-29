@@ -122,7 +122,7 @@ export const handleSubmit = async (
       // Continue anyway, don't block the user flow
     }
 
-    router.push("/auth/login");
+    router.push("/");
   } catch (err) {
     console.error("Error saving preferences:", err);
     setError("An error occurred. Please try again.");

@@ -49,7 +49,7 @@ interface MemoizedFieldProps {
 const MemoizedField = memo(
   ({ field, updateFieldData, removeField }: MemoizedFieldProps) => {
     return (
-      <div key={field.id} className="p-4 border rounded-lg  relative">
+      <div key={field.id} className="p-4 rounded-lg  relative">
         <button
           className="absolute top-2 right-2 p-2 bg-red-200 rounded-full shadow-sm  hover:text-red-500"
           onClick={() => removeField(field.id)}

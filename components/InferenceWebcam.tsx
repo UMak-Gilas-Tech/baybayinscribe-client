@@ -125,9 +125,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
     }, [facingMode, cameraDevice]);
 
     useEffect(() => {
-      if (inference.localInferenceResult) {
-        onDetect?.(inference.localInferenceResult);
-      }
+      onDetect?.(inference.localInferenceResult ?? []);
     }, [inference.localInferenceResult]);
 
     const startWebcam = () => {
@@ -148,6 +146,15 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {
+            // Set canvas size to match video size
+            if (videoRef.current && canvasRef.current) {
+              const video = videoRef.current;
+              const canvas = canvasRef.current;
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              canvas.style.width = "100%";
+              canvas.style.height = "100%";
+            }
             videoRef.current?.play();
           };
 
@@ -169,7 +176,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
               canvasRef.current.height = height;
               canvasRef.current.style.width = "100%";
               canvasRef.current.style.height = "100%";
-              ctx.scale(1, 1);
+              ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset any transforms
 
               const inferLoop = () => {
                 // Stop if video is paused or ended
@@ -179,10 +186,12 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                   videoRef.current.ended
                 )
                   return;
+                clearCanvas();
                 inference.inferLocal(
                   videoRef.current!,
-                  canvasRef.current!,
-                  showScannerGrid
+                  canvasRef.current!, // always render to canvas for bounding box
+                  showScannerGrid,
+                  false
                 );
                 setTimeout(inferLoop, 200);
               };
@@ -208,6 +217,21 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
             ),
           1000
         );
+      }
+    };
+
+    // Add this helper function inside the component
+    const clearCanvas = () => {
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(
+            0,
+            0,
+            canvasRef.current.width,
+            canvasRef.current.height
+          );
+        }
       }
     };
 
@@ -261,10 +285,24 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                   src={imageSrc}
                   alt="Uploaded"
                   onLoad={() => {
+                    // Set canvas size to match image size
+                    if (imageRef.current && canvasRef.current) {
+                      const img = imageRef.current;
+                      const canvas = canvasRef.current;
+                      // Use naturalWidth/naturalHeight for actual image size
+                      canvas.width = img.naturalWidth;
+                      canvas.height = img.naturalHeight;
+                      canvas.style.width = "100%";
+                      canvas.style.height = "100%";
+                    }
+                    // Clear canvas before inference
+                    clearCanvas();
+                    // Run inference after sizing
                     if (inference.status === InferenceStatus.READY) {
                       inference.inferLocal(
                         imageRef.current!,
                         canvasRef.current!,
+                        true, // always render to canvas for bounding box
                         showScannerGrid
                       );
                     }
@@ -272,7 +310,8 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                 />
                 <canvas
                   ref={canvasRef}
-                  className="absolute top-0 w-full h-full z-10 rounded-md shadow-lg"
+                  className="absolute top-0 left-0 w-full h-full z-50 rounded-md shadow-lg pointer-events-none"
+                  style={{ pointerEvents: "none" }}
                 ></canvas>
 
                 <div className="absolute bottom-4 -translate-x-1/2 left-1/2 z-10">
@@ -280,7 +319,11 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                     onClick={() => secondFileInputRef.current?.click()}
                     className=" "
                   >
-                    Upload an image
+                    {
+                      imageSrc
+                        ? "Retry Scan"
+                        : "Upload an Image"
+                    }
                   </Button>
                 </div>
 
@@ -300,10 +343,22 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
               ref={videoRef}
               autoPlay
               className="absolute top-0 left-0 w-full h-full -z-10 rounded-md shadow-lg"
+              onLoadedMetadata={() => {
+                // Set canvas size to match video size
+                if (videoRef.current && canvasRef.current) {
+                  const video = videoRef.current;
+                  const canvas = canvasRef.current;
+                  canvas.width = video.videoWidth;
+                  canvas.height = video.videoHeight;
+                  canvas.style.width = "100%";
+                  canvas.style.height = "100%";
+                }
+              }}
             />
             <canvas
               ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full z-10 rounded-md shadow-lg"
+              className="absolute top-0 left-0 w-full h-full z-50 rounded-md shadow-lg pointer-events-none"
+              style={{ pointerEvents: "none" }}
             />
           </div>
         )}

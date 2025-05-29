@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
   const percent = max === 0 ? 0 : Math.round((value / max) * 100);
@@ -36,10 +37,11 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 }
 
 function LessonContent() {
+  const [navigating, setNavigating] = React.useState(false);
   const { lesson, status, error } = useLessonContext();
   const router = useRouter();
 
-  if (status === "Loading") {
+  if (status === "Loading" || status == "Idle") {
     // Loading skeleton UI
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
@@ -107,8 +109,7 @@ function LessonContent() {
     .slice()
     .sort(
       (a, b) =>
-        new Date((a).createdAt).getTime() -
-        new Date((b).createdAt).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
   const completedCount = modules.filter((m) => m.is_finished).length;
 
@@ -129,15 +130,6 @@ function LessonContent() {
                 <div>
                   <CardTitle className="text-4xl font-extrabold tracking-tight flex items-center gap-3">
                     {lesson.learning_resource.title}
-                    {lesson.is_visible ? (
-                      <Badge className="bg-green-500 text-white px-2 py-1 rounded-md text-xs">
-                        Public
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-orange-400 text-white px-2 py-1 rounded-md text-xs">
-                        Private
-                      </Badge>
-                    )}
                   </CardTitle>
                   <CardDescription className="mt-2 text-lg text-muted-foreground">
                     {lesson.learning_resource.description ??
@@ -154,7 +146,12 @@ function LessonContent() {
                   <span className="text-xs text-muted-foreground">
                     Created by{" "}
                     <span className="font-medium text-foreground">
-                      {lesson.learning_resource.created_by ? (lesson.learning_resource.created_by as unknown as Record<string, string>).name : "Unknown"}
+                      {lesson.learning_resource.created_by
+                        ? (
+                            lesson.learning_resource
+                              .created_by as unknown as Record<string, string>
+                          ).name
+                        : "Unknown"}
                     </span>
                   </span>
                   <span className="text-xs text-muted-foreground">
@@ -209,116 +206,128 @@ function LessonContent() {
             )}
             {(() => {
               let firstUnfinishedFound = false;
-              return modules.map((mod: {
-                module_id: string;
-                module_name: string;
-                module_description: string;
-                file?: string;
-                is_finished?: boolean;
-              }) => {
-                let canView = false;
-                if (!mod.is_finished && !firstUnfinishedFound) {
-                  canView = true;
-                  firstUnfinishedFound = true;
-                }
-                if (mod.is_finished) {
-                  canView = true;
-                }
-                return (
-                  <Card
-                    key={mod.module_id}
-                    className={cn(
-                      "transition-all border border-muted/30 shadow-md hover:shadow-2xl bg-white/95 relative group hover:-translate-y-1 hover:scale-[1.02] duration-200",
-                      !canView && "opacity-60"
-                    )}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-3">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="rounded-full bg-muted p-2">
-                              {mod.is_finished ? (
-                                <CheckCircle2
-                                  className="text-green-500"
-                                  size={24}
-                                />
-                              ) : canView ? (
-                                <FileText className="text-blue-500" size={24} />
-                              ) : (
-                                <Lock className="text-gray-400" size={24} />
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {mod.is_finished
-                              ? "Module completed"
-                              : canView
-                              ? "Module available"
-                              : "Locked until previous modules are completed"}
-                          </TooltipContent>
-                        </Tooltip>
-                        <CardTitle className="text-lg font-semibold flex-1">
-                          {mod.module_name}
-                        </CardTitle>
-                        {mod.file && (
+              return modules.map(
+                (mod: {
+                  module_id: string;
+                  module_name: string;
+                  module_description: string;
+                  file?: string;
+                  is_finished?: boolean;
+                }) => {
+                  let canView = false;
+                  if (!mod.is_finished && !firstUnfinishedFound) {
+                    canView = true;
+                    firstUnfinishedFound = true;
+                  }
+                  if (mod.is_finished) {
+                    canView = true;
+                  }
+                  return (
+                    <Card
+                      key={mod.module_id}
+                      className={cn(
+                        "transition-all border border-muted/30 shadow-md hover:shadow-2xl bg-white/95 relative group hover:-translate-y-1 hover:scale-[1.02] duration-200",
+                        !canView && "opacity-60"
+                      )}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center gap-3">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Badge
-                                variant="outline"
-                                className="ml-auto flex items-center gap-1"
-                              >
-                                <FileText size={14} />
-                                File
-                              </Badge>
+                              <div className="rounded-full bg-muted p-2">
+                                {mod.is_finished ? (
+                                  <CheckCircle2
+                                    className="text-green-500"
+                                    size={24}
+                                  />
+                                ) : canView ? (
+                                  <FileText
+                                    className="text-blue-500"
+                                    size={24}
+                                  />
+                                ) : (
+                                  <Lock className="text-gray-400" size={24} />
+                                )}
+                              </div>
                             </TooltipTrigger>
-                            <TooltipContent>{mod.file.name}</TooltipContent>
+                            <TooltipContent>
+                              {mod.is_finished
+                                ? "Module completed"
+                                : canView
+                                ? "Module available"
+                                : "Locked until previous modules are completed"}
+                            </TooltipContent>
                           </Tooltip>
-                        )}
-                      </div>
-                      <CardDescription className="mt-2 text-sm text-muted-foreground">
-                        {mod.module_description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      {mod.file ? (
-                        canView ? (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="mt-4 w-full group-hover:scale-105 transition-transform font-semibold"
-                            onClick={() =>
-                              router.push(
-                                `${lesson.learning_resource.id}/${mod.module_id}/view`
-                              )
-                            }
-                          >
-                            View Module
-                          </Button>
+                          <CardTitle className="text-lg font-semibold flex-1">
+                            {mod.module_name}
+                          </CardTitle>
+                          {mod.file && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant="outline"
+                                  className="ml-auto flex items-center gap-1"
+                                >
+                                  <FileText size={14} />
+                                  File
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>{mod.file.name}</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                        <CardDescription className="mt-2 text-sm text-muted-foreground">
+                          {mod.module_description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        {mod.file ? (
+                          canView ? (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              disabled={navigating}
+                              className={`t-4 w-full group-hover:scale-105 transition-transform font-semibold ${
+                                navigating
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                              onClick={async () => {
+                                setNavigating(true);
+                                await router.push(
+                                  `${lesson.learning_resource.id}/${mod.module_id}/view`
+                                );
+                                toast("Navigating to module...", {});
+                              }}
+                            >
+                              View Module
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-4 w-full"
+                              disabled
+                            >
+                              <Lock className="mr-2 h-4 w-4" />
+                              Complete previous modules to unlock
+                            </Button>
+                          )
                         ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-4 w-full"
-                            disabled
-                          >
-                            <Lock className="mr-2 h-4 w-4" />
-                            Complete previous modules to unlock
-                          </Button>
-                        )
-                      ) : (
-                        <span className="text-xs text-muted-foreground block mt-4">
-                          No file attached
+                          <span className="text-xs text-muted-foreground block mt-4">
+                            No file attached
+                          </span>
+                        )}
+                      </CardContent>
+                      {mod.is_finished && (
+                        <span className="absolute top-3 right-3 text-green-500 text-xs font-semibold flex items-center gap-1">
+                          <CheckCircle2 size={16} /> Completed
                         </span>
                       )}
-                    </CardContent>
-                    {mod.is_finished && (
-                      <span className="absolute top-3 right-3 text-green-500 text-xs font-semibold flex items-center gap-1">
-                        <CheckCircle2 size={16} /> Completed
-                      </span>
-                    )}
-                  </Card>
-                );
-              });
+                    </Card>
+                  );
+                }
+              );
             })()}
           </div>
         </TooltipProvider>

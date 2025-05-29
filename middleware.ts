@@ -46,9 +46,12 @@ export async function middleware(request: NextRequest) {
       // If user hasn't completed registration
       if (data.status === "incomplete") {
         if (data.step === "userinfo") {
-          return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+          // Add query parameter to signal client to set registrationSession
+          const redirectUrl = new URL("/auth/register/userinfo", request.url);
+          redirectUrl.searchParams.set("registrationSession", "true");
+          return NextResponse.redirect(redirectUrl);
         } else if (data.step === "terms") {
-          return NextResponse.redirect(new URL("/auth/terms", request.url));
+          return NextResponse.redirect(new URL("/auth/register/terms", request.url));
         }
       }
 
@@ -62,13 +65,23 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
-      // Only allow access if status is "complete"
-      if (data.status !== "complete") {
-        return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+      // If status is "complete", allow the request to proceed.
+      // No explicit redirect is needed here, as the user is already on the target page (or will be allowed to proceed).
+      if (data.status === "complete") {
+         return NextResponse.next();
       }
+
+      // If status is not complete and not handled above, redirect to user info as a fallback
+      // This should ideally not be reached if incomplete statuses are handled.
+      if (data.status !== "complete") {
+         // Fallback redirect to user info without the query parameter
+         return NextResponse.redirect(new URL("/auth/register/userinfo", request.url));
+      }
+
     } catch (err) {
       console.error("Registration check error:", err);
-      return NextResponse.redirect(new URL("/auth/userinfo", request.url));
+      // On error, redirect to user info as a fallback without the query parameter
+      return NextResponse.redirect(new URL("/auth/register/userinfo", request.url));
     }
   }
 
