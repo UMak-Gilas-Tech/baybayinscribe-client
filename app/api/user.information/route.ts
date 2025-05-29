@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    console.log("Received user information POST body:", body);
     const {
       username,
       firstName,
