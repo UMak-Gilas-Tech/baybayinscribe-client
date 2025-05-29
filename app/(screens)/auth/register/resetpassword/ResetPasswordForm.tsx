@@ -127,94 +127,83 @@ export const ResetPasswordForm = ({
   );
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-blue-400 z-0">
-      {/* Form container with responsive positioning */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-20 w-full lg:w-[50%] lg:ml-70">
-        <Card
-          className="w-full max-w-sm bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3 lg:translate-x-[-50px]"
-          role="form"
-          aria-label="Reset password form"
-        >
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-blue-400 text-2xl font-bold">
-                Reset Password
-              </CardTitle>
-              <BackButton />
+    <Card
+      className="w-full max-w-sm bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3"
+      role="form"
+      aria-label="Reset password form"
+    >
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-blue-400 text-2xl font-bold">
+            Reset Password
+          </CardTitle>
+          <BackButton />
+        </div>
+        <CardDescription className="text-grey-300 mt-2">
+          Enter your new password below
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="max-w-full">
+        <ShadcnForm {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+            noValidate
+          >
+            <div className="space-y-2">
+              <PasswordInput
+                name="password"
+                label="New Password"
+                placeholder="Create a strong password"
+              />
+              {passwordStrength && (
+                <p className={`text-sm ${getStrengthColor(passwordStrength)}`}>
+                  Password Strength: {passwordStrength}
+                </p>
+              )}
             </div>
-            <CardDescription className="text-grey-300 mt-2">
-              Enter your new password below
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="max-w-full">
-            <ShadcnForm {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="space-y-4"
-                noValidate
-              >
-                <div className="space-y-2">
-                  <PasswordInput
-                    name="password"
-                    label="New Password"
-                    placeholder="Create a strong password"
-                  />
-                  {passwordStrength && (
-                    <p
-                      className={`text-sm ${getStrengthColor(
-                        passwordStrength
-                      )}`}
-                    >
-                      Password Strength: {passwordStrength}
-                    </p>
-                  )}
-                </div>
-                <PasswordInput
-                  name="confirmPassword"
-                  label="Confirm New Password"
-                  placeholder="Confirm your password"
-                  isConfirmPassword
-                  passwordFieldName="password"
+            <PasswordInput
+              name="confirmPassword"
+              label="Confirm New Password"
+              placeholder="Confirm your password"
+              isConfirmPassword
+              passwordFieldName="password"
+            />
+
+            {/* Animated error messages */}
+            <AnimatePresence mode="wait">
+              {validationError && <ErrorMessage message={validationError} />}
+              {error && (
+                <ErrorMessage
+                  message={error}
+                  className="text-red-800 border border-red-700 bg-red-100/50 rounded-md p-3 mb-2 text-sm font-medium animate-shake"
                 />
+              )}
+              {form.formState.errors.root && (
+                <ErrorMessage
+                  message={form.formState.errors.root.message || ""}
+                />
+              )}
+            </AnimatePresence>
 
-                {/* Animated error messages */}
-                <AnimatePresence mode="wait">
-                  {validationError && (
-                    <ErrorMessage message={validationError} />
-                  )}
-                  {error && (
-                    <ErrorMessage
-                      message={error}
-                      className="text-red-800 border border-red-700 bg-red-100/50 rounded-md p-3 mb-2 text-sm font-medium animate-shake"
-                    />
-                  )}
-                  {form.formState.errors.root && (
-                    <ErrorMessage
-                      message={form.formState.errors.root.message || ""}
-                    />
-                  )}
-                </AnimatePresence>
-
-                {/* Submit button with loading state */}
-                <Button
-                  type="submit"
-                  variant="blue"
-                  disabled={isLoading || !token}
-                  aria-busy={isLoading}
-                  className="relative w-full h-10 text-base font-medium"
-                >
-                  {isLoading ? (
-                    <LoadingSpinner loadingText="Resetting password..." />
-                  ) : (
-                    "Reset Password"
-                  )}
-                </Button>
-              </form>
-            </ShadcnForm>
-          </CardContent>
-          <TermsServices mode="info" />
-        </Card>
-      </div>
-    </div>
+            {/* Submit button with loading state */}
+            <Button
+              type="submit"
+              variant="blue"
+              disabled={isLoading || !token}
+              aria-busy={isLoading}
+              className="relative w-full h-10 text-base font-medium"
+            >
+              {isLoading ? (
+                <LoadingSpinner loadingText="Resetting password..." />
+              ) : (
+                "Reset Password"
+              )}
+            </Button>
+          </form>
+        </ShadcnForm>
+        <TermsServices mode="info" />
+      </CardContent>
+    </Card>
   );
 };

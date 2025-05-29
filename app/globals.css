@@ -6,7 +6,12 @@
 
 @font-face {
   font-family: "Baybayin Simple TAWBID";
-  src: url("/fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
+  src:  url("/fonts/BaybayinSimpleTAWBID.otf") format("opentype"),
+        url("/fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  font-display: block; /* Prevent FOUT */
 }
 
 @theme inline {
@@ -259,5 +264,9 @@
     @apply bg-background text-foreground;
     @apply bg-neutral-white;
     @apply font-sans;
+  }
+  
+  .font-baybayin {
+    font-family: "Baybayin Simple TAWBID", serif;
   }
 }
