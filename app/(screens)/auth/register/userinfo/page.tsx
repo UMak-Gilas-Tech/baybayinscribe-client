@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserInfoForm } from "./UserInfoForm";
 import type { UserInfoFormData } from "./handlers";
-import { Background } from "../components/Background";
+import { Background } from "../../components/Background";
 
 export default function UserInfoPage() {
   const [error, setError] = useState("");

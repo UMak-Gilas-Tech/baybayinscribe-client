@@ -32,7 +32,7 @@ export const AccountPwHelper = ({
         </div>
 
         <Link
-          href="/auth/resetpassword"
+          href="/auth/register/resetpassword"
           className="underline text-grey-200/80 hover:no-underline hover:text-grey-300"
         >
           Forgot your password?

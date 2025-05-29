@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
-import { BackButton } from "../components/BackButton";
+import { BackButton } from "../../components/BackButton";
 import { FormField } from "@/components/ui/form";
 import {
   UserInfoFormProps,
@@ -24,11 +24,11 @@ import {
   defaultFormValues,
   handleUserInfoSubmit,
 } from "./handlers";
-import { InputMobileNumber } from "../components/InputMobileNumber";
-import { InputBirthDate } from "../components/InputBirthDate";
-import { InputUsername } from "../components/InputUsername";
-import { InputFirstName } from "../components/InputFirstName";
-import { InputLastName } from "../components/InputLastName";
+import { InputMobileNumber } from "../../components/InputMobileNumber";
+import { InputBirthDate } from "../../components/InputBirthDate";
+import { InputUsername } from "../../components/InputUsername";
+import { InputFirstName } from "../../components/InputFirstName";
+import { InputLastName } from "../../components/InputLastName";
 import Head from "next/head";
 
 // Custom hook for date handling

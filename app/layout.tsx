@@ -32,10 +32,10 @@ export default function RootLayout({
   const isLoginPage =
     pathname === "/auth/login" ||
     pathname === "/auth/register" ||
-    pathname === "/auth/userinfo" ||
-    pathname === "/auth/profpic" ||
-    pathname === "/auth/terms" ||
-    pathname === "/auth/resetpassword" ||
+    pathname === "/auth/register/userinfo" ||
+    pathname === "/auth/register/profpic" ||
+    pathname === "/auth/register/terms" ||
+    pathname === "/auth/register/resetpassword" ||
     pathname === "/admin/forbidden";
 
   return (

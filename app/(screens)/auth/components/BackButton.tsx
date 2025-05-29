@@ -25,7 +25,7 @@ export const BackButton = ({ className = "" }: BackButtonProps) => {
             variant="ghost"
             size="icon"
             onClick={() => router.push("/auth/login")}
-            className={`hover:bg-blue-800 ${className}`}
+            className={`hover:bg-blue-800 transition-colors duration-1000 hover:animate-in ${className}`}
             aria-label="Go back to login"
             tabIndex={0}
             role="link"

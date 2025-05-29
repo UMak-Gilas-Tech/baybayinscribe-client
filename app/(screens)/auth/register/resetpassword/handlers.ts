@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { authClient } from "../../../lib/auth-client";
+import { authClient } from "../../../../lib/auth-client";
 import { z } from "zod";
 import { createPasswordSchema } from "@/lib/auth/passwordValidation";
 

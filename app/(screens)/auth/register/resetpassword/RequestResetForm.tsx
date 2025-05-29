@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import { EmailInput } from "../components/InputEmail";
+import { EmailInput } from "../../components/InputEmail";
 import { Form as ShadcnForm } from "@/components/ui/form";
 import {
   Card,
@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
-import { AccountHelper } from "../components/AccountHelper";
+import { AccountHelper } from "../../components/AccountHelper";
 import { TermsServices } from "@/components/auth/TermsServices";
-import { BackButton } from "../components/BackButton";
+import { BackButton } from "../../components/BackButton";
 
 /**
  * Validation schema for the email request form

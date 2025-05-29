@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { RequestResetForm } from "./RequestResetForm";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 import { createResetPasswordHandlers } from "./handlers";
-import { Background } from "../components/Background";
+import { Background } from "../../components/Background";
 
 /**
  * ResetPasswordPage Component

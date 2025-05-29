@@ -53,7 +53,7 @@ export const createRegisterHandlers = ({
         setError(response.error.message || "Registration failed");
         setIsLoading(false);
       } else {
-        router.push("/auth/userinfo");
+        router.push("/auth/register/userinfo");
         setIsLoading(false);
       }
     } catch {

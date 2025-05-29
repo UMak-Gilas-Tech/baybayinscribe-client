@@ -2,7 +2,7 @@
 
 import React from "react";
 import { TermsPolicyForm } from "./TermsPolicyForm";
-import { Background } from "../components/Background";
+import { Background } from "../../components/Background";
 
 const TermsPage = () => {
   return (
