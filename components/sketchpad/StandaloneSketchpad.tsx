@@ -40,6 +40,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
   const [openGuide, setOpenGuide] = useState(false);
   const [showResultDrawer, setShowResultDrawer] = useState(false);
+  const [showNoDetectionDialog, setShowNoDetectionDialog] = useState(false);
   const widthDragRef = useRef<{ startY: number; startWidth: number } | null>(
     null
   );
@@ -69,13 +70,31 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
     const ctx = c.getContext("2d");
     if (!ctx) return;
     const resize = () => {
-      const temp = document.createElement("canvas");
-      temp.width = c.width;
-      temp.height = c.height;
-      temp.getContext("2d")?.drawImage(c, 0, 0);
+      // Save the current drawing as an image
+      const prevImage = new Image();
+      prevImage.src = c.toDataURL();
+      const prevWidth = c.width;
+      const prevHeight = c.height;
+
+      // Resize the canvas to the new parent size
       c.width = c.parentElement!.clientWidth;
       c.height = c.parentElement!.clientHeight;
-      ctx.drawImage(temp, 0, 0);
+
+      // When the image is loaded, draw it scaled to the new canvas size
+      prevImage.onload = () => {
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.drawImage(
+          prevImage,
+          0,
+          0,
+          prevWidth,
+          prevHeight,
+          0,
+          0,
+          c.width,
+          c.height
+        );
+      };
     };
     resize();
     window.addEventListener("resize", resize);
@@ -174,6 +193,54 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
   // add submit handler
   const handleSubmit = () => {
     inference.inferLocal(undefined, canvasRef.current!, false, true);
+    // After inference result updates, check if no detection and user has selected characters
+    setTimeout(() => {
+      if (
+        sketchpadContext.selectedCharacters.length > 0 &&
+        (!inference.localInferenceResult ||
+          inference.localInferenceResult.length === 0)
+      ) {
+        setShowNoDetectionDialog(true);
+      }
+    }, 300); // delay to allow inference result to update
+  };
+
+  // Touch event handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const c = canvasRef.current;
+    const ctx = c?.getContext("2d");
+    if (!c || !ctx) return;
+    setHistory((h) => [...h, ctx.getImageData(0, 0, c.width, c.height)]);
+    ctx.lineWidth = strokeWidth;
+    setDrawing(true);
+    const r = c.getBoundingClientRect();
+    const scaleX = c.width / r.width;
+    const scaleY = c.height / r.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - r.left) * scaleX;
+    const y = (touch.clientY - r.top) * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!drawing) return;
+    e.preventDefault();
+    const c = canvasRef.current!;
+    const ctx = c.getContext("2d")!;
+    const r = c.getBoundingClientRect();
+    const scaleX = c.width / r.width;
+    const scaleY = c.height / r.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - r.left) * scaleX;
+    const y = (touch.clientY - r.top) * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    setDrawing(false);
   };
 
   return (
@@ -267,6 +334,10 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
             onMouseMove={(e) => draw(e.nativeEvent)}
             onMouseUp={end}
             onMouseLeave={end}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
           />
           {sketchpadContext.selectedCharacters.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
@@ -298,6 +369,23 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
           Submit
         </Button>
       </div>
+
+      {/* No detection dialog */}
+      <Dialog open={showNoDetectionDialog} onOpenChange={setShowNoDetectionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>No Baybayin Detected</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            Please trace the character carefully.
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setShowNoDetectionDialog(false)}>
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Results Drawer using shadcn/ui */}
       <Dialog open={showResultDrawer} onOpenChange={setShowResultDrawer}>
