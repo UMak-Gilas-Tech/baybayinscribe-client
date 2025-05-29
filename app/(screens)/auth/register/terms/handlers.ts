@@ -1,5 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TermsHandlers {
   agree: boolean;
@@ -125,6 +126,7 @@ export const handleSubmit = async (
       // Continue anyway, don't block the user flow
     }
 
+    toast.success("Registration completed successfully! Please wait...");
     router.push("/");
   } catch (err) {
     console.error("Error saving preferences:", err);

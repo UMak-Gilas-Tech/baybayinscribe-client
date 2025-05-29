@@ -1,6 +1,7 @@
 import { authClient } from "../../../lib/auth-client";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { createSocialHandlers } from "../../../../lib/auth/socialHandlers";
+import { toast } from "sonner";
 
 interface LoginValues {
   email: string;
@@ -34,6 +35,7 @@ export const createLoginHandlers = ({
         },
         {
           onSuccess: () => {
+            toast.success("Successfully signed in! Please wait...");
             router.push("/");
           },
           onError: (ctx) => {
