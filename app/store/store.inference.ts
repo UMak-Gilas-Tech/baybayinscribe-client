@@ -99,10 +99,6 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
 
       set({ localInferenceResult: filteredResult });
 
-      // DO NOT restore originalImageData here!
-      // The canvas should already have the image drawn by the component.
-      // Only draw the bounding box on top.
-
       if (result.length > 0 && renderToCanvas)
         get().renderToCanvas(filteredResult, canvas);
 

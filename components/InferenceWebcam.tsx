@@ -189,9 +189,9 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                 clearCanvas();
                 inference.inferLocal(
                   videoRef.current!,
-                  canvasRef.current!,
-                  true, // always render to canvas for bounding box
-                  showScannerGrid
+                  canvasRef.current!, // always render to canvas for bounding box
+                  showScannerGrid,
+                  false
                 );
                 setTimeout(inferLoop, 200);
               };
