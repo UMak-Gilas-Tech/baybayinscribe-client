@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
-import { BackButton } from "../../components/BackButton";
 import { TermsServices } from "@/components/auth/TermsServices";
 import { memo } from "react";
 import {
@@ -106,7 +105,6 @@ export const TermsPolicyForm = () => {
             <CardTitle className="text-blue-400 text-2xl font-bold">
               {TERMS_CONTENT.title}
             </CardTitle>
-            <BackButton />
           </div>
           <CardDescription className="text-grey-300 mt-2">
             {TERMS_CONTENT.description}
