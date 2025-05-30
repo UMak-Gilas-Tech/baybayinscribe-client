@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Head from "next/head";
 import Image from "next/image";
+import { Background } from "../auth/components/Background";
 
 export default function PrivacyPolicy() {
   const containerVariants = {
@@ -50,9 +51,9 @@ export default function PrivacyPolicy() {
         />
       </Head>
 
-      <div className="min-h-screen">
+      <Background>
         <main
-          className="flex-1 bg-gradient-to-b from-blue-900/5 via-blue-900/10 to-blue-900/5 py-12 px-4"
+          className="flex-1 bg-gradient-to-b from-blue-900/5 via-blue-900/10 to-blue-900/5 py-12 px-4 relative z-10"
           role="main"
           aria-label="Privacy Policy"
         >
@@ -62,7 +63,7 @@ export default function PrivacyPolicy() {
             variants={containerVariants}
             className="container mx-auto max-w-4xl"
           >
-            <Card className="backdrop-blur-sm bg-neutral-white/80 dark:bg-neutral-black/80 border-blue-300/50 shadow-xl">
+            <Card className="backdrop-blur-sm bg-neutral-white/80 dark:bg-neutral-black/80 border-blue-300/50 shadow-xl relative z-20">
               <CardHeader className="space-y-4 pb-8">
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
@@ -139,7 +140,7 @@ export default function PrivacyPolicy() {
             </Card>
           </motion.div>
         </main>
-      </div>
+      </Background>
     </>
   );
 }
