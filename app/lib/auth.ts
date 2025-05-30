@@ -12,7 +12,7 @@ export const auth = betterAuth({
     schema: schema,
   }),
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-  trustedOrigins: [process.env.NEXT_PUBLIC_BETTER_AUTH_URL as string, process.env.VERCEL_ENV!],
+  trustedOrigins: [process.env.NEXT_PUBLIC_SITE_URL as string,],
   customPaths: {
     resetPassword: "/auth/register/resetpassword",
   },
