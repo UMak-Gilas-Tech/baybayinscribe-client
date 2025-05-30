@@ -25,7 +25,7 @@ const SketchpadInformation = ({
           <div onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-white text-3xl sm:text-4xl"
+              className="absolute top-20 right-10 text-white text-3xl hover:cursor-pointer sm:text-4xl"
             >
               &times;
             </button>
