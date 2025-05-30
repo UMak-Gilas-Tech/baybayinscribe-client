@@ -35,6 +35,7 @@ export function NavMain({
       url: string;
     }[];
     onClick?: (e: React.MouseEvent) => void;
+    customComponent?: React.ReactNode;
   }[];
   label?: string;
   labelClassName?: string;
@@ -48,6 +49,15 @@ export function NavMain({
         {items.map((item) => {
           const isActive = pathname === item.url;
           const inactiveClass = !isActive ? "text-grey-300" : "";
+          
+          if (item.customComponent) {
+            return (
+              <SidebarMenuItem key={item.title}>
+                {item.customComponent}
+              </SidebarMenuItem>
+            );
+          }
+          
           if (item.onClick) {
             return (
               <SidebarMenuItem key={item.title}>
