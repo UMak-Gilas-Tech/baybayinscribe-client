@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { LearningMaterialsNav } from "../components/home/LearningMaterialsNav";
+import { HomeMainContentScreen } from "@/components/home/Home.MainContent.Screen";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import { Toaster } from "sonner";
 
@@ -29,7 +29,7 @@ export default function Home() {
       <main className="min-h-screen w-full bg-blue-900/25 flex flex-col items-center justify-center sm:flex-row">
         <div className="flex items-center md:justify-start justify-center w-10/12 sm:w-11/12">
           <div className="flex-1 overflow-hidden">
-            <LearningMaterialsNav />
+            <HomeMainContentScreen />
           </div>
         </div>
       </main>

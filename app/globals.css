@@ -15,6 +15,41 @@
   font-display: swap;
 }
 
+/* Custom Scrollbar Styles */
+@layer base {
+  /* For Webkit browsers (Chrome, Safari) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-blue-900);
+    border-radius: var(--radius);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-blue-400);
+    border-radius: var(--radius);
+    border: 2px solid var(--color-blue-900);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blue-300);
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue-400) var(--color-blue-900);
+  }
+
+  /* For Edge and IE */
+  * {
+    -ms-overflow-style: auto;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
