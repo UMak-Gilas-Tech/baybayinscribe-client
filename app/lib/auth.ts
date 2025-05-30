@@ -19,8 +19,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, token }) => {
-      const resetPasswordUrl = `http://localhost:3000/auth/register/resetpassword?token=${token}`;
-      console.log("Generated reset password URL (manual):", resetPasswordUrl);
+      const resetPasswordUrl = `${process.env.VERCEL_ENV}/auth/register/resetpassword?token=${token}`;
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
