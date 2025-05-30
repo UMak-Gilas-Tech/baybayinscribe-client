@@ -26,6 +26,7 @@ export default function TopNavbar() {
   };
 
   return (
+    //Fixed sidebar icon to leftside
     <div className="bg-blue-500 border-b-2 border-blue-400 h-16 flex items-center pr-4 pl-2 shadow-md relative">
       <div className="flex items-center">
         <button
