@@ -15,7 +15,8 @@ export async function middleware(request: NextRequest) {
     pathname.includes(".ttf") ||
     pathname.includes(".otf") ||
     pathname === "/privacypolicy" ||
-    pathname === "/tos"
+    pathname === "/tos" ||
+    pathname === "/datadeletion"
   ) {
     return NextResponse.next();
   }

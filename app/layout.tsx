@@ -38,7 +38,8 @@ export default function RootLayout({
     pathname === "/auth/register/resetpassword" ||
     pathname === "/admin/forbidden" ||
     pathname === "/tos" ||
-    pathname === "/privacypolicy";
+    pathname === "/privacypolicy" ||
+    pathname === "/datadeletion";
 
   return (
     <html lang="en">
