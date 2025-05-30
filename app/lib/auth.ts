@@ -11,13 +11,20 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+  trustedOrigins: ["http://localhost:3000"],
+  baseURL: "http://localhost:3000",
+  customPaths: {
+    resetPassword: "/auth/register/resetpassword",
+  },
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url}) => {
+    sendResetPassword: async ({ user, token }) => {
+      const resetPasswordUrl = `http://localhost:3000/auth/register/resetpassword?token=${token}`;
+      console.log("Generated reset password URL (manual):", resetPasswordUrl);
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
-        text: `Click the link to reset your password: ${url}`,
+        text: `Click the link to reset your password: ${resetPasswordUrl}`,
       });
     },
   },
