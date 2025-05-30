@@ -236,10 +236,9 @@ const ChatPage = () => {
     setAnimating(true);
     await sendPrompt(input);
   };
-
   useEffect(() => {
     if (status === "Loaded") {
-      const words = response.split(" ").filter((w) => w && w !== "undefined");
+      const words = response.split(" ").filter((w) => w.trim() !== "" && w !== "undefined");
       let idx = 0;
       setMessages((m) => [...m, { text: "", isUser: false }]);
       const iv = setInterval(() => {
