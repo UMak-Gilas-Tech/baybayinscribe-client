@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "../../../../lib/auth-client";
 import { z } from "zod";
 import { createPasswordSchema } from "@/lib/auth/passwordValidation";
+import { toast } from "sonner";
 
 /**
  * Validation schema for the email request form
@@ -74,6 +75,7 @@ export const createResetPasswordHandlers = ({
         },
         {
           onSuccess: () => {
+            toast.success("Password reset link sent! Please check your email.");
             // Show success message and redirect to login
             setTimeout(() => {
               router.push("/auth/login");
@@ -81,16 +83,19 @@ export const createResetPasswordHandlers = ({
             setIsLoading(false);
           },
           onError: (ctx) => {
-            setError(
+            const errorMessage =
               ctx.error?.message ||
-                "Failed to send reset link. Please try again."
-            );
+              "Failed to send reset link. Please try again.";
+            toast.error(errorMessage);
+            setError(errorMessage);
             setIsLoading(false);
           },
         }
       );
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      toast.error(errorMessage);
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
@@ -122,6 +127,9 @@ export const createResetPasswordHandlers = ({
         },
         {
           onSuccess: () => {
+            toast.success(
+              "Password reset successful! Please sign in with your new password."
+            );
             // Show success message and redirect to login
             setTimeout(() => {
               router.push("/auth/login");
@@ -129,16 +137,19 @@ export const createResetPasswordHandlers = ({
             setIsLoading(false);
           },
           onError: (ctx) => {
-            setError(
+            const errorMessage =
               ctx.error?.message ||
-                "Failed to reset password. Please try again."
-            );
+              "Failed to reset password. Please try again.";
+            toast.error(errorMessage);
+            setError(errorMessage);
             setIsLoading(false);
           },
         }
       );
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      toast.error(errorMessage);
+      setError(errorMessage);
       setIsLoading(false);
     }
   };

@@ -187,25 +187,27 @@ export const RegisterForm = ({
                 )}
               </AnimatePresence>
 
-              <Button
-                type="submit"
-                variant="blue"
-                disabled={isLoading}
-                aria-busy={isLoading}
-                className="relative w-full h-10 text-base font-medium"
-              >
-                {isLoading ? (
-                  <LoadingSpinner loadingText="Creating your account..." />
-                ) : (
-                  "Create Account"
-                )}
-              </Button>
+              <div className="flex-col space-y-1.5">
+                <Button
+                  type="submit"
+                  variant="blue"
+                  disabled={isLoading}
+                  aria-busy={isLoading}
+                  className="relative w-full h-10 text-base font-medium"
+                >
+                  {isLoading ? (
+                    <LoadingSpinner loadingText="Creating your account..." />
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
 
-              <AccountHelper />
+                <AccountHelper />
+              </div>
             </form>
           </ShadcnForm>
+          <TermsServices mode="info" />
         </CardContent>
-        <TermsServices mode="info" />
       </Card>
     </div>
   );

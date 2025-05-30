@@ -9,7 +9,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/images/") ||
     pathname.includes(".png") ||
     pathname.includes(".jpg") ||
-    pathname.includes(".svg")
+    pathname.includes(".svg") ||
+    pathname.includes(".woff2") ||
+    pathname.includes(".woff") ||
+    pathname.includes(".ttf") ||
+    pathname.includes(".otf")
   ) {
     return NextResponse.next();
   }
@@ -35,11 +39,14 @@ export async function middleware(request: NextRequest) {
   // If user has session, check registration status only for non-auth pages
   if (sessionCookie && !isAuthPage) {
     try {
-      const response = await fetch(new URL('/api/auth/check.user.info', request.url), {
-        headers: {
-          cookie: request.headers.get('cookie') || '',
-        },
-      });
+      const response = await fetch(
+        new URL("/api/auth/check.user.info", request.url),
+        {
+          headers: {
+            cookie: request.headers.get("cookie") || "",
+          },
+        }
+      );
 
       const data = await response.json();
 
@@ -51,7 +58,9 @@ export async function middleware(request: NextRequest) {
           redirectUrl.searchParams.set("registrationSession", "true");
           return NextResponse.redirect(redirectUrl);
         } else if (data.step === "terms") {
-          return NextResponse.redirect(new URL("/auth/register/terms", request.url));
+          return NextResponse.redirect(
+            new URL("/auth/register/terms", request.url)
+          );
         }
       }
 
@@ -61,27 +70,33 @@ export async function middleware(request: NextRequest) {
       }
 
       // If status is "complete" and the current path is the check endpoint, redirect to home
-      if (data.status === "complete" && pathname === "/api/auth/check.user.info") {
+      if (
+        data.status === "complete" &&
+        pathname === "/api/auth/check.user.info"
+      ) {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
       // If status is "complete", allow the request to proceed.
       // No explicit redirect is needed here, as the user is already on the target page (or will be allowed to proceed).
       if (data.status === "complete") {
-         return NextResponse.next();
+        return NextResponse.next();
       }
 
       // If status is not complete and not handled above, redirect to user info as a fallback
       // This should ideally not be reached if incomplete statuses are handled.
       if (data.status !== "complete") {
-         // Fallback redirect to user info without the query parameter
-         return NextResponse.redirect(new URL("/auth/register/userinfo", request.url));
+        // Fallback redirect to user info without the query parameter
+        return NextResponse.redirect(
+          new URL("/auth/register/userinfo", request.url)
+        );
       }
-
     } catch (err) {
       console.error("Registration check error:", err);
       // On error, redirect to user info as a fallback without the query parameter
-      return NextResponse.redirect(new URL("/auth/register/userinfo", request.url));
+      return NextResponse.redirect(
+        new URL("/auth/register/userinfo", request.url)
+      );
     }
   }
 

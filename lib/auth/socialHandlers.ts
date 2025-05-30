@@ -1,4 +1,5 @@
 import { authClient } from "../../app/lib/auth-client";
+import { toast } from "sonner";
 
 interface SocialHandlerProps {
   setLoginError: (error: string) => void;
@@ -15,8 +16,11 @@ export const createSocialHandlers = ({
         provider: "google",
         callbackURL,
       });
+      toast.success("Successfully signed in with Google! Please wait...");
     } catch {
-      setLoginError("Failed to sign in with Google. Please try again.");
+      const errorMessage = "Failed to sign in with Google. Please try again.";
+      toast.error(errorMessage);
+      setLoginError(errorMessage);
     }
   };
 
@@ -26,8 +30,11 @@ export const createSocialHandlers = ({
         provider: "facebook",
         callbackURL,
       });
+      toast.success("Successfully signed in with Facebook! Please wait...");
     } catch {
-      setLoginError("Failed to sign in with Facebook. Please try again.");
+      const errorMessage = "Failed to sign in with Facebook. Please try again.";
+      toast.error(errorMessage);
+      setLoginError(errorMessage);
     }
   };
 

@@ -33,7 +33,7 @@ export default function AllQuizzesPage() {
     let filtered = quizzes;
     if (search) {
       filtered = filtered.filter((q) =>
-        q.title.toLowerCase().includes(search.toLowerCase())
+        q.metadata.quiz_name.toLowerCase().includes(search.toLowerCase())
       );
     }
     setFilteredQuizzes(filtered);
@@ -86,15 +86,52 @@ export default function AllQuizzesPage() {
               filteredQuizzes.map((quiz) => (
                 <div
                   key={quiz.metadata.quiz_id}
-                  className="bg-white rounded-lg shadow-md p-5 flex flex-col hover:shadow-lg transition"
+                  className="relative bg-gradient-to-br from-blue-50 via-white to-slate-100 rounded-xl shadow-lg p-6 flex flex-col group border border-muted/20 hover:border-blue-400 transition-all duration-200 hover:shadow-2xl hover:-translate-y-1"
                 >
-                  <h2 className="text-xl font-semibold mb-2">
+                  <h2 className="text-xl font-bold mb-1 text-black group-hover:text-blue-700 transition-colors line-clamp-2">
                     {quiz.metadata.quiz_name}
                   </h2>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
+                  <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
                     {quiz.metadata.description}
                   </p>
-                  
+                  <div className="flex items-center justify-between mt-auto pt-2">
+                    <span className="text-xs text-muted-foreground">
+                      Updated:{" "}
+                      {quiz.metadata.updated_at
+                        ? new Date(quiz.metadata.updated_at).toLocaleDateString()
+                        : "-"}
+                    </span>
+                    <button
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-blue-100 text-white font-medium text-xs shadow hover:bg-blue-200 transition"
+                      onClick={() => {
+                        window.location.href = `/quiz/${quiz.metadata.quiz_id}/view`;
+                      }}
+                    >
+                      View Quiz
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg
+                      className="w-6 h-6 text-blue-300"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M13.293 2.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-9 9a1 1 0 01-.293.207l-4 2a1 1 0 01-1.316-1.316l2-4a1 1 0 01.207-.293l9-9z" />
+                    </svg>
+                  </div>
                 </div>
               ))
             )}

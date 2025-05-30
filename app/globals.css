@@ -6,7 +6,48 @@
 
 @font-face {
   font-family: "Baybayin Simple TAWBID";
-  src: url("/fonts/BaybayinSimpleTAWBID.ttf") format("truetype");
+  src: url("/fonts/BaybayinSimpleTAWBID.woff2") format("woff2"),
+       url("/fonts/BaybayinSimpleTAWBID.woff") format("woff"),
+       url("/fonts/BaybayinSimpleTAWBID.ttf") format("truetype"),
+       url("/fonts/BaybayinSimpleTAWBID.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom Scrollbar Styles */
+@layer base {
+  /* For Webkit browsers (Chrome, Safari) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-blue-900);
+    border-radius: var(--radius);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-blue-400);
+    border-radius: var(--radius);
+    border: 2px solid var(--color-blue-900);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blue-300);
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue-400) var(--color-blue-900);
+  }
+
+  /* For Edge and IE */
+  * {
+    -ms-overflow-style: auto;
+  }
 }
 
 @theme inline {
@@ -109,6 +150,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --max-width-8xl: 1400px;
   --border-width-1.25: 1.25px;
+  --border-width-1.4: 1.4px;
   --stroke-width-1.25: 1.25px;
  
   --font-baybayin: "Baybayin Simple TAWBID";
@@ -178,7 +220,7 @@
   --background: var(--color-neutral-white);
   --foreground: var(--color-neutral-black);
   --card: var(--color-neutral-white);
-  --card-foreground: var(--color-neutral-black);
+  --card-foreground: var(--color-blue-400);
   --popover: var(--color-neutral-white);
   --popover-foreground: var(--color-neutral-black);
   --primary: var(--color-blue-400);
@@ -259,5 +301,9 @@
     @apply bg-background text-foreground;
     @apply bg-neutral-white;
     @apply font-sans;
+  }
+  
+  .font-baybayin {
+    font-family: "Baybayin Simple TAWBID", serif;
   }
 }

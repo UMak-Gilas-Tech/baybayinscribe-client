@@ -28,15 +28,13 @@ export const Background = ({ children }: BackgroundProps) => {
             BaybayInscribe
           </h1>
         </div>
-      </div>
-
+      </div>{" "}
       <div className="flex flex-col items-center fixed top-7/12 left-6/12 -z-0 -rotate-[20deg] scale-[280%] pointer-events-none">
-        <h2 className="text-8xl xl:text-[130px] text-blue-900/10 font-medium font-baybayin">
+        <h2 className="text-8xl xl:text-[130px] text-blue-900/10 font-baybayin">
           mtuto
         </h2>
         <p className="text-2xl text-blue-900/10 font-medium">ma . tu . to</p>
       </div>
-
       <div className="text-blue-900/40 text-xs font-medium fixed bottom-2 right-2">
         v1.0 Alpha
       </div>
