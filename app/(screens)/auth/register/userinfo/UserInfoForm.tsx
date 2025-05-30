@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { memo } from "react";
-import { BackButton } from "../../components/BackButton";
 import { FormField } from "@/components/ui/form";
 import {
   UserInfoFormProps,
@@ -365,7 +364,6 @@ export const UserInfoForm = ({
               <CardTitle className="text-blue-400 text-2xl font-bold">
                 Complete Your Profile
               </CardTitle>
-              <BackButton />
             </div>
             <CardDescription className="text-grey-300 mt-2">
               Please provide your details to continue
