@@ -62,27 +62,74 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     tf.engine().startScope();
 
     const [modelWidth, modelHeight] = model.inputs[0].shape.slice(1, 3);
-    console.log(modelWidth, modelHeight);
+    console.log("Model input dimensions:", modelWidth, modelHeight);
 
     try {
       const input = tf.tidy(() => {
-        const imageTensor = tf.browser
-          .fromPixels(image ? image : canvas)
-          .resizeBilinear([modelWidth, modelHeight])
-          .div(255.0)
-          .expandDims(0);
+        let imageTensor;
+        
+        if (isSketch) {
+          // For sketches, we need to handle the canvas differently
+          // Get the canvas data and preprocess it properly
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error("Cannot get canvas context");
+          
+          // Create a temporary canvas with white background for better contrast
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = canvas.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          if (!tempCtx) throw new Error("Cannot get temp canvas context");
+          
+          // Fill with white background
+          tempCtx.fillStyle = 'white';
+          tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+          
+          // Draw the original canvas content
+          tempCtx.drawImage(canvas, 0, 0);
+          
+          imageTensor = tf.browser
+            .fromPixels(tempCanvas)
+            .resizeBilinear([modelWidth, modelHeight])
+            .mean(2) // Convert to grayscale
+            .expandDims(2) // Add channel dimension back
+            .tile([1, 1, 3]) // Convert back to 3 channels
+            .div(255.0)
+            .expandDims(0);
+            
+          console.log("Sketch tensor shape:", imageTensor.shape);
+        } else {
+          imageTensor = tf.browser
+            .fromPixels(image ? image : canvas)
+            .resizeBilinear([modelWidth, modelHeight])
+            .div(255.0)
+            .expandDims(0);
+        }
+        
         return imageTensor;
       });
 
+      console.log("Input tensor shape:", input.shape);
+      
       const result: tf.Tensor[] = (await model.executeAsync(
         input
       )) as tf.Tensor[];
+      
+      console.log("Raw model output shape:", result[0].shape);
       const inferenceResult: number[][][] = result[0].arraySync() as number[][][];
-      console.log("Inference result:", inferenceResult[0]);
+      console.log("Raw inference result:", inferenceResult[0]);
+      
+      // Lower confidence threshold for sketches
+      const confidenceThreshold = isSketch ? 0.3 : 0.5;
+      
       const filteredResult = inferenceResult[0]
-        .filter((item) => item[4] > 0.5)
+        .filter((item, index) => {
+          console.log(`Detection ${index}: confidence=${item[4]}, class=${item[5]}`);
+          return item[4] > confidenceThreshold;
+        })
         .map((item) => {
-          const className = LABELS[item[5]];
+          const className = LABELS[Math.floor(item[5])] || `Unknown_${Math.floor(item[5])}`;
+          console.log(`Mapped class: ${className} (index: ${Math.floor(item[5])})`);
 
           return {
             x: item[0],
@@ -97,12 +144,14 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
           return a.x - b.x;
         });
 
+      console.log("Filtered results:", filteredResult);
       set({ localInferenceResult: filteredResult });
 
       if (result.length > 0 && renderToCanvas)
         get().renderToCanvas(filteredResult, canvas);
 
       tf.dispose(input);
+      tf.dispose(result);
     } catch (err) {
       console.error("Inference error:", err);
       set({ status: InferenceStatus.ERROR });
@@ -111,26 +160,35 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
     }
   },
   initLocalModel: async () => {
-    await tf.setBackend("webgl");
-    await tf.ready();
-    set({ status: InferenceStatus.LOADING });
-   
-    const model = await tf.loadGraphModel("../../models/model.json");
+    try {
+      await tf.setBackend("webgl");
+      await tf.ready();
+      set({ status: InferenceStatus.LOADING });
+     
+      console.log("Loading model from:", "../../models/model.json");
+      const model = await tf.loadGraphModel("../../models/model.json");
+      console.log("Model loaded successfully");
+      console.log("Model input shape:", model.inputs[0].shape);
+      console.log("Model output shape:", model.outputs[0].shape);
 
-    // Set warming up state
-    set({ status: InferenceStatus.WARMING_UP });
+      // Set warming up state
+      set({ status: InferenceStatus.WARMING_UP });
 
-    console.log("Warming up model...");
-    if (model.inputs[0].shape) {
-      const dummy = tf.ones(model.inputs[0].shape);
-      const response = await model.executeAsync(dummy);
+      console.log("Warming up model...");
+      if (model.inputs[0].shape) {
+        const dummy = tf.ones(model.inputs[0].shape);
+        const response = await model.executeAsync(dummy);
 
-      tf.dispose(response);
-      tf.dispose(dummy);
+        tf.dispose(response);
+        tf.dispose(dummy);
+      }
+
+      set({ status: InferenceStatus.READY, localModel: model });
+      console.log("Model ready for inference!");
+    } catch (error) {
+      console.error("Failed to initialize model:", error);
+      set({ status: InferenceStatus.ERROR });
     }
-
-    set({ status: InferenceStatus.READY, localModel: model });
-    console.log("Loaded Model!");
   },
   init: async () => {
     set({ status: InferenceStatus.LOADING });
@@ -215,62 +273,52 @@ export const useInferenceStore = create<InferenceState>()((set, get) => ({
   renderToCanvas: (inferenceResult, canvas) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // Always clear before drawing new detections
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "12px sans-serif";
-    ctx.textBaseline = "top";
+    
+    // Create overlay canvas to avoid clearing the drawing
+    const overlayCanvas = document.createElement('canvas');
+    overlayCanvas.width = canvas.width;
+    overlayCanvas.height = canvas.height;
+    const overlayCtx = overlayCanvas.getContext('2d');
+    if (!overlayCtx) return;
+    
+    overlayCtx.font = "14px sans-serif";
+    overlayCtx.textBaseline = "top";
 
     if (!inferenceResult || inferenceResult.length === 0) {
-      // Optionally, show "No detection"
-      ctx.fillStyle = "red";
-      ctx.fillText("No detection", 10, 10);
-      return;
+      // Show "No detection" message
+      overlayCtx.fillStyle = "rgba(255, 0, 0, 0.8)";
+      overlayCtx.fillRect(10, 10, 120, 30);
+      overlayCtx.fillStyle = "white";
+      overlayCtx.fillText("No detection", 15, 20);
+    } else {
+      const scaleX = canvas.width / 640;
+      const scaleY = canvas.height / 640;
+
+      // Draw individual detections
+      inferenceResult.forEach((item, index) => {
+        const x = item.x * scaleX;
+        const y = item.y * scaleY;
+        const width = item.width * scaleX;
+        const height = item.height * scaleY;
+
+        // Draw bounding box
+        overlayCtx.strokeStyle = "lime";
+        overlayCtx.lineWidth = 2;
+        overlayCtx.strokeRect(x, y, width, height);
+
+        // Draw label with background
+        const label = `${item.className} (${Math.round(item.confidence * 100)}%)`;
+        const textMetrics = overlayCtx.measureText(label);
+        const textWidth = textMetrics.width + 8;
+        
+        overlayCtx.fillStyle = "rgba(0, 255, 0, 0.8)";
+        overlayCtx.fillRect(x, Math.max(0, y - 25), textWidth, 22);
+        overlayCtx.fillStyle = "black";
+        overlayCtx.fillText(label, x + 4, Math.max(0, y - 20));
+      });
     }
 
-    const scaleX = canvas.width / 640;
-    const scaleY = canvas.height / 640;
-
-    // Compute combined bounding box
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-
-    inferenceResult.forEach((item) => {
-      const x1 = item.x * scaleX;
-      const y1 = item.y * scaleY;
-      const x2 = (item.x + item.width) * scaleX;
-      const y2 = (item.y + item.height) * scaleY;
-
-      if (x1 < minX) minX = x1;
-      if (y1 < minY) minY = y1;
-      if (x2 > maxX) maxX = x2;
-      if (y2 > maxY) maxY = y2;
-    });
-
-    // Clamp to canvas bounds
-    minX = Math.max(0, minX);
-    minY = Math.max(0, minY);
-    maxX = Math.min(canvas.width, maxX);
-    maxY = Math.min(canvas.height, maxY);
-
-    // Debug log
-    console.log("Combined bounding box:", { minX, minY, maxX, maxY });
-
-    // Draw the combined bounding box
-    ctx.save();
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 4;
-    ctx.globalAlpha = 1.0;
-    ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
-    ctx.restore();
-
-    // Draw label for the combined box
-    const label = `Detected: ${inferenceResult.length} chars`;
-    const textWidth = ctx.measureText(label).width;
-    ctx.fillStyle = "rgba(255,0,0,0.7)";
-    ctx.fillRect(minX, Math.max(0, minY - 24), textWidth + 12, 22);
-    ctx.fillStyle = "white";
-    ctx.fillText(label, minX + 6, Math.max(0, minY - 18));
+    // Draw overlay on top of the main canvas
+    ctx.drawImage(overlayCanvas, 0, 0);
   },
 }));

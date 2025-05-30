@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { Pencil, Undo, Trash, ChevronDown, InfoIcon } from "lucide-react";
-import { useInferenceStore, InferenceState } from "@/app/store/store.inference";
-import { baybayinToLatin } from "@/lib/baybayify";
+import { useInferenceStore, InferenceState, InferenceStatus } from "@/app/store/store.inference";
+import baybayify, { baybayinToLatin } from "@/lib/baybayify";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,12 +94,31 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
           c.width,
           c.height
         );
+        
+        // Restore drawing settings without scaling
+        ctx.strokeStyle = "#000000";
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = strokeWidth;
       };
     };
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-  }, []);
+  }, [strokeWidth]);
+
+  // Add keyboard event listener for undo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [history]); // Include history as dependency
 
   // inference result watcher
   useEffect(() => {
@@ -140,6 +159,9 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
     if (!c || !ctx) return;
     setHistory((h) => [...h, ctx.getImageData(0, 0, c.width, c.height)]);
     ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = "#000000";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     setDrawing(true);
     const r = c.getBoundingClientRect();
     const scaleX = c.width / r.width;
@@ -213,6 +235,9 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
     if (!c || !ctx) return;
     setHistory((h) => [...h, ctx.getImageData(0, 0, c.width, c.height)]);
     ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = "#000000";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     setDrawing(true);
     const r = c.getBoundingClientRect();
     const scaleX = c.width / r.width;
@@ -249,9 +274,9 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
         <div className="w-56 flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="w-full bg-transparent border-2 border-stone-500 text-black">
+              <Button className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-700 hover:bg-white/90 shadow-lg">
                 <span className="text-start w-full">AI Model</span>{" "}
-                <ChevronDown size={40} />{" "}
+                <ChevronDown size={20} />{" "}
               </Button>
             </DropdownMenuTrigger>
 
@@ -261,14 +286,14 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
           </DropdownMenu>
         </div>
 
-        <div className="w-[0.5px] h-full bg-black flex-shrink-0"></div>
+        <div className="w-[1px] h-full bg-gray-300 flex-shrink-0"></div>
 
         <div className="w-full h-36 flex flex-row gap-4 overflow-x-auto">
           {sketchpadContext.selectedCharacters.map((label, index) => (
             <CharacterSelectionItem
               key={index}
               label={label}
-              character={baybayinToLatin(label)}
+              character={baybayify(label)}
               onClick={() => {
                 sketchpadContext.setSelectedCharacters(
                   sketchpadContext.selectedCharacters.filter((c) => c !== label)
@@ -305,13 +330,13 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
           <button className="p-4 rounded-full shadow-xl transition duration-300 ease-in-out bg-blue-500 hover:bg-[#6e81b9] hover:scale-95">
             <Pencil size={20} className="text-yellow-200" />
           </button>
-          <div className="h-full w-[1px] md:w-full md:h-[1px] my-0 md:my-4  bg-black"></div>
+          <div className="h-full w-[1px] md:w-full md:h-[1px] my-0 md:my-4 bg-gray-300"></div>
           <div
             onMouseDown={handleWidthMouseDown}
             className="w-13 h-13 aspect-square rounded-full bg-blue-500 flex items-center justify-center cursor-ns-resize shadow-xl transition"
           >
             <div
-              className="bg-yellow-200 rounded-full"
+              className="bg-yellow-200 rounded-full transition-all duration-200"
               style={{
                 width: `${Math.max(4, strokeWidth)}px`,
                 height: `${Math.max(4, strokeWidth)}px`,
@@ -329,7 +354,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
         <div className="relative w-full h-full">
           <canvas
             ref={canvasRef}
-            className="w-full h-full aspect-video bg-[#f0f0f0] shadow-lg border-2 border-stone-200 rounded-lg"
+            className="w-full h-full bg-white shadow-2xl border border-gray-200 rounded-xl cursor-crosshair"
             onMouseDown={(e) => start(e.nativeEvent)}
             onMouseMove={(e) => draw(e.nativeEvent)}
             onMouseUp={end}
@@ -340,7 +365,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
             onTouchCancel={handleTouchEnd}
           />
           {sketchpadContext.selectedCharacters.length > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
               <span
                 className="text-gray-400 whitespace-pre font-[Baybayin_Simple_TAWBID]"
                 style={{
@@ -349,7 +374,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
                       (canvasRef.current?.width || 0) /
                         sketchpadContext.selectedCharacters.length,
                       canvasRef.current?.height || 0
-                    ) || 20
+                    ) * 0.8 || 60
                   }px`,
                 }}
               >
@@ -361,12 +386,13 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
       </div>
 
       {/* submit button below canvas */}
-      <div className="mt-4 w-full px-10 lg:w-3/4 lg:px-2 ">
+      <div className="mt-4 w-full px-10 lg:w-3/4 lg:px-2">
         <Button
           onClick={handleSubmit}
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-blue-500 hover:bg-blue-600 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
+          disabled={inference.status === InferenceStatus.LOADING || inference.status === InferenceStatus.WARMING_UP}
         >
-          Submit
+          Analyze Drawing
         </Button>
       </div>
 
@@ -405,7 +431,7 @@ const StandaloneSketchpad: React.FC<StandaloneSketchpadProps> = ({
                   className="flex items-center gap-4 p-3 rounded-md bg-muted border"
                 >
                   <span className="text-3xl font-[Baybayin_Simple_TAWBID]">
-                    {item.className}
+                    {baybayify(item.className)}
                   </span>
                   <span className="text-lg text-muted-foreground">
                     {baybayinToLatin(item.className)}
