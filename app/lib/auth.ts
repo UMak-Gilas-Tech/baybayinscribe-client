@@ -11,6 +11,8 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  trustedOrigins: [process.env.NEXT_PUBLIC_BETTER_AUTH_URL as string, process.env.VERCEL_ENV!],
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url}) => {

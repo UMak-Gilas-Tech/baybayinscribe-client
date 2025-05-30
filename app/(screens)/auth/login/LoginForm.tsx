@@ -21,6 +21,10 @@ import { PasswordInput } from "../components/InputPassword";
 import { AccountHelper } from "../components/AccountHelper";
 import { AccountPwHelper } from "../components/AccountPwHelper";
 
+export async function getServerSideProps() {
+  
+}
+
 // Memoize the schema to prevent recreation on each render
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
