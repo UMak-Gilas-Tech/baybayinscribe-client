@@ -13,10 +13,7 @@ import {
   ModifiedQuizAnswerQuestion,
 } from "../../../../../types/type.quiz";
 import useQuizStore from "@/app/store/store.quiz";
-import { useInferenceStore, InferenceState } from "@/app/store/store.inference";
-
-// Added type alias to make id optional in the inferred type.
-
+import { useInferenceStore, InferenceState, InferenceStatus } from "@/app/store/store.inference";
 
 type QuizTakeContextType = {
   quizId?: string;
@@ -25,12 +22,12 @@ type QuizTakeContextType = {
   currentQuestion: QuizQuestion | undefined;
   health?: number;
   inference?: InferenceState;
+  isModelReady: boolean;
   setProgress: React.Dispatch<React.SetStateAction<number>>;
   onSubmit: () => void;
   subscribeToSubmit: (callback: () => void) => void;
   onTimerEnd: (callback: () => void) => void;
   setHealth: React.Dispatch<React.SetStateAction<number>>;
-  // changed type to make id optional:
   answerHistory: ModifiedQuizAnswerQuestion[];
   recordAnswer: (record: ModifiedQuizAnswerQuestion) => void;
 };
@@ -63,11 +60,37 @@ export const QuizTakeProvider: React.FC<{
   const [answerHistory, setAnswerHistory] = useState<
     Array<ModifiedQuizAnswerQuestion>
   >([]);
+  const [isModelReady, setIsModelReady] = useState(false);
   const quizStore = useQuizStore();
+
+  // Initialize quiz and model when component mounts
   useEffect(() => {
-    quizStore.loadQuiz(params.quiz_id);
-    inference.initLocalModel();
-  }, []);
+    const initializeQuizAndModel = async () => {
+      // Load quiz first
+      await quizStore.loadQuiz(params.quiz_id);
+
+      // Initialize inference model immediately
+      if (inference.status === InferenceStatus.IDLE) {
+        console.log("Initializing inference model for quiz...");
+        inference.initLocalModel();
+      }
+    };
+
+    initializeQuizAndModel();
+  }, [params.quiz_id]);
+
+  // Monitor inference model status
+  useEffect(() => {
+    setIsModelReady(inference.status === InferenceStatus.READY);
+
+    if (inference.status === InferenceStatus.ERROR) {
+      toast.error(
+        "Failed to load AI model. Sketch questions may not work properly."
+      );
+    } else if (inference.status === InferenceStatus.READY) {
+      console.log("Inference model is ready!");
+    }
+  }, [inference.status]);
 
   useEffect(() => {
     if (quizStore.status === "Loaded") {
@@ -86,10 +109,17 @@ export const QuizTakeProvider: React.FC<{
     if (curr) {
       setCurrentQuestion(curr);
       console.log(curr.type);
+      
+      // Clear inference results if transitioning to non-sketch question
+      const isSketchQuestion = curr.type === "sketch" || curr.type === "SKT";
+      if (!isSketchQuestion && inference.localInferenceResult) {
+        console.log("Clearing inference results for non-sketch question");
+        inference.clearResults();
+      }
     } else {
       console.log("No more questions available.");
     }
-  }, [quiz, progress]);
+  }, [quiz, progress, inference]);
 
   const submitCallbacks = useRef<(() => void)[]>([]);
   const timerCallbacks = useRef<(() => void)[]>([]);
@@ -131,6 +161,7 @@ export const QuizTakeProvider: React.FC<{
         answerHistory,
         quiz,
         inference: inference,
+        isModelReady,
         setHealth,
         onTimerEnd,
         setProgress,
