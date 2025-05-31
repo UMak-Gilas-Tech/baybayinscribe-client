@@ -10,7 +10,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
-import { ScreenSize } from "../components/ScreenSize";
 import { siteConfig } from "./metadata";
 import Background from "@/components/background";
 import { Dialog } from "@/components/ui/dialog";
@@ -69,7 +68,6 @@ export default function RootLayout({
           )}
           {isLoginPage && <main>{children}</main>}
         </SidebarProvider>
-        <ScreenSize />
         <SpeedInsights />
         <Analytics />
         <Toaster position="bottom-right" richColors />
