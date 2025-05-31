@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import {
   InputContainer,
   SwitchButton,
@@ -18,7 +18,7 @@ import Image from "next/image";
 import { useTranslate } from "@/app/store/store.translate";
 import { useSearchParams } from "next/navigation";
 
-export default function TransliterationScreen() {
+function TransliterationContent() {
   const [latinText, setLatinText] = useState("");
   const [baybayinText, setBaybayinText] = useState(baybayifyWord(""));
   const [switchOrder, setSwitchOrder] = useState(false);
@@ -183,5 +183,20 @@ export default function TransliterationScreen() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function TransliterationScreen() {
+  return (
+    <Suspense fallback={
+      <main className="flex flex-col items-center min-h-full font-sans">
+        <TransliteratorHeader />
+        <div className="flex items-center justify-center p-8">
+          <span className="text-blue-200 text-sm animate-pulse">Loading...</span>
+        </div>
+      </main>
+    }>
+      <TransliterationContent />
+    </Suspense>
   );
 }
