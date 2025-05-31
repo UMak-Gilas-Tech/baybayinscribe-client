@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { useTranslate } from "@/app/store/store.translate";
+import { useSearchParams } from "next/navigation";
 
 export default function TransliterationScreen() {
   const [latinText, setLatinText] = useState("");
@@ -24,9 +25,16 @@ export default function TransliterationScreen() {
   const [latinLang, setLatinLang] = useState("filipino");
   const [loading, setLoading] = useState(false);
 
+  const params = useSearchParams();
   const translate = useTranslate((s) => s.translate);
   const translateFilToEng = useTranslate((s) => s.translateFilToEng);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (params.get("s")) {
+      setLatinText(params.get("s") || "");
+    }
+  }, [params]); 
 
   // Debounced translation effect for English and Filipino-to-English
   useEffect(() => {
