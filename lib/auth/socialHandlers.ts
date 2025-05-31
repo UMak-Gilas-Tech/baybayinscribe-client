@@ -24,15 +24,29 @@ export const createSocialHandlers = ({
     }
   };
 
-  const handleFacebookSignIn = async () => {
+  // const handleFacebookSignIn = async () => {
+  //   try {
+  //     await authClient.signIn.social({
+  //       provider: "facebook",
+  //       callbackURL,
+  //     });
+  //     toast.success("Successfully signed in with Facebook! Please wait...");
+  //   } catch {
+  //     const errorMessage = "Failed to sign in with Facebook. Please try again.";
+  //     toast.error(errorMessage);
+  //     setLoginError(errorMessage);
+  //   }
+  // };
+
+  const handleRedditSignIn = async () => {
     try {
       await authClient.signIn.social({
-        provider: "facebook",
+        provider: "reddit",
         callbackURL,
       });
-      toast.success("Successfully signed in with Facebook! Please wait...");
+      toast.success("Successfully signed in with Reddit! Please wait...");
     } catch {
-      const errorMessage = "Failed to sign in with Facebook. Please try again.";
+      const errorMessage = "Failed to sign in with Reddit. Please try again.";
       toast.error(errorMessage);
       setLoginError(errorMessage);
     }
@@ -40,6 +54,7 @@ export const createSocialHandlers = ({
 
   return {
     handleGoogleSignIn,
-    handleFacebookSignIn,
+    // handleFacebookSignIn,
+    handleRedditSignIn,
   };
 };
