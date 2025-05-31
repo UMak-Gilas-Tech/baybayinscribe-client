@@ -1,0 +1,1 @@
+export type Status = "Idle" | "Loading" | "Loaded" | "Error" 
