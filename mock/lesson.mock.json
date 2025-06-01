@@ -1,0 +1,94 @@
+{
+  "lessons": [
+    {
+      "title": "Introduction to Baybayin",
+      "id": "intro-baybayin",
+      "created_by": "system",
+      "description": "Learn the basics of Baybayin script, its history, and fundamental characters. Perfect for beginners starting their Baybayin journey.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin Vowels and Consonants",
+      "id": "vowels-consonants",
+      "created_by": "system",
+      "description": "Master the vowel and consonant characters in Baybayin. Understand how they combine to form syllables and words.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Writing Your Name in Baybayin",
+      "id": "write-name",
+      "created_by": "system",
+      "description": "A practical guide to writing your name and common words in Baybayin. Includes step-by-step instructions and examples.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Advanced Baybayin Techniques",
+      "id": "advanced-tech",
+      "created_by": "system",
+      "description": "Explore advanced writing techniques, ligatures, and traditional Baybayin styles. For those ready to deepen their practice.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin Calligraphy Basics",
+      "id": "calligraphy-basics",
+      "created_by": "system",
+      "description": "Discover the art of Baybayin calligraphy. Learn proper stroke techniques, pen handling, and basic decorative elements.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Common Phrases in Baybayin",
+      "id": "common-phrases",
+      "created_by": "system",
+      "description": "Learn to write and read everyday phrases in Baybayin. Perfect for practical application and daily practice.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin in Modern Context",
+      "id": "modern-context",
+      "created_by": "system",
+      "description": "Explore how Baybayin is used in contemporary settings, from art to digital media and cultural preservation.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin Typography",
+      "id": "typography",
+      "created_by": "system",
+      "description": "Study different Baybayin typefaces and learn how to create your own digital Baybayin fonts.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin Art Projects",
+      "id": "art-projects",
+      "created_by": "system",
+      "description": "Creative projects combining Baybayin with various art forms. Perfect for artists and creative enthusiasts.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    },
+    {
+      "title": "Baybayin for Educators",
+      "id": "for-educators",
+      "created_by": "system",
+      "description": "Specialized guide for teachers and educators on how to effectively teach Baybayin to students of all ages.",
+      "is_visible": true,
+      "createdAt": "2024-03-20T00:00:00.000Z",
+      "updatedAt": "2024-03-20T00:00:00.000Z"
+    }
+  ]
+}

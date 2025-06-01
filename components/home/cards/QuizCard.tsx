@@ -38,7 +38,7 @@ export function QuizCard({
       <Card
         className={cn(
           "relative pr-4 sm:pr-0 mb-6 sm:mb-0 w-full flex-1 flex flex-row items-center overflow-hidden group",
-          "sm:max-h-[459px] sm:min-w-[300px] sm:flex-col sm:items-stretch",
+          "sm:max-h-[459px] sm:min-w-[300px] sm:flex-col sm:items-stretch max-h-[380px]",
           "transition-all duration-500 hover:-translate-y-2  active:translate-y-0 active:shadow-none active:scale-95"
         )}
       >

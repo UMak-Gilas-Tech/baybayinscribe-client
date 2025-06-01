@@ -7,6 +7,7 @@ import { GuideCard } from "./cards/GuideCard";
 import { QuizCard } from "./cards/QuizCard";
 import { Quiz } from "@/types/type.quiz";
 import { ContentSection } from "./Home.Section.Content";
+import mockLessonsData from "@/mock/lesson.mock.json";
 
 interface Lesson {
   title: string;
@@ -20,7 +21,7 @@ interface Lesson {
 
 export function HomeMainContentScreen() {
   const lessonsStatus = useLearningResourceStore((state) => state.status);
-  const lessons = useLearningResourceStore((state) => state.lessons);
+  const storeLessons = useLearningResourceStore((state) => state.lessons);
   const getAllLessons = useLearningResourceStore(
     (state) => state.getAllLessons
   );
@@ -29,11 +30,22 @@ export function HomeMainContentScreen() {
   const quizzes = useQuizStore((state) => state.quizzes);
   const loadAllQuiz = useQuizStore((state) => state.loadAllQuiz);
 
+  // Convert mock data dates to Date objects
+  const mockLessons = mockLessonsData.lessons.map((lesson) => ({
+    ...lesson,
+    createdAt: new Date(lesson.createdAt),
+    updatedAt: new Date(lesson.updatedAt),
+  }));
+
+  // Only use mock lessons if store lessons are empty or undefined
+  // const lessons = mockLessons; // Uncomment this line to use mock data for debugging
+  const lessons =
+    storeLessons && storeLessons.length > 0 ? storeLessons : mockLessons;
+
   useEffect(() => {
-    if (lessonsStatus !== "Loaded" && lessonsStatus !== "Loading") {
-      getAllLessons();
-    }
-  }, [lessonsStatus, getAllLessons]);
+    // Always try to load lessons from the store first
+    getAllLessons();
+  }, [getAllLessons]);
 
   useEffect(() => {
     if (quizzesStatus !== "Loaded" && quizzesStatus !== "Loading") {
@@ -50,13 +62,14 @@ export function HomeMainContentScreen() {
         items={lessons}
         renderItem={(lesson) => (
           <article
-            key={lesson.title}
-            className="w-full sm:max-w-[300px] flex-shrink-0"
+            key={lesson.id}
+            className="w-full h-full sm:max-w-[300px] min-h-fit flex-shrink-0 overflow-auto pt-3"
           >
             <GuideCard
               title={lesson.title}
               description={lesson.description}
               href={`/lesson/${lesson.id}`}
+              buttonText="Start Learning"
             />
           </article>
         )}
