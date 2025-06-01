@@ -13,7 +13,6 @@ import {
   ChevronDown,
   ChevronsUpDown,
   History,
-  MessageSquareWarning,
   Settings,
   TextQuote,
   TriangleAlert,
@@ -23,8 +22,8 @@ import SwitchControls from "./SwitchControls";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import ButtyTextBubble from "@/public/images/ButtyTextBubble.png";
-import ButtyRead from "@/public/images/ButtyRead.png";
+import ButtyTextBubble from "@/public/images/ButtyTextBubble.webp";
+import ButtyRead from "@/public/images/ButtyRead.webp";
 import InferenceWebcam, {
   InferenceWebcamHandle,
 } from "@/components/InferenceWebcam";
@@ -38,9 +37,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import Image from "next/image";
 
 interface WebcamConfigProps {
   onSelectCamera: (deviceId: string) => void;
@@ -127,6 +126,7 @@ const WebcamConfig = ({
 const VisionScreen = () => {
   const webcamRef = useRef<InferenceWebcamHandle | null>(null);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [isCameraInitializing, setIsCameraInitializing] = useState(true);
 
   const [detectedBaybayinText, setDetectedBaybayinText] = useState<
     InferenceResult[] | undefined
@@ -146,24 +146,52 @@ const VisionScreen = () => {
     // load history
     loadHistory();
 
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
+    // Initialize cameras with error handling
+    const initializeCameras = async () => {
+      try {
+        setIsCameraInitializing(true);
+        const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter((d) => d.kind === "videoinput");
         setCameras(videoDevices);
-      })
-      .catch(console.error);
+      } catch (error) {
+        console.error("Failed to initialize cameras:", error);
+      } finally {
+        setIsCameraInitializing(false);
+      }
+    };
+
+    initializeCameras();
   }, []);
 
   useEffect(() => {
     if (detectedBaybayinText && !seenText) {
-      changeButtyCharacterBubbleText();
+      const confidenceAvg =
+        detectedBaybayinText.reduce((acc, curr) => acc + curr.confidence, 0) /
+        detectedBaybayinText.length;
+
+      if (confidenceAvg > 0.8) {
+        setBubbleText("Wow! I can read Baybayin!");
+      } else if (confidenceAvg > 0.5 && confidenceAvg <= 0.8) {
+        setBubbleText("I think I can read Baybayin!");
+      } else if (confidenceAvg > 0.3 && confidenceAvg <= 0.5) {
+        setBubbleText(
+          "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+        );
+      } else if (confidenceAvg > 0.1 && confidenceAvg <= 0.3) {
+        setBubbleText(
+          "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+        );
+      } else {
+        setBubbleText(
+          "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
+        );
+      }
     } else if (!detectedBaybayinText) {
       setBubbleText(
         "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
       );
     }
-  }, [detectedBaybayinText]);
+  }, [detectedBaybayinText, seenText]);
 
   // on mount, show dialog only if not already agreed
   useEffect(() => {
@@ -185,33 +213,6 @@ const VisionScreen = () => {
   const clearHistory = () => {
     localStorage.removeItem("detectedBaybayinText");
     setHistory([]);
-  };
-
-  const changeButtyCharacterBubbleText = () => {
-    const confidenceAvg =
-      detectedBaybayinText!.reduce((acc, curr) => acc + curr.confidence, 0) /
-      detectedBaybayinText!.length;
-
-    console.log(confidenceAvg);
-    if (confidenceAvg > 0.8) {
-      setBubbleText("Wow! I can read Baybayin!");
-    } else if (confidenceAvg > 0.5 && confidenceAvg <= 0.8) {
-      setBubbleText("I think I can read Baybayin!");
-    } else if (confidenceAvg > 0.3 && confidenceAvg <= 0.5) {
-      setBubbleText(
-        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
-      );
-    } else if (confidenceAvg > 0.1 && confidenceAvg <= 0.3) {
-      setBubbleText(
-        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
-      );
-    } else {
-      setBubbleText(
-        "No Baybayin script found :( Make sure the text is clear, well-lit, and fully visible."
-      );
-    }
-
-    console.log(confidenceAvg);
   };
 
   const handleSelectCamera = (deviceId: string) => {
@@ -256,7 +257,7 @@ const VisionScreen = () => {
       <div className="relative flex flex-col md:flex-row h-full w-full gap-6 p-4 md:gap-10 md:p-10">
         <div className="flex-1 w-full flex flex-col items-center z-10 mb-6 md:mb-0">
           <WebcamConfig
-            disable={!realTimeDetection}
+            disable={!realTimeDetection || isCameraInitializing}
             onSelectCamera={handleSelectCamera}
             cameras={cameras}
           />
@@ -401,17 +402,27 @@ const VisionScreen = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Butty Character */}
+          {/* Butty Character - Optimized image loading */}
           <div className="mt-24 md:mt-6 w-full flex justify-end md:absolute md:bottom-4 md:right-4">
             <div className="relative w-40 h-24 md:w-56 md:h-32">
-              <img
+              <Image
                 src={ButtyRead.src}
                 className="absolute bottom-0 right-0 w-full h-full object-contain"
+                alt="Butty reading Baybayin script"
+                fill
+                sizes="(max-width: 768px) 160px, 224px"
+                priority
+                loading="eager"
               />
               <div className="absolute -top-24 -left-40 w-full h-full flex items-center justify-center">
-                <img
+                <Image
                   src={ButtyTextBubble.src}
                   className="absolute object-contain"
+                  alt="Butty's speech bubble"
+                  fill
+                  sizes="(max-width: 768px) 160px, 224px"
+                  priority
+                  loading="eager"
                 />
                 <div className="flex items-center justify-center">
                   <span className="relative z-10 -top-3 text-center text-xs px-1 h-full">
