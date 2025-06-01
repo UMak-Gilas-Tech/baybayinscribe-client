@@ -39,6 +39,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type UserData = {
   firstName: string;
@@ -255,28 +256,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeader>
           {!isLoading && userData ? (
             <div className="flex items-center space-x-2 overflow-hidden">
-              <div className="flex-shrink-0">
-                <Image
-                  src={
-                    userData.profilePictureUrl ||
-                    "/images/user.profile/user.avatar.webp"
-                  }
-                  alt="User Avatar"
-                  className="h-8 w-8 rounded-full object-cover"
-                  width={32}
-                  height={32}
-                />
+              <div className="flex-shrink-0 ">
+                <Button
+                  variant="ghost"
+                  className="h-8 w-8 rounded-full p-0 sm:h-9 sm:w-9 hover:scale-95 transition-all duration-500 hover:bg-blue-800/50"
+                  onClick={openProfileModal}
+                >
+                  <Image
+                    src={
+                      userData.profilePictureUrl ||
+                      "/images/user.profile/user.avatar.webp"
+                    }
+                    alt="User Avatar"
+                    className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
+                    width={32}
+                    height={32}
+                  />
+                </Button>
               </div>
               {state === "expanded" && (
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">
+                  <span className="font-medium text-sm sm:text-sm text-blue-200 text-ellipsis line-clamp-2">
                     {isAdminRoute
                       ? "Administrator"
                       : `${userData.firstName || ""} ${
                           userData.lastName || ""
                         }`.trim()}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs sm:text-sm text-gray-500 text-ellipsis line-clamp-1">
                     {isAdminRoute
                       ? "Admin Panel"
                       : userData?.username

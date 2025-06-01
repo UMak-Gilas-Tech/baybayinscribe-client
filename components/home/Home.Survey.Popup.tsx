@@ -175,6 +175,13 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
+    // Check if user has chosen not to see the survey again
+    const hasChosenNotToShow = localStorage.getItem("dontShowSurveyAgain");
+    if (hasChosenNotToShow === "true") {
+      setShowSurvey(false);
+      return;
+    }
+
     // For testing: Uncomment this to force show the survey
     setShowSurvey(true);
 
@@ -199,10 +206,19 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
 
   const handleClose = () => {
     if (dontShowAgain) {
-      localStorage.setItem("hasSeenSurvey", "true");
+      localStorage.setItem("dontShowSurveyAgain", "true");
     }
     setShowSurvey(false);
     onClose();
+  };
+
+  const handleDontShowAgainChange = (checked: boolean) => {
+    setDontShowAgain(checked);
+    if (checked) {
+      localStorage.setItem("dontShowSurveyAgain", "true");
+    } else {
+      localStorage.removeItem("dontShowSurveyAgain");
+    }
   };
 
   return (
@@ -222,9 +238,7 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
         <SurveyContent
           step="initial"
           dontShowAgain={dontShowAgain}
-          onDontShowAgainChange={(checked) =>
-            setDontShowAgain(checked as boolean)
-          }
+          onDontShowAgainChange={handleDontShowAgainChange}
           onClose={handleClose}
         />
       </DialogContent>
