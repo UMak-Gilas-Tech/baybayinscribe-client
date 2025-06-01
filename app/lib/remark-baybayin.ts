@@ -26,7 +26,7 @@ const remarkBaybayin: Plugin = () => {
           type: 'baybayin',
           data: {
             hName: 'span', // Use 'span' for inline, not 'div'
-            hProperties: { className: 'font-baybayin' },
+            hProperties: { className: 'font-baybayin text-xl font-bold' },
           },
           children: [
             {

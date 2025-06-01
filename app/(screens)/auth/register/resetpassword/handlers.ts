@@ -90,6 +90,7 @@ export const createResetPasswordHandlers = ({
             setError(errorMessage);
             setIsLoading(false);
           },
+          redirectTo: "/auth/register/resetpassword",
         }
       );
     } catch {

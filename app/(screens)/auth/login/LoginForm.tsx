@@ -21,6 +21,10 @@ import { PasswordInput } from "../components/InputPassword";
 import { AccountHelper } from "../components/AccountHelper";
 import { AccountPwHelper } from "../components/AccountPwHelper";
 
+export async function getServerSideProps() {
+  
+}
+
 // Memoize the schema to prevent recreation on each render
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -31,8 +35,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSubmit: (values: LoginFormData & { rememberMe: boolean }) => Promise<void>;
-  onFacebookSignIn: () => Promise<void>;
+  // onFacebookSignIn: () => Promise<void>;
   onGoogleSignIn: () => Promise<void>;
+  onRedditSignIn: () => Promise<void>;
   error: string;
   loginError: string;
   validationError?: string;
@@ -58,8 +63,9 @@ ErrorMessage.displayName = "ErrorMessage";
 
 export const LoginForm = ({
   onSubmit,
-  onFacebookSignIn,
+  // onFacebookSignIn,
   onGoogleSignIn,
+  onRedditSignIn,
   error,
   loginError,
   validationError,
@@ -84,10 +90,11 @@ export const LoginForm = ({
   // Memoize social login handlers
   const memoizedSocialHandlers = useMemo(
     () => ({
-      onFacebookSignIn,
+      // onFacebookSignIn,
       onGoogleSignIn,
+      onRedditSignIn,
     }),
-    [onFacebookSignIn, onGoogleSignIn]
+    [/*onFacebookSignIn,*/ onGoogleSignIn, onRedditSignIn]
   );
 
   return (

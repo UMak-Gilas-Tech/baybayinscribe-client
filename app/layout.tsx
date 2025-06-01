@@ -10,9 +10,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
-import { ScreenSize } from "../components/ScreenSize";
 import { siteConfig } from "./metadata";
 import Background from "@/components/background";
+import { Dialog } from "@/components/ui/dialog";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +36,10 @@ export default function RootLayout({
     pathname === "/auth/register/profpic" ||
     pathname === "/auth/register/terms" ||
     pathname === "/auth/register/resetpassword" ||
-    pathname === "/admin/forbidden";
+    pathname === "/admin/forbidden" ||
+    pathname === "/tos" ||
+    pathname === "/privacypolicy" ||
+    pathname === "/datadeletion";
 
   return (
     <html lang="en">
@@ -65,10 +68,13 @@ export default function RootLayout({
           )}
           {isLoginPage && <main>{children}</main>}
         </SidebarProvider>
-        <ScreenSize />
         <SpeedInsights />
         <Analytics />
         <Toaster position="bottom-right" richColors />
+
+        <Dialog >
+
+        </Dialog>
       </body>
     </html>
   );

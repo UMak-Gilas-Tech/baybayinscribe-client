@@ -122,7 +122,7 @@ export default function AllQuizzesPage() {
                     <button
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-blue-100 text-white font-medium text-xs shadow hover:bg-blue-200 transition"
                       onClick={() => {
-                        window.location.href = `/quiz/${quiz.metadata.quiz_id}`;
+                        window.location.href = `/quiz/${quiz.metadata.quiz_id}/view`;
                       }}
                     >
                       View Quiz

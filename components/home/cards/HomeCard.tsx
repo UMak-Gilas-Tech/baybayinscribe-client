@@ -15,16 +15,20 @@ interface NavCardProps {
   description: string;
   href: string;
   buttonText?: string;
+  image?: string;
+  isComingSoon?: boolean;
+  clampTitle?: boolean;
 }
 
-export function QuizCard({
+export function HomeCard({
   title,
   description,
   href,
   buttonText = "Start Learning",
   image,
   isComingSoon = false,
-}: NavCardProps & { image?: string; isComingSoon?: boolean }) {
+  clampTitle = false,
+}: NavCardProps) {
   return (
     <Link
       href={isComingSoon ? "#" : href}
@@ -60,7 +64,12 @@ export function QuizCard({
             )}
           </div>
           <div className="min-w-fit  sm:min-w-auto">
-            <CardTitle className="font-semibold text-xl group-hover:text-blue-300 group-hover:font-bold group-hover:transition-all group-hover:duration-500">
+            <CardTitle
+              className={cn(
+                "font-semibold text-xl group-hover:text-blue-300 group-hover:font-bold group-hover:transition-all group-hover:duration-500",
+                clampTitle && "line-clamp-1"
+              )}
+            >
               {title}
             </CardTitle>
             <CardDescription className="text-base text-grey-300 line-clamp-3 mt-1.5 sm:mt-0">

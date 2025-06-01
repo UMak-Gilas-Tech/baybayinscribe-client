@@ -12,7 +12,7 @@ const Identification = (props: IdentificationProps) => {
 
   const handleSubmit = () => {
     const isCorrect =
-      answer.trim().toLowerCase() === props.correctAnswer.trim().toLowerCase();
+      answer.trim().toLowerCase().replaceAll(" ", "") === props.correctAnswer.trim().toLowerCase().replaceAll(" ", "");
     props.onAnswer(answer.trim().toLowerCase(), isCorrect);
   };
 

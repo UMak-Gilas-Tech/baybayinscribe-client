@@ -11,13 +11,19 @@ export const auth = betterAuth({
     provider: "pg",
     schema: schema,
   }),
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  trustedOrigins: [process.env.NEXT_PUBLIC_SITE_URL as string,],
+  customPaths: {
+    resetPassword: "/auth/register/resetpassword",
+  },
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url}) => {
+    sendResetPassword: async ({ user, token }) => {
+      const resetPasswordUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/register/resetpassword?token=${token}`;
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
-        text: `Click the link to reset your password: ${url}`,
+        text: `Click the link to reset your password: ${resetPasswordUrl}`,
       });
     },
   },
@@ -26,9 +32,14 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string, 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-    facebook: {
-      clientId: process.env.FACEBOOK_CLIENT_ID as string,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+    // facebook: {
+    //   clientId: process.env.FACEBOOK_CLIENT_ID as string,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+    // },
+    reddit: {
+      clientId: process.env.REDDIT_CLIENT_ID as string,
+      clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
+      scope: ["identity", "read"],
     },
   },
   plugins: [

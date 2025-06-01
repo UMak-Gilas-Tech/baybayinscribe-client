@@ -7,6 +7,7 @@ import React, {
   HTMLAttributes,
   createContext,
   useContext,
+  useCallback,
 } from "react";
 import {
   InferenceStatus,
@@ -52,20 +53,83 @@ const SketchpadQuestionHolder = () => {
 };
 
 const SketchpadCanvas = () => {
-  const props = useSketchpadProps(); // Access props here if needed
+  const props = useSketchpadProps();
   const quizContext = useQuizTakeContext();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setIsErasing] = useState(false);
   const [baybayinText, setBaybayinText] = useState<string | null>(null);
+  const submissionHandledRef = useRef(false);
+  const [hasProcessedResult, setHasProcessedResult] = useState(false);
 
-  // NEW: Reset canvas on render.
+  // Remove model initialization - it's now handled in context
+  // Just ensure cleanup on unmount
   useEffect(() => {
-    handleClear();
+    return () => {
+      const inference = props.inference as InferenceState;
+      if (inference.status !== InferenceStatus.IDLE) {
+        // Don't cleanup here since other components might be using it
+        // inference.cleanup();
+      }
+    };
   }, []);
 
+  // Reset canvas on render
+  useEffect(() => {
+    handleClear();
+    submissionHandledRef.current = false;
+  }, [props.characters]); // Reset when question changes
+
+  // Subscribe to submit when model is ready
+  useEffect(() => {
+    const inference = props.inference as InferenceState;
+    if (inference.status === InferenceStatus.READY && !submissionHandledRef.current) {
+      quizContext.subscribeToSubmit(handleSubmit);
+      submissionHandledRef.current = true;
+    }
+  }, [(props.inference as InferenceState).status]);
+
+  // Handle inference results with automatic failure
+  useEffect(() => {
+    const inference = props.inference as InferenceState;
+    if (inference?.localInferenceResult && !hasProcessedResult) {
+      const result = inference.localInferenceResult;
+      
+      if (result.length > 0) {
+        const builtString = result.map((item) => item.className).join("");
+        setBaybayinText(builtString);
+        const isCorrect = builtString === props.characters;
+        
+        // Call the drawing submit callback
+        props.onDrawingSubmit?.(builtString, isCorrect);
+        
+        // Mark as processed to prevent multiple calls
+        setHasProcessedResult(true);
+      } else {
+        // No detection - automatically fail
+        setBaybayinText(null);
+        props.onDrawingSubmit?.("No detection", false);
+        setHasProcessedResult(true);
+      }
+    }
+  }, [(props.inference as InferenceState).localInferenceResult, hasProcessedResult]);
+
+  // Reset processed flag when question changes
+  useEffect(() => {
+    handleClear();
+    submissionHandledRef.current = false;
+    setHasProcessedResult(false);
+    setBaybayinText(null);
+    
+    // Clear any existing inference results for this component
+    const inference = props.inference as InferenceState;
+    if (inference.localInferenceResult) {
+      inference.clearResults();
+    }
+  }, [props.characters]);
+
+  // Canvas setup and event handlers
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -138,32 +202,28 @@ const SketchpadCanvas = () => {
     };
   }, [isDrawing]);
 
-  useEffect(() => {
-    (props.inference as InferenceState).initLocalModel();
-  }, []);
+  const handleSubmit = useCallback(() => {
+    const canvas = canvasRef.current;
+    const inference = props.inference as InferenceState;
 
-  useEffect(() => {
-    const inference: InferenceState =
-      props.inference as unknown as InferenceState;
-
-    if (inference.status == InferenceStatus.READY)
-      quizContext.subscribeToSubmit(handleSubmit);
-  }, [(props.inference as InferenceState).status]);
-
-  useEffect(() => {
-    const inference: InferenceState =
-      props.inference as unknown as InferenceState;
-    if (inference && inference.localInferenceResult) {
-      const result = inference.localInferenceResult;
-      if (result.length > 0) {
-        const builtString = result.map((item) => item.className).join("");
-        setBaybayinText(builtString);
-        props.onDrawingSubmit?.(builtString, builtString === props.characters);
-      } else {
-        setBaybayinText(null);
-      }
+    if (!canvas || !inference) {
+      console.error("Canvas or inference not available");
+      return;
     }
-  }, [(props.inference as InferenceState).localInferenceResult]);
+
+    if (inference.status !== InferenceStatus.READY) {
+      console.error("Inference not ready, status:", inference.status);
+      return;
+    }
+
+    if (inference.isInferring) {
+      console.log("Inference already in progress");
+      return;
+    }
+
+    console.log("Starting inference...");
+    inference.inferLocal(undefined, canvas, false, true);
+  }, [props.inference]);
 
   const handleUndo = () => {
     const canvas = canvasRef.current;
@@ -181,6 +241,7 @@ const SketchpadCanvas = () => {
     if (canvas && context) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       setHistory([]);
+      setBaybayinText(null);
     }
   };
 
@@ -191,24 +252,6 @@ const SketchpadCanvas = () => {
       setIsErasing(false);
       context.globalCompositeOperation = "source-over";
       context.strokeStyle = "#000000";
-    }
-  };
-
-  const handleSubmit = () => {
-    const canvas = canvasRef.current;
-    const inference: InferenceState =
-      props.inference as unknown as InferenceState;
-    if (
-      canvas &&
-      inference &&
-      inference.status === InferenceStatus.READY &&
-      inference.localModel
-    ) {
-      const inference: InferenceState =
-        props.inference as unknown as InferenceState;
-      inference.inferLocal(undefined, canvas, false);
-    } else {
-      console.error("Inference is not ready or canvas is not available");
     }
   };
 
@@ -265,6 +308,7 @@ const SketchpadCanvas = () => {
     ) : null;
   };
 
+  // Remove loading states since they're handled in QuizTakeContent
   return (
     <div className="z-10 w-full flex items-center justify-center">
       <div className="relative z-20 flex flex-col justify-center items-center gap-4 w-full md:w-3/4 lg:w-[50%] aspect-[16/9] shadow-xl bg-[#D3DDFD] border-2 border-[#31384D]">

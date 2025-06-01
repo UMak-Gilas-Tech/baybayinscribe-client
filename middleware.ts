@@ -13,7 +13,10 @@ export async function middleware(request: NextRequest) {
     pathname.includes(".woff2") ||
     pathname.includes(".woff") ||
     pathname.includes(".ttf") ||
-    pathname.includes(".otf")
+    pathname.includes(".otf") ||
+    pathname === "/privacypolicy" ||
+    pathname === "/tos" ||
+    pathname === "/datadeletion"
   ) {
     return NextResponse.next();
   }

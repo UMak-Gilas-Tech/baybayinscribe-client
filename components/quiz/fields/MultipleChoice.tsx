@@ -11,6 +11,7 @@ interface MultipleChoiceItemProps {
   result?: "default" | "correct" | "wrong";
   // Disable the button if true.
   disabled?: boolean;
+  choiceLanguage?: string;
 }
 
 const MultipleChoiceItem = ({
@@ -18,6 +19,7 @@ const MultipleChoiceItem = ({
   label = "Option",
   result = "default",
   disabled = false,
+  choiceLanguage = "Tagalog",
 }: MultipleChoiceItemProps) => {
   // Determine background class based on result
   const bgClass =
@@ -34,7 +36,7 @@ const MultipleChoiceItem = ({
       }`}
       role="button"
     >
-      <span className="text-white text-center w-full">{label}</span>
+      <span className={`text-white text-center w-full ${choiceLanguage == "Baybayin" ? "font-baybayin" : ""}`}>{label}</span>
     </div>
   );
 };
@@ -46,6 +48,7 @@ export type Option = {
 
 interface MultipleChoiceProps {
   options?: Option[];
+  choiceLanguage?: string;
   onAnswer?: (selected: Option, isCorrect: boolean) => void;
 }
 
@@ -76,6 +79,7 @@ const MultipleChoice = ({ options = [], onAnswer }: MultipleChoiceProps) => {
           return (
             <MultipleChoiceItem
               key={index}
+              
               onClick={() => handleChoice(index)}
               label={option.label}
               result={result}

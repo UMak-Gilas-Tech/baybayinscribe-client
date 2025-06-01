@@ -120,11 +120,38 @@ export const QuizTakeContent = () => {
     (quizContext.progress >= quizContext.quiz.questions.length ||
       quizContext.health === 0);
 
+  // Check if current question is a sketch question
+  const isSketchQuestion =
+    quizContext.currentQuestion &&
+    (quizContext.currentQuestion.type === QuestionType.SKT ||
+      quizContext.currentQuestion.type === "sketch");
+
+  // Show loading if quiz or model is not ready for sketch questions
+  const shouldShowLoading =
+    !quizContext.quiz || (isSketchQuestion && !quizContext.isModelReady);
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100">
       <div className="flex flex-col h-screen w-full lg:px-20 md:px-14 px-10">
-        {/* Only show quiz content if not done */}
-        {!isQuizDone && (
+        {/* Show loading state */}
+        {shouldShowLoading && !isQuizDone && (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="text-center">
+              <p className="text-xl font-semibold mb-4">
+                {!quizContext.quiz ? "Loading quiz..." : "Preparing AI model..."}
+              </p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+              {isSketchQuestion && (
+                <p className="text-sm text-gray-600 mt-2">
+                  This may take a moment for sketch questions
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Only show quiz content if ready and not done */}
+        {!isQuizDone && !shouldShowLoading && (
           <>
             <div className="flex flex-col">
               {quizContext.quiz && quizContext.currentQuestion ? (
@@ -141,7 +168,7 @@ export const QuizTakeContent = () => {
                       attempt: 0,
                       answered_at: new Date().toISOString(),
                       quiz_id: quizContext.quiz!.metadata.quiz_id,
-                      user_id: userId || "", // Ensure user_id is set
+                      user_id: userId || "",
                     });
                     if (quizContext.health === 0) return;
                     setTimeout(
@@ -169,10 +196,11 @@ export const QuizTakeContent = () => {
               ) : null}
             </div>
 
+            {/* Sketch questions - only show when model is ready */}
             {quizContext.currentQuestion &&
             quizContext.currentQuestion.description &&
-            (quizContext.currentQuestion.type === QuestionType.SKT ||
-              quizContext.currentQuestion.type === "sketch") ? (
+            isSketchQuestion &&
+            quizContext.isModelReady ? (
               <SketchpadComponent
                 key={quizContext.currentQuestion.question_number}
                 characters={(quizContext.currentQuestion.character as string)!}
@@ -188,16 +216,25 @@ export const QuizTakeContent = () => {
                     attempt: 0,
                     answered_at: new Date().toISOString(),
                     quiz_id: quizContext.quiz!.metadata.quiz_id,
-                    user_id: userId || "", // Ensure user_id is set
+                    user_id: userId || "",
                   });
-                  if (isCorrect) toast.success("Correct!");
-                  else {
+                  
+                  if (isCorrect) {
+                    toast.success("Correct!");
+                  } else {
+                    // Automatically fail and reduce health for wrong sketches
                     quizContext.setHealth((health) => health - 1);
-                    toast.error("Incorrect!");
+                    if (result === "No detection") {
+                      toast.error("No character detected! Try drawing more clearly.");
+                    } else {
+                      toast.error(`Incorrect! You drew: ${result}`);
+                    }
                   }
+                  
+                  // Auto-advance to next question after a delay
                   setTimeout(
                     () => quizContext.setProgress((val) => val + 1),
-                    1000
+                    1500
                   );
                 }}
               />
@@ -219,6 +256,7 @@ export const QuizTakeContent = () => {
               quizContext.currentQuestion.type === "multipleChoice") ? (
               <MultipleChoice
                 key={quizContext.currentQuestion.question_number}
+                choiceLanguage={quizContext.currentQuestion.language ?? "Tagalog"}
                 options={[
                   ...(quizContext.currentQuestion.options as string[])!.map(
                     (option, index) => ({

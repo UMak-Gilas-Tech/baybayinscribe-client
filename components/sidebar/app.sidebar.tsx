@@ -10,7 +10,6 @@ import {
   BookOpenText,
   ListTodo,
   UserCog,
-  LayoutDashboard,
   Users,
   LogOut,
   ListChecks,
@@ -32,6 +31,14 @@ import {
 } from "../ui/sidebar";
 import ProfileModal from "@/components/profile.settings/accounts/modal.profile";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 type UserData = {
   firstName: string;
@@ -116,10 +123,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Logout",
           url: "#",
           icon: LogOut,
-          onClick: async (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent) => {
             e.preventDefault();
-            console.log("Logout button clicked");
-            await handleAdminLogout();
+            setIsLogoutDialogOpen(true);
           },
         },
       ],
@@ -235,11 +241,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       name: "Admin Panel",
-      url: "/admin",
+      url: "/admin/users",
       icon: ListTodo,
       adminOnly: true,
     },
   ];
+
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = React.useState(false);
 
   return (
     <>
@@ -333,6 +341,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           onProfileUpdated={fetchUserData}
           userData={userData}
         />
+      )}
+
+      {/* Admin Logout Dialog */}
+      {isAdminRoute && (
+        <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Log out</DialogTitle>
+              <DialogDescription>
+                Do you want to log out of your session?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-3">
+              <button
+                onClick={handleAdminLogout}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+              >
+                Yes, Log me out
+              </button>
+              <button
+                onClick={() => setIsLogoutDialogOpen(false)}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 cursor-pointer"
+              >
+                No, don&apos;t log me out
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

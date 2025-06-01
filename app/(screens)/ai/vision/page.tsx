@@ -402,7 +402,7 @@ const VisionScreen = () => {
           </Tabs>
 
           {/* Butty Character */}
-          <div className="mt-6 w-full flex justify-center md:justify-end md:absolute md:bottom-4 md:right-4">
+          <div className="mt-24 md:mt-6 w-full flex justify-end md:absolute md:bottom-4 md:right-4">
             <div className="relative w-40 h-24 md:w-56 md:h-32">
               <img
                 src={ButtyRead.src}
