@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Eye, EyeClosed } from "lucide-react";
+import { createPasswordSchema, checkPasswordStrength, PasswordStrength } from "@/lib/auth/passwordValidation";
+import { authClient } from "../../../../app/lib/auth-client";
 
 type UserData = {
   firstName: string;
@@ -28,9 +30,28 @@ type EditProfileDesktopProps = {
 export default function DesktopEditProfile({ onClose, userData, onSave }: EditProfileDesktopProps) {
   const [formData, setFormData] = useState<FormDataWithFile>(userData as FormDataWithFile);
   const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+
+  // Get strength color
+  const getStrengthColor = (strength: PasswordStrength | null) => {
+    switch (strength) {
+      case PasswordStrength.STRONG:
+        return "text-green-500";
+      case PasswordStrength.MEDIUM:
+        return "text-yellow-500";
+      case PasswordStrength.WEAK:
+        return "text-red-500";
+      default:
+        return "text-gray-500";
+    }
+  };
 
   // Update internal state when userData prop changes
   useEffect(() => {
@@ -55,8 +76,22 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
     }
   };
 
+  const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentPassword(e.target.value);
+    if (errors.currentPassword) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.currentPassword;
+        return newErrors;
+      });
+    }
+  };
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordStrength(newPassword ? checkPasswordStrength(newPassword) : null);
+    
     if (errors.password) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -76,6 +111,7 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
       });
     }
   };
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -159,6 +195,25 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
     }
   };
 
+  const toggleCurrentPasswordVisibility = () => {
+    setShowCurrentPassword((prev) => !prev);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prev) => !prev);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, toggleFn: () => void) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleFn();
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -168,8 +223,21 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
     if (!formData.email?.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid";
 
-    if (password && password.length < 8) newErrors.password = "Password must be at least 8 characters";
-    if (password && confirmPassword !== password) newErrors.confirmPassword = "Passwords do not match";
+    // Password validation using the same schema as registration
+    if (password || confirmPassword || currentPassword) {
+      if (!currentPassword) newErrors.currentPassword = "Current password is required to change password";
+
+      const passwordSchema = createPasswordSchema();
+      const passwordResult = passwordSchema.safeParse(password);
+      if (!passwordResult.success) {
+        newErrors.password = passwordResult.error.errors[0].message;
+      }
+      if (!confirmPassword) {
+        newErrors.confirmPassword = "Please confirm your new password";
+      } else if (password !== confirmPassword) {
+        newErrors.confirmPassword = "New passwords do not match";
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -196,7 +264,7 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           if (!uploadResponse.ok) {
             throw new Error(uploadData.error || 'Failed to upload new profile picture');
           }
-          finalProfilePictureUrl = uploadData.url; // Use the URL from the upload response
+          finalProfilePictureUrl = uploadData.url;
         }
 
         // Prepare the data to update user information in the database
@@ -205,6 +273,37 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
           profilePictureUrl: typeof finalProfilePictureUrl === 'string' ? finalProfilePictureUrl : null,
         };
 
+        // If password is being updated, use authClient.changePassword
+        if (password && currentPassword) {
+          const changePasswordResponse = await authClient.changePassword({
+            currentPassword: currentPassword,
+            newPassword: password,
+          });
+
+          if (changePasswordResponse?.error) {
+            // Check if the error message specifically indicates an incorrect current password
+            const errorMessage = changePasswordResponse.error.message || 'Failed to change password';
+            // Let's try a more robust check, perhaps based on error code or a clearer message pattern if available.
+            // For now, let's be slightly less strict with the includes to see if we catch it.
+            if (errorMessage.toLowerCase().includes('password') && (errorMessage.toLowerCase().includes('incorrect') || errorMessage.toLowerCase().includes('invalid'))) {
+              setErrors(prev => ({
+                ...prev,
+                currentPassword: 'Current password is incorrect. Please try again.'
+              }));
+              return; // Stop the submission process if current password is wrong
+            } else {
+              // If it's a different error, throw it to be caught by the generic handler
+              throw new Error(errorMessage);
+            }
+          }
+
+          // Clear password fields after successful update
+          setCurrentPassword("");
+          setPassword("");
+          setConfirmPassword("");
+        }
+
+        // Update other user information (excluding password fields)
         const response = await fetch('/api/user.information/update', {
           method: 'PUT',
           headers: {
@@ -231,7 +330,7 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
         console.error('Error updating profile:', error);
         setErrors(prev => ({
           ...prev,
-          submit: 'An error occurred while saving changes'
+          submit: error instanceof Error ? error.message : 'An error occurred while saving changes'
         }));
       }
     }
@@ -344,125 +443,216 @@ export default function DesktopEditProfile({ onClose, userData, onSave }: EditPr
 
             {/* Form Fields in Two Columns */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              {/* First Column */}
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  First Name
-                </label>
+              {/* First Row */}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    First Name
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Update your first name.</p>
+                </div>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`w-full p-2 border ${errors.firstName ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                  className={`w-full p-2 border ${errors.firstName ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1`}
                 />
-                {errors.firstName && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Last Name
-                </label>
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Last Name
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Update your last name.</p>
+                </div>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`w-full p-2 border ${errors.lastName ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                  className={`w-full p-2 border ${errors.lastName ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1`}
                 />
-                {errors.lastName && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Username
-                </label>
-                <p className="text-xs text-gray-500 mb-1">Unique, includes letters, numbers. No spaces or special characters.</p>
+              {/* Second Row */}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Username
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Unique, includes letters, numbers. No spaces or special characters.</p>
+                </div>
                 <input
                   type="text"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className={`w-full p-2 border ${errors.username ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                  className={`w-full p-2 border ${errors.username ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1`}
                 />
-                {errors.username && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Date of birth
-                </label>
-                <p className="text-xs text-gray-500 mb-1">Enter your birthdate (MM/DD/YYYY). This will not be shown publicly.</p>
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Date of birth
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Enter your birthdate (MM/DD/YYYY). This will not be shown publicly.</p>
+                </div>
                 <input
                   type="date"
                   name="dateOfBirth"
                   value={formData.dateOfBirth || ""}
                   onChange={handleChange}
-                  className="w-full p-2 border border-blue-300 rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 border border-blue-300 rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1"
                   placeholder="Pick a date"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  New Password
-                </label>
-                <p className="text-xs text-gray-500 mb-1">Minimum of 8 characters with mix of letters, and numbers.</p>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  className={`w-full p-2 border ${errors.password ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="Enter new password"
-                />
-                {errors.password && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+              {/* Third Row (Password Fields) */}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Current Password
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Enter your current password to change it.</p>
+                </div>
+                 <div className="relative mt-1">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={handleCurrentPasswordChange}
+                    className={`w-full p-2 border ${errors.currentPassword ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                    placeholder="Enter current password"
+                  />
+                   <button
+                    type="button"
+                    onClick={toggleCurrentPasswordVisibility}
+                    onKeyDown={(e) => handleKeyDown(e, toggleCurrentPasswordVisibility)}
+                    className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                    aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeClosed className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.currentPassword && <p className="text-red-500 text-xs mt-1 bg-red-100 p-1 rounded">{errors.currentPassword}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Confirm Password
-                </label>
-                <p className="text-xs text-gray-500 mb-1">Re-enter your new password to confirm it. Must match exactly.</p>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  className={`w-full p-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                  placeholder="Confirm new password"
-                />
-                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    New Password
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Min 8 chars, mix of letters, numbers, and symbols.</p>
+                </div>
+                <div className="relative mt-1">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className={`w-full p-2 border ${errors.password ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                    placeholder="Enter new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    onKeyDown={(e) => handleKeyDown(e, togglePasswordVisibility)}
+                    className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeClosed className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {passwordStrength && (
+                  <p className={`text-sm ${getStrengthColor(passwordStrength)} mt-1`}>
+                    Password Strength: {passwordStrength}
+                  </p>
+                )}
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Email
-                </label>
+              {/* Fourth Row (Confirm Password and Email) */}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Confirm Password
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Re-enter your new password.</p>
+                </div>
+                <div className="relative mt-1">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    className={`w-full p-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleConfirmPasswordVisibility}
+                    onKeyDown={(e) => handleKeyDown(e, toggleConfirmPasswordVisibility)}
+                    className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeClosed className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+              </div>
+
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Email
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Update your email address.</p>
+                </div>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full p-2 border ${errors.email ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                  className={`w-full p-2 border ${errors.email ? 'border-red-500' : 'border-blue-300'} rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1`}
                 />
-                {errors.email && <p className="text-red-500 text-xs mt-1">Error Input here</p>}
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium  text-blue-300 mb-1">
-                  Contact Number
-                </label>
+              {/* Fifth Row (Contact Number) */}
+              <div className="flex flex-col">
+                <div>
+                  <label className="block text-sm font-medium text-blue-300 mb-1">
+                    Contact Number
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 mb-1">Update your contact number.</p>
+                </div>
                 <input
                   type="tel"
                   name="contactNumber"
                   value={formData.contactNumber || ""}
                   onChange={handleChange}
-                  className="w-full p-2 border border-blue-300 rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 border border-blue-300 rounded-md bg-neutral-white focus:outline-none focus:ring-1 focus:ring-blue-500 mt-1"
                 />
               </div>
             </div>
 
             {/* Warning text */}
-            <p className="text-blue-700 text-sm mt-6 mb-4">Please complete all changed to continue</p>
+            <p className="text-blue-700 text-sm mt-6 mb-4">Feel free to change your information here!</p>
             {errors.submit && (
               <p className="text-red-500 text-sm mb-4">{errors.submit}</p>
             )}
