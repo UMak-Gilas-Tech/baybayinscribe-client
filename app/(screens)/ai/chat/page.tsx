@@ -218,6 +218,8 @@ const ChatPageChatBody = ({
               src="/images/ButtyWave.webp"
               className="h-32 sm:h-40 md:h-48 lg:h-64 w-auto"
               alt="Butty waving"
+              width={256}
+              height={256}
             />
           </div>
         </div>
