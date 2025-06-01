@@ -259,7 +259,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Image
                   src={
                     userData.profilePictureUrl ||
-                    "/images/user.profile/user.avatar.png"
+                    "/images/user.profile/user.avatar.webp"
                   }
                   alt="User Avatar"
                   className="h-8 w-8 rounded-full object-cover"
@@ -290,7 +290,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <div className="flex items-center space-x-2">
               <div className="flex-shrink-0">
                 <Image
-                  src="/images/user.profile/user.avatar.png"
+                  src="/images/user.profile/user.avatar.webp"
                   alt="User Avatar Loading"
                   className="h-8 w-8 rounded-full object-cover animate-pulse"
                   width={32}

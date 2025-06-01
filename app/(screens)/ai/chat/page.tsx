@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { useAiStore } from "@/app/store/store.ai";
-import AppLogo from "@/public/images/BaybayInscribe-AppIcon.png";
+import AppLogo from "@/public/images/BaybayInscribe-AppIcon.webp";
 import { SendIcon, ChevronLeft } from "lucide-react";
 import Markdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import remarkParse from "remark-parse";
 import remarkBaybayin from "@/app/lib/remark-baybayin";
+import Image from "next/image";
 
 type ChatBubbleProps = {
   text: string;
@@ -26,15 +27,19 @@ const ChatPageHeader = () => {
         <ChevronLeft size={24} className="text-[#122254] sm:w-7 sm:h-7" />
       </button>
       <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gray-300 flex items-center justify-center">
-        <img
+        <Image
           src={AppLogo.src}
           alt="Baybayin"
           className="w-full h-full rounded-full"
+          width={64}
+          height={64}
         />
       </div>
       <div className="flex flex-col items-start justify-start min-w-0 flex-1">
         <h1 className="text-base sm:text-lg font-bold truncate">Baybayin AI</h1>
-        <p className="text-xs text-gray-500 truncate">Powered by Google Gemini 2.0</p>
+        <p className="text-xs text-gray-500 truncate">
+          Powered by Google Gemini 2.0
+        </p>
       </div>
     </div>
   );
@@ -42,25 +47,32 @@ const ChatPageHeader = () => {
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const router = useRouter();
-  
+
   // extract navigation commands with keywords
-  const commands: Array<{type: "sketch" | "transliterate", keyword?: string}> = [];
-  
+  const commands: Array<{
+    type: "sketch" | "transliterate";
+    keyword?: string;
+  }> = [];
+
   // Check for sketch command with keyword
   const sketchMatch = props.text.match(/navigate:sketch(?:\?s=([^&\s]+))?/);
   if (sketchMatch) {
     commands.push({
       type: "sketch",
-      keyword: sketchMatch[1] ? decodeURIComponent(sketchMatch[1]) : undefined
+      keyword: sketchMatch[1] ? decodeURIComponent(sketchMatch[1]) : undefined,
     });
   }
-  
+
   // Check for transliterate command with keyword
-  const transliterateMatch = props.text.match(/navigate:transliterate(?:\?s=([^&\s]+))?/);
+  const transliterateMatch = props.text.match(
+    /navigate:transliterate(?:\?s=([^&\s]+))?/
+  );
   if (transliterateMatch) {
     commands.push({
-      type: "transliterate", 
-      keyword: transliterateMatch[1] ? decodeURIComponent(transliterateMatch[1]) : undefined
+      type: "transliterate",
+      keyword: transliterateMatch[1]
+        ? decodeURIComponent(transliterateMatch[1])
+        : undefined,
     });
   }
 
@@ -86,12 +98,14 @@ const ChatBubble = (props: ChatBubbleProps) => {
         }`}
       >
         <span
-          className={`${
-            props.isUser ? "text-white text-right" : "text-white"
-          }`}
+          className={`${props.isUser ? "text-white text-right" : "text-white"}`}
         ></span>
 
-        <div className={`prose prose-sm sm:prose-base max-w-none ${props.isUser ? "text-white" : "text-left"}`}>
+        <div
+          className={`prose prose-sm sm:prose-base max-w-none ${
+            props.isUser ? "text-white" : "text-left"
+          }`}
+        >
           <Markdown remarkPlugins={[remarkParse, remarkBaybayin]}>
             {displayText}
           </Markdown>
@@ -108,18 +122,23 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-xs sm:text-sm whitespace-nowrap"
                 onClick={() => {
                   if (cmd.type === "sketch") {
-                    const url = cmd.keyword ? `/ai/sketch?s=${encodeURIComponent(cmd.keyword)}` : "/ai/sketch";
+                    const url = cmd.keyword
+                      ? `/ai/sketch?s=${encodeURIComponent(cmd.keyword)}`
+                      : "/ai/sketch";
                     router.push(url);
                   } else if (cmd.type === "transliterate") {
-                    const url = cmd.keyword ? `/transliterator?s=${encodeURIComponent(cmd.keyword)}` : "/transliterator";
+                    const url = cmd.keyword
+                      ? `/transliterator?s=${encodeURIComponent(cmd.keyword)}`
+                      : "/transliterator";
                     router.push(url);
                   }
                 }}
               >
-                {cmd.type === "sketch" 
-                  ? `Gumuhit ka!${cmd.keyword ? ` (${cmd.keyword})` : ''}` 
-                  : `Go to Transliterate${cmd.keyword ? ` (${cmd.keyword})` : ''}`
-                }
+                {cmd.type === "sketch"
+                  ? `Gumuhit ka!${cmd.keyword ? ` (${cmd.keyword})` : ""}`
+                  : `Go to Transliterate${
+                      cmd.keyword ? ` (${cmd.keyword})` : ""
+                    }`}
               </Button>
             ))}
           </div>
@@ -184,8 +203,8 @@ const ChatPageChatBody = ({
               Butty
             </span>
             <span className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 font-medium max-w-sm sm:max-w-md lg:max-w-xl leading-relaxed">
-              Isa akong maliit, pero matalinong butanding na handa kang tulungan sa
-              iyong mga katanungan tungkol sa{" "}
+              Isa akong maliit, pero matalinong butanding na handa kang tulungan
+              sa iyong mga katanungan tungkol sa{" "}
               <span className="font-bold text-blue-700">Baybayin</span> at iba
               pang mga paksa.
               <br />
@@ -195,10 +214,12 @@ const ChatPageChatBody = ({
             </span>
           </div>
           <div className="order-1 lg:order-2 mb-4 lg:mb-0 lg:ml-8">
-            <img
-              src="/images/ButtyWave.png"
+            <Image
+              src="/images/ButtyWave.webp"
               className="h-32 sm:h-40 md:h-48 lg:h-64 w-auto"
               alt="Butty waving"
+              width={256}
+              height={256}
             />
           </div>
         </div>
@@ -262,25 +283,27 @@ const ChatPage = () => {
     setAnimating(true);
     await sendPrompt(input);
   };
-  
+
   useEffect(() => {
     if (status === "Loaded") {
-      const words = response.split(" ").filter((w) => w.trim() !== "" && w !== "undefined");
+      const words = response
+        .split(" ")
+        .filter((w) => w.trim() !== "" && w !== "undefined");
       if (words.length === 0) {
         setAnimating(false);
         return;
       }
-      
+
       let idx = 0;
       // Initialize with the first word
       setMessages((m) => [...m, { text: words[0], isUser: false }]);
       idx = 1;
-      
+
       if (words.length === 1) {
         setAnimating(false);
         return;
       }
-      
+
       const iv = setInterval(() => {
         if (idx >= words.length) {
           clearInterval(iv);
