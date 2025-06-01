@@ -10,15 +10,15 @@ export const Background = ({ children }: BackgroundProps) => {
     <div
       className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center relative overflow-clip"
       style={{
-        backgroundImage: "url('/images/bg.phone.login.png')",
+        backgroundImage: "url('/images/bg.login.webp')",
       }}
     >
       {children}
       {/* --- Title (Desktop Only) --- */}
-      <div className="flex flex-col items-center fixed top-2 left-5">
+      <div className="flex flex-col items-center fixed top-2 left-5 z-50 pointer-events-none">
         <div className="flex flex-row items-center h-fit gap-2 bg-blue-200/25 p-2.5 rounded-md">
           <Image
-            src="/images/BaybayInscribe-AppIcon-old.png"
+            src="/images/BaybayInscribe-AppIcon-old.webp"
             alt="BaybayInscribe"
             className="rounded-md"
             width={35}

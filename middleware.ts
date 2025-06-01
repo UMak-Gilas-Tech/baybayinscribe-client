@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/images/") ||
     pathname.includes(".png") ||
     pathname.includes(".jpg") ||
+    pathname.includes(".webp") ||
     pathname.includes(".svg") ||
     pathname.includes(".woff2") ||
     pathname.includes(".woff") ||

@@ -210,11 +210,12 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
       <DialogContent className="sm:max-w-[425px] overflow-visible">
         <div className="hidden sm:block absolute -top-24 left-5 -z-10">
           <Image
-            src="/images/ButtyWave.png"
+            src="/images/ButtyWave.webp"
             alt="Baybayin Character Waving"
             width={120}
             height={120}
             className="object-contain animate-[wave_3s_ease-in-out_infinite]"
+            priority
           />
           <style>{waveAnimation}</style>
         </div>

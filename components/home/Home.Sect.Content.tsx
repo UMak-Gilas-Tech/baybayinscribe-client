@@ -64,7 +64,7 @@ export function ContentSection<
                     title="Coming Soon"
                     description={`New ${title} are on their way. Stay tuned!`}
                     href="#"
-                    image="/images/baybayin.comingsoon.png"
+                    image="/images/baybayin.comingsoon.webp"
                     isComingSoon={true}
                     clampTitle={true}
                   />

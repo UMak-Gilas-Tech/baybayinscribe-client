@@ -101,19 +101,19 @@ export const TermsPolicyForm = () => {
         aria-label="Terms and conditions form"
       >
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-blue-400 text-2xl font-bold">
+          <div className="flex items-center justify-between mx-auto sm:mx-0">
+            <CardTitle className="text-blue-400 text-xl xs:text-2xl font-bold">
               {TERMS_CONTENT.title}
             </CardTitle>
           </div>
-          <CardDescription className="text-grey-300 mt-2">
+          <CardDescription className="text-grey-300 mt-0 sm:mt-2 mx-auto sm:mx-0">
             {TERMS_CONTENT.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="max-w-full">
-          <form 
-            className="space-y-6" 
-            noValidate 
+          <form
+            className="space-y-6"
+            noValidate
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(
