@@ -12,6 +12,7 @@ import { SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/sidebar/app.sidebar";
 import { siteConfig } from "./metadata";
 import Background from "@/components/background";
+import { Dialog } from "@/components/ui/dialog";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -70,6 +71,10 @@ export default function RootLayout({
         <SpeedInsights />
         <Analytics />
         <Toaster position="bottom-right" richColors />
+
+        <Dialog >
+
+        </Dialog>
       </body>
     </html>
   );

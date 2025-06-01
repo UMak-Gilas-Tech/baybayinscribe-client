@@ -30,7 +30,7 @@ export default function QuizPage() {
     setMounted(true);
     quizStore.loadQuizDetails(quizId);
     quizStore.loadQuizAnswerHistory(quizId, userId!);
-  }, [quizId, userId]);
+  }, [quizId, userId, quizStore]);
 
   if (!mounted) return null;
 
@@ -219,7 +219,10 @@ export default function QuizPage() {
                   quizStore.answerHistory.map((answer, idx) => (
                     <tr key={idx} className="hover:bg-blue-50 transition">
                       <td className="px-4 py-2">Attempt #{answer.attempt}</td>
-                      <td className="px-4 py-2">{answer.score} / {quizStore.quiz_details?.questions.length}</td>
+                      <td className="px-4 py-2">
+                        {answer.score} /{" "}
+                        {quizStore.quiz_details?.questions.length}
+                      </td>
                     </tr>
                   ))
                 ) : (

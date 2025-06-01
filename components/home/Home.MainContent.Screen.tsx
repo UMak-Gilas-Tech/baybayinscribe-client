@@ -3,10 +3,10 @@
 import React, { useEffect } from "react";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import useQuizStore from "@/app/store/store.quiz";
-import { GuideCard } from "./cards/GuideCard";
-import { QuizCard } from "./cards/QuizCard";
+import { HomeCard } from "./cards/HomeCard";
 import { Quiz } from "@/types/type.quiz";
-import { ContentSection } from "./Home.Section.Content";
+import { ContentSection } from "./Home.Sect.Content";
+import { SurveyPopup } from "./Home.Survey.Popup";
 
 interface Lesson {
   title: string;
@@ -43,6 +43,7 @@ export function HomeMainContentScreen() {
 
   return (
     <main className="min-h-screen max-w-8xl mx-auto pb-6">
+      <SurveyPopup isOpen={true} onClose={() => {}} />
       <ContentSection<Lesson>
         title="Guide to Baybayin"
         seeMoreHref="/lesson/all"
@@ -53,10 +54,11 @@ export function HomeMainContentScreen() {
             key={lesson.title}
             className="w-full sm:max-w-[300px] flex-shrink-0"
           >
-            <GuideCard
+            <HomeCard
               title={lesson.title}
               description={lesson.description}
               href={`/lesson/${lesson.id}`}
+              clampTitle={true}
             />
           </article>
         )}
@@ -73,10 +75,11 @@ export function HomeMainContentScreen() {
             key={quiz.metadata.quiz_id}
             className="w-full h-full sm:max-w-[300px] min-h-fit flex-shrink-0 overflow-auto pt-3"
           >
-            <QuizCard
+            <HomeCard
               title={quiz.metadata.quiz_name}
               description={quiz.metadata.description ?? "No Description"}
               href={`/quiz/${quiz.metadata.quiz_id}/view`}
+              clampTitle={false}
             />
           </article>
         )}

@@ -243,15 +243,15 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
               <div className="w-full h-full flex flex-col items-center justify-center gap-4 bg-black/50 rounded-xl">
                 <div className="flex flex-row gap-4 ">
                   <SendToBack color="#fff" size={40} />
-                  <span className="text-3xl font-bold text-white">
+                  <span className="text-3xl  font-bold text-white">
                     Upload an image
                   </span>
                 </div>
-                <div className="flex flex-col gap-2 *:text-center *:text-xl">
-                  <span className="text-white">
+                <div className="flex flex-col gap-2 *:text-center ">
+                  <span className="text-white text-xs sm:text-sm md:text-base">
                     Got a Baybayin Image? Let&apos;s scan it!
                   </span>
-                  <span className="text-white">
+                  <span className="text-white text-xs sm:text-sm md:text-base">
                     Accepts image formats: PNG, JPG (max 5 MB)
                   </span>
                 </div>
