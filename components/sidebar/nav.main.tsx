@@ -49,7 +49,7 @@ export function NavMain({
         {items.map((item) => {
           const isActive = pathname === item.url;
           const inactiveClass = !isActive ? "text-grey-300" : "";
-          
+
           if (item.customComponent) {
             return (
               <SidebarMenuItem key={item.title}>
@@ -57,7 +57,7 @@ export function NavMain({
               </SidebarMenuItem>
             );
           }
-          
+
           if (item.onClick) {
             return (
               <SidebarMenuItem key={item.title}>

@@ -339,7 +339,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-header"
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-2 overflow-hidden", className)}
+      className={cn("flex flex-col gap-2 p-2 overflow-hidden pr-0", className)}
       {...props}
     />
   );
@@ -482,7 +482,7 @@ const sidebarMenuButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "hover:bg-[var(--color-blue-400)] hover:text-neutral-white duration-1000 transition-all",
+          "hover:bg-[var(--color-blue-400)] hover:text-neutral-white duration-500 transition-all",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-[var(--color-blue-400)] hover:text-neutral-white hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
