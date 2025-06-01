@@ -35,7 +35,7 @@ export function ContentSection<
         <div
           className={cn(
             "flex flex-col gap-4 sm:gap-x-6",
-            "sm:flex-row sm:space-x-4 sm:space-y-0 sm:pb-2"
+            "sm:flex-row sm:space-x-4 sm:space-y-0 sm:pb-2 sm:pt-4"
           )}
         >
           {isLoading ? (
@@ -48,27 +48,34 @@ export function ContentSection<
           ) : (
             <>
               {items && items.length > 0 ? (
-                items.map((item) => {
-                  const key =
-                    item.id ||
-                    item.metadata?.quiz_id ||
-                    Math.random().toString();
-                  return <div key={key}>{renderItem(item)}</div>;
-                })
+                <>
+                  {items.map((item) => {
+                    const key =
+                      item.id ||
+                      item.metadata?.quiz_id ||
+                      Math.random().toString();
+                    return <div key={key}>{renderItem(item)}</div>;
+                  })}
+                  {items.length <= 4 && ( // 4 is the number of cards in the row
+                    <article className="w-full sm:min-w-[300px] sm:max-w-[300px] flex-shrink-0 h-full">
+                      <HomeCard
+                        title="More coming soon!"
+                        description="We're working on new lessons and quizzes to help you learn Baybayin better. Check back soon!"
+                        href="#"
+                        isComingSoon={true}
+                        buttonText="Coming Soon"
+                        className="opacity-80"
+                      />
+                    </article>
+                  )}
+                </>
               ) : (
-                <NoContentCard message={emptyMessage} />
-              )}
-              {items && items.length <= 3 && items.length > 0 && (
-                <article className="w-full sm:w-56 flex-shrink-0">
-                  <HomeCard
-                    title="Coming Soon"
-                    description={`New ${title} are on their way. Stay tuned!`}
-                    href="#"
-                    image="/images/baybayin.comingsoon.webp"
-                    isComingSoon={true}
-                    clampTitle={true}
-                  />
-                </article>
+                <NoContentCard
+                  type={
+                    title.toLowerCase().includes("lesson") ? "lesson" : "quiz"
+                  }
+                  ariaLabel={emptyMessage}
+                />
               )}
             </>
           )}
