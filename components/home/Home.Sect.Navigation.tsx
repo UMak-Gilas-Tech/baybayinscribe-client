@@ -21,7 +21,7 @@ export function SectionNavigation({
     <div className={cn("w-full", className)}>
       {/* Desktop Header */}
       <header className="flex items-center justify-between mb-2 w-full align-middle sm:mt-12">
-        <h2 className="text-3xl font-medium text-card-foreground uppercase mx-auto sm:mx-0">
+        <h2 className="text-2xl text-center sm:text-left xs:text-3xl font-medium text-card-foreground uppercase mx-auto sm:mx-0">
           {title}
         </h2>
         {showSeeMore && (

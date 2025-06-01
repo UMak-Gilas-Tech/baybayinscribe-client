@@ -55,7 +55,7 @@ export function HomeMainContentScreen() {
   }, []);
 
   return (
-    <main className="min-h-screen max-w-8xl mx-auto pb-6">
+    <main className="min-h-screen max-w-8xl mx-auto pb-6 mt-6 sm:mt-0">
       {showSurvey && (
         <SurveyPopup isOpen={true} onClose={() => setShowSurvey(false)} />
       )}

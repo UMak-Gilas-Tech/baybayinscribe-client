@@ -262,21 +262,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     "/images/user.profile/user.avatar.webp"
                   }
                   alt="User Avatar"
-                  className="h-8 w-8 rounded-full object-cover"
+                  className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
                   width={32}
                   height={32}
                 />
               </div>
               {state === "expanded" && (
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">
+                  <span className="font-semibold text-sm sm:text-base">
                     {isAdminRoute
                       ? "Administrator"
                       : `${userData.firstName || ""} ${
                           userData.lastName || ""
                         }`.trim()}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs sm:text-sm text-gray-500">
                     {isAdminRoute
                       ? "Admin Panel"
                       : userData?.username
