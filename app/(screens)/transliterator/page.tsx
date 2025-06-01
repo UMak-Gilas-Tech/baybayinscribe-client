@@ -34,7 +34,7 @@ function TransliterationContent() {
     if (params.get("s")) {
       setLatinText(params.get("s") || "");
     }
-  }, [params]); 
+  }, [params]);
 
   // Debounced translation effect for English and Filipino-to-English
   useEffect(() => {
@@ -104,7 +104,11 @@ function TransliterationContent() {
       onChange={handleLatinChange}
       placeholder="Type Latin..."
       headerRight={
-        <Select value={latinLang} onValueChange={setLatinLang} disabled={loading}>
+        <Select
+          value={latinLang}
+          onValueChange={setLatinLang}
+          disabled={loading}
+        >
           <SelectTrigger className="w-fit bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500 ">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
@@ -114,7 +118,7 @@ function TransliterationContent() {
               value="filipino"
             >
               <Image
-                src="/images/flag-ph.svg"
+                src="/images/flag-ph.webp"
                 alt="Philippines flag"
                 width={20}
                 height={20}
@@ -126,7 +130,7 @@ function TransliterationContent() {
               value="english"
             >
               <Image
-                src="/images/flag-us.svg"
+                src="/images/flag-us.webp"
                 alt="US flag"
                 width={20}
                 height={20}
@@ -188,14 +192,18 @@ function TransliterationContent() {
 
 export default function TransliterationScreen() {
   return (
-    <Suspense fallback={
-      <main className="flex flex-col items-center min-h-full font-sans">
-        <TransliteratorHeader />
-        <div className="flex items-center justify-center p-8">
-          <span className="text-blue-200 text-sm animate-pulse">Loading...</span>
-        </div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="flex flex-col items-center min-h-full font-sans">
+          <TransliteratorHeader />
+          <div className="flex items-center justify-center p-8">
+            <span className="text-blue-200 text-sm animate-pulse">
+              Loading...
+            </span>
+          </div>
+        </main>
+      }
+    >
       <TransliterationContent />
     </Suspense>
   );

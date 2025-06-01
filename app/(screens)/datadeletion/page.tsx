@@ -11,25 +11,27 @@ const dataDeletionContent = {
   sections: [
     {
       title: "Account Deletion Process",
-      content: "If you would like to delete your BaybayInscribe account and remove your personal data, please follow the steps below:"
+      content:
+        "If you would like to delete your BaybayInscribe account and remove your personal data, please follow the steps below:",
     },
     {
       title: "Step 1: Log In",
-      content: "Log in to your account at https://dev.baybayinscribe.top."
+      content: "Log in to your account at https://dev.baybayinscribe.top.",
     },
     {
       title: "Step 2: Access Settings",
-      content: "Navigate to Profile Settings from the sidebar options."
+      content: "Navigate to Profile Settings from the sidebar options.",
     },
     {
       title: "Step 3: Delete Account",
-      content: "Click Delete Account and confirm your decision."
+      content: "Click Delete Account and confirm your decision.",
     },
     {
       title: "Manual Deletion Request",
-      content: "If you are unable to log in or wish to request account deletion manually, please contact us at 📧 gilasbaybayinscribe@gmail.com with the subject: \"Delete my Account\"."
-    }
-  ]
+      content:
+        'If you are unable to log in or wish to request account deletion manually, please contact us at 📧 gilasbaybayinscribe@gmail.com with the subject: "Delete my Account".',
+    },
+  ],
 };
 
 export default function DataDeletion() {
@@ -70,10 +72,7 @@ export default function DataDeletion() {
           content="Learn how to delete your BaybayInscribe account and remove your personal data. Follow our step-by-step guide for account deletion."
         />
         <meta property="og:type" content="website" />
-        <link
-          rel="canonical"
-          href="https://baybayinscribe.com/data-deletion"
-        />
+        <link rel="canonical" href="https://baybayinscribe.com/data-deletion" />
       </Head>
 
       <Background>
@@ -98,7 +97,7 @@ export default function DataDeletion() {
                 >
                   <div className="absolute -top-16 -right-16 w-32 h-32 transform rotate-12">
                     <Image
-                      src="/images/ButtyRead.png"
+                      src="/images/ButtyRead.webp"
                       alt="Butty reading data deletion instructions"
                       width={128}
                       height={128}
