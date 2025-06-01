@@ -413,16 +413,23 @@ const VisionScreen = () => {
                 sizes="(max-width: 768px) 160px, 224px"
                 priority
                 loading="eager"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/images/error-fallback.webp";
+                }}
               />
               <div className="absolute -top-24 -left-40 w-full h-full flex items-center justify-center">
                 <Image
                   src={ButtyTextBubble.src}
                   className="absolute object-contain"
-                  alt="Butty's speech bubble"
+                  alt="Butty's speech bubble with text"
                   fill
-                  sizes="(max-width: 768px) 160px, 224px"
-                  priority
-                  loading="eager"
+                  sizes="(max-width: 640px) 160px, (max-width: 768px) 224px, 256px"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/images/error-fallback.webp";
+                  }}
                 />
                 <div className="flex items-center justify-center">
                   <span className="relative z-10 -top-3 text-center text-xs px-1 h-full">

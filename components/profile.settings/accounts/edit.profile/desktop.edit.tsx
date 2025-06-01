@@ -156,6 +156,40 @@ export default function DesktopEditProfile({
         return;
       }
 
+      // Validate image dimensions
+      const img = new window.Image();
+      img.src = URL.createObjectURL(file);
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          if (img.width < 100 || img.height < 100) {
+            setErrors((prev) => ({
+              ...prev,
+              profilePicture:
+                "Image dimensions too small. Minimum size is 100x100 pixels.",
+            }));
+            resolve();
+            return;
+          }
+          if (img.width > 2000 || img.height > 2000) {
+            setErrors((prev) => ({
+              ...prev,
+              profilePicture:
+                "Image dimensions too large. Maximum size is 2000x2000 pixels.",
+            }));
+            resolve();
+            return;
+          }
+          resolve();
+        };
+        img.onerror = () => {
+          setErrors((prev) => ({
+            ...prev,
+            profilePicture: "Failed to load image. Please try again.",
+          }));
+          resolve();
+        };
+      });
+
       // Create temporary URL for preview and update local state immediately
       const previewUrl = URL.createObjectURL(file);
       setProfileImage(previewUrl);
@@ -445,21 +479,29 @@ export default function DesktopEditProfile({
                       <Image
                         key={profileImage}
                         src={profileImage}
-                        alt="User Profile"
+                        alt="User Profile Picture"
                         width={80}
                         height={80}
                         className="object-cover w-full h-full"
                         unoptimized
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/images/user.profile/user.avatar.webp";
+                        }}
                       />
                     ) : (
                       <Image
                         key="default-avatar"
                         src="/images/user.profile/user.avatar.webp"
-                        alt="Default Profile"
+                        alt="Default Profile Picture"
                         width={80}
                         height={80}
                         className="object-cover w-full h-full"
                         unoptimized
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/images/error-fallback.webp";
+                        }}
                       />
                     )}
                   </div>
