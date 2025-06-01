@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Eye, EyeClosed } from "lucide-react";
+import { createPasswordSchema, checkPasswordStrength, PasswordStrength } from "@/lib/auth/passwordValidation";
+import { authClient } from "../../../../app/lib/auth-client"; // Import authClient
 
 type UserData = {
     firstName: string;
@@ -23,12 +25,31 @@ type MobileEditProfileProps = {
 export default function MobileEditProfile({ onClose, userData, onSave }: MobileEditProfileProps) {
     const [formData, setFormData] = useState<UserData>(userData);
     const [profileImage, setProfileImage] = useState<string>(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
-    const [errors, setErrors] = useState<Partial<Record<keyof UserData | 'profilePicture', string>>>({});
+    const [currentPassword, setCurrentPassword] = useState(""); // Add state for current password
+    const [password, setPassword] = useState(""); // Add state for new password
+    const [confirmPassword, setConfirmPassword] = useState(""); // Add state for confirm password
+    const [errors, setErrors] = useState<Partial<Record<keyof UserData | 'profilePicture' | 'currentPassword' | 'password' | 'confirmPassword', string>>>({});
+    const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null); // Add state for password strength
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false); // Add state for current password visibility
+    const [showPassword, setShowPassword] = useState(false); // Add state for new password visibility
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Add state for confirm password visibility
 
     // Update internal state when userData prop changes
     useEffect(() => {
       setFormData(userData);
       setProfileImage(userData.profilePictureUrl || "/images/user.profile/user.avatar.png");
+      // Reset password related states when user data changes
+      setCurrentPassword("");
+      setPassword("");
+      setConfirmPassword("");
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.currentPassword;
+        delete newErrors.password;
+        delete newErrors.confirmPassword;
+        return newErrors;
+      });
+      setPasswordStrength(null);
     }, [userData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +66,57 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                 [name]: ''
             }));
         }
+    };
+
+    const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCurrentPassword(e.target.value);
+       if (errors.currentPassword) {
+            setErrors(prev => ({
+                ...prev,
+                currentPassword: ''
+            }));
+        }
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPassword = e.target.value;
+        setPassword(newPassword);
+        setPasswordStrength(newPassword ? checkPasswordStrength(newPassword) : null);
+        if (errors.password) {
+            setErrors(prev => ({
+                ...prev,
+                password: ''
+            }));
+        }
+    };
+
+    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setConfirmPassword(e.target.value);
+         if (errors.confirmPassword) {
+            setErrors(prev => ({
+                ...prev,
+                confirmPassword: ''
+            }));
+        }
+    };
+
+     const toggleCurrentPasswordVisibility = () => {
+      setShowCurrentPassword((prev) => !prev);
+    };
+
+    const togglePasswordVisibility = () => {
+      setShowPassword((prev) => !prev);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+      setShowConfirmPassword((prev) => !prev);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, toggleFn: () => void) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleFn();
+      }
     };
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,11 +241,11 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Simple validation
-        const newErrors: Partial<Record<keyof UserData, string>> = {};
+        const newErrors: Partial<Record<keyof UserData | 'profilePicture' | 'currentPassword' | 'password' | 'confirmPassword', string>> = {};
 
         if (!formData.firstName) newErrors.firstName = "First name is required";
         if (!formData.lastName) newErrors.lastName = "Last name is required";
@@ -181,20 +253,106 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
         if (!formData.email) newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
 
+        // Password validation using the same schema as registration
+         if (password || confirmPassword || currentPassword) { // Validate password fields if any are filled
+           if (!currentPassword) newErrors.currentPassword = "Current password is required to change password";
+
+          const passwordSchema = createPasswordSchema();
+          const passwordResult = passwordSchema.safeParse(password);
+          if (!passwordResult.success) {
+            newErrors.password = passwordResult.error.errors[0].message;
+          }
+          if (!confirmPassword) {
+            newErrors.confirmPassword = "Please confirm your new password"; // Changed message for clarity
+          } else if (password !== confirmPassword) {
+            newErrors.confirmPassword = "New passwords do not match"; // Changed message for clarity
+          }
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
 
-        // Create update data that includes all form data, ensuring profile picture URL is included
-        const dataToUpdate = {
-            ...formData,
-            // If we have a profile picture URL in the form data, use it, otherwise use null
-            profilePictureUrl: formData.profilePictureUrl
-        };
+        try {
+           // Create update data that includes all form data, ensuring profile picture URL is included
+            const dataToUpdate = {
+                ...formData,
+                // If we have a profile picture URL in the form data, use it, otherwise use null
+                profilePictureUrl: formData.profilePictureUrl
+            };
 
-        // Call onSave with the complete update data
-        onSave(dataToUpdate);
+            // If password is being updated, use authClient.changePassword
+            if (password && currentPassword) { // Check if both new and current password are provided
+              const changePasswordResponse = await authClient.changePassword({
+                currentPassword: currentPassword,
+                newPassword: password,
+              });
+
+              if (changePasswordResponse?.error) {
+                // Check if the error message specifically indicates an incorrect current password
+                const errorMessage = changePasswordResponse.error.message || 'Failed to change password';
+                // Let's use the same broader check as in the desktop version
+                if (errorMessage.toLowerCase().includes('password') && (errorMessage.toLowerCase().includes('incorrect') || errorMessage.toLowerCase().includes('invalid'))) {
+                  setErrors(prev => ({
+                    ...prev,
+                    currentPassword: 'Current password is incorrect. Please try again.'
+                  }));
+                  return; // Stop the submission process if current password is wrong
+                } else {
+                  // If it's a different error, throw it to be caught by the generic handler
+                  throw new Error(errorMessage);
+                }
+              }
+
+              // Clear password fields after successful update
+              setCurrentPassword("");
+              setPassword("");
+              setConfirmPassword("");
+            }
+
+            // Update other user information (excluding password fields)
+            // We only call the update API if there are changes beyond password or if password wasn't changed alone
+            if (!password || Object.keys(dataToUpdate).some(key => dataToUpdate[key as keyof UserData] !== (userData as UserData)[key as keyof UserData])) {
+               const response = await fetch('/api/user.information/update', {
+                   method: 'PUT',
+                   headers: {
+                       'Content-Type': 'application/json',
+                   },
+                   body: JSON.stringify(dataToUpdate),
+               });
+
+               const responseData = await response.json();
+
+               if (!response.ok) {
+                   throw new Error(responseData.error || responseData.message || 'Failed to update profile');
+               }
+            }
+
+            // Call onSave with the complete update data
+            onSave(dataToUpdate);
+
+        } catch (error) {
+            console.error('Error updating profile:', error);
+             setErrors(prev => ({
+                ...prev,
+                submit: error instanceof Error ? error.message : 'An error occurred while saving changes'
+            }));
+        }
+    };
+
+    // Get strength color (copied from desktop.edit.tsx)
+    const getStrengthColor = (strength: PasswordStrength | null) => {
+      switch (strength) {
+        case PasswordStrength.STRONG:
+          return "text-green-500";
+        case PasswordStrength.MEDIUM:
+          return "text-yellow-500";
+        case PasswordStrength.WEAK:
+          return "text-red-500";
+        default:
+          return "text-gray-500";
+      }
     };
 
     return (
@@ -287,12 +445,13 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                     {/* First Name */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">First Name</label>
+                        <p className="text-xs text-gray-500 mt-1 mb-1">Update your first name.</p>
                         <input
                             type="text"
                             name="firstName"
                             value={formData.firstName}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`w-full p-2 border ${errors.firstName ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1`}
                         />
                         {errors.firstName && (
                             <p className="text-red-600 text-xs mt-1">{errors.firstName}</p>
@@ -302,12 +461,13 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                     {/* Last Name */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">Last Name</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Update your last name.</p>
                         <input
                             type="text"
                             name="lastName"
                             value={formData.lastName}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             className={`w-full p-2 border ${errors.lastName ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1`}
                         />
                         {errors.lastName && (
                             <p className="text-red-600 text-xs mt-1">{errors.lastName}</p>
@@ -317,27 +477,127 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                     {/* Username */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">Username</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Unique, includes letters, numbers. No spaces or special characters.</p>
                         <input
                             type="text"
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`w-full p-2 border ${errors.username ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1`}
                         />
                         {errors.username && (
                             <p className="text-red-600 text-xs mt-1">{errors.username}</p>
                         )}
                     </div>
 
+                    {/* Current Password */}
+                     <div>
+                        <label className="block text-sm font-medium text-blue-300 mb-1">Current Password</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Enter your current password to change it.</p>
+                         <div className="relative mt-1">
+                            <input
+                                type={showCurrentPassword ? "text" : "password"}
+                                value={currentPassword}
+                                onChange={handleCurrentPasswordChange}
+                                 className={`w-full p-2 border ${errors.currentPassword ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                placeholder="Enter current password"
+                            />
+                            <button
+                                type="button"
+                                onClick={toggleCurrentPasswordVisibility}
+                                onKeyDown={(e) => handleKeyDown(e, toggleCurrentPasswordVisibility)}
+                                className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                                aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+                            >
+                                {showCurrentPassword ? (
+                                    <EyeClosed className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
+                        {errors.currentPassword && (
+                            <p className="text-red-600 text-xs mt-1 bg-red-100 p-1 rounded">{errors.currentPassword}</p>
+                        )}
+                    </div>
+
+                    {/* New Password */}
+                    <div>
+                        <label className="block text-sm font-medium text-blue-300 mb-1">New Password</label>
+                        <p className="text-xs text-gray-500 mt-1 mb-1">Min 8 chars, mix of letters, numbers, and symbols.</p>
+                         <div className="relative mt-1">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={handlePasswordChange}
+                                className={`w-full p-2 border ${errors.password ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                placeholder="Enter new password"
+                            />
+                            <button
+                                type="button"
+                                onClick={togglePasswordVisibility}
+                                onKeyDown={(e) => handleKeyDown(e, togglePasswordVisibility)}
+                                className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? (
+                                    <EyeClosed className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
+                         {passwordStrength && (
+                            <p className={`text-sm ${getStrengthColor(passwordStrength)} mt-1`}>
+                                Password Strength: {passwordStrength}
+                            </p>
+                        )}
+                        {errors.password && (
+                            <p className="text-red-600 text-xs mt-1">{errors.password}</p>
+                        )}
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+                        <label className="block text-sm font-medium text-blue-300 mb-1">Confirm Password</label>
+                        <p className="text-xs text-gray-500 mt-1 mb-1">Re-enter your new password.</p>
+                         <div className="relative mt-1">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                 className={`w-full p-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                placeholder="Confirm new password"
+                            />
+                             <button
+                                type="button"
+                                onClick={toggleConfirmPasswordVisibility}
+                                onKeyDown={(e) => handleKeyDown(e, toggleConfirmPasswordVisibility)}
+                                className="cursor-pointer absolute inset-y-0 right-3 flex items-center text-blue-400 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md p-1"
+                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                            >
+                                {showConfirmPassword ? (
+                                    <EyeClosed className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
+                         {errors.confirmPassword && (
+                            <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>
+                        )}
+                    </div>
+
                     {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">Email</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Update your email address.</p>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             className={`w-full p-2 border ${errors.email ? 'border-red-500' : 'border-blue-200'} rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1`}
                         />
                         {errors.email && (
                             <p className="text-red-600 text-xs mt-1">{errors.email}</p>
@@ -347,24 +607,29 @@ export default function MobileEditProfile({ onClose, userData, onSave }: MobileE
                     {/* Contact Number */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">Contact Number</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Update your contact number.</p>
                         <input
                             type="tel"
                             name="contactNumber"
                             value={formData.contactNumber || ""}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1"
                         />
+                         {errors.contactNumber && (
+                            <p className="text-red-600 text-xs mt-1">{errors.contactNumber}</p>
+                        )}
                     </div>
 
                     {/* Date of Birth */}
                     <div>
                         <label className="block text-sm font-medium text-blue-300 mb-1">Date of Birth</label>
+                         <p className="text-xs text-gray-500 mt-1 mb-1">Enter your birthdate (MM/DD/YYYY). This will not be shown publicly.</p>
                         <input
                             type="date"
                             name="dateOfBirth"
                             value={formData.dateOfBirth || ""}
                             onChange={handleChange}
-                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 border border-blue-200 rounded-md bg-neutral-white focus:outline-none focus:ring-2 focus:ring-blue-500 mt-1"
                         />
                     </div>
 
