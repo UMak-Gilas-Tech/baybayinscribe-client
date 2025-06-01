@@ -1,6 +1,7 @@
 import React from "react";
-import ButtyPaint from "@/public/images/ButtyPaint.png";
-import ButtyPencilRun from "@/public/images/ButtyPencilRun.png";
+import ButtyPaint from "@/public/images/ButtyPaint.webp";
+import ButtyPencilRun from "@/public/images/ButtyPencilRun.webp";
+import Image from "next/image";
 
 const SketchpadChoice = () => {
   return (
@@ -21,10 +22,17 @@ const SketchpadChoice = () => {
       {/* choices + mobile header */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-center w-full">
         <div className="flex flex-col items-center justify-center w-full md:w-1/2 hover:scale-90 hover:opacity-50 transition-all duration-300 ease-in-out cursor-pointer mb-4 md:mb-0 px-2">
-          <img className="w-full max-w-xs h-auto object-contain" src={ButtyPaint.src} alt="" />
+          <Image
+            className="w-full max-w-xs h-auto object-contain"
+            src={ButtyPaint.src}
+            alt="Butty painting"
+            width={320}
+            height={240}
+          />
           <h2 className="text-2xl font-bold mb-2">Learn Step-by-step</h2>
           <p className="text-center w-full md:w-1/2">
-            Follow along and trace characters one part at a time. Perfect for learning!
+            Follow along and trace characters one part at a time. Perfect for
+            learning!
           </p>
         </div>
 
@@ -44,10 +52,17 @@ const SketchpadChoice = () => {
 
         <div className="hidden md:block h-96 w-[1px] bg-black"></div>
         <div className="flex flex-col items-center justify-center w-full md:w-1/2 hover:scale-90 hover:opacity-50 transition-all duration-300 ease-in-out cursor-pointer mb-4 md:mb-0 px-2">
-          <img className="w-full max-w-xs h-auto object-contain" src={ButtyPencilRun.src} alt="" />
+          <Image
+            className="w-full max-w-xs h-auto object-contain"
+            src={ButtyPencilRun.src}
+            alt="Butty pencil running"
+            width={320}
+            height={240}
+          />
           <h2 className="text-2xl font-bold mb-2">Explore Freely</h2>
           <p className="text-center w-full md:w-1/2">
-            Trace characters in multiple strokes. Great for testing and exploring!
+            Trace characters in multiple strokes. Great for testing and
+            exploring!
           </p>
         </div>
       </div>

@@ -73,7 +73,7 @@ export default function PrivacyPolicy() {
                 >
                   <div className="absolute -top-16 -right-16 w-32 h-32 transform rotate-12">
                     <Image
-                      src="/images/ButtyRead.png"
+                      src="/images/ButtyRead.webp"
                       alt="Butty reading privacy policy"
                       width={128}
                       height={128}

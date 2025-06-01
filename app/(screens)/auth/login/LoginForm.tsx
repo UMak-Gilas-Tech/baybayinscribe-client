@@ -21,9 +21,7 @@ import { PasswordInput } from "../components/InputPassword";
 import { AccountHelper } from "../components/AccountHelper";
 import { AccountPwHelper } from "../components/AccountPwHelper";
 
-export async function getServerSideProps() {
-  
-}
+export async function getServerSideProps() {}
 
 // Memoize the schema to prevent recreation on each render
 const loginSchema = z.object({
@@ -101,7 +99,7 @@ export const LoginForm = ({
     <div className="flex flex-col items-center z-20 w-full max-w-11/12">
       {/* --- Login Form Card --- */}
       <Card
-        className="w-full max-w-md bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3"
+        className="w-full max-w-md bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3 [@media(max-height:700px)]:mt-24 [@media(max-height:700px)]:mb-8 "
         role="form"
         aria-label="Login form"
       >

@@ -12,7 +12,7 @@ import {
   termsOfServiceContent,
   privacyPolicyContent,
 } from "./TermsServicesContent";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 
 interface TermsProps {
   /** The mode of the component - 'required' shows checkbox, 'info' shows only links */
@@ -103,7 +103,7 @@ const RequiredCheckbox = memo(
           I agree to the <PolicyDialog content={termsOfServiceContent} /> &{" "}
           <PolicyDialog content={privacyPolicyContent} />
           <span
-            className="absolute text-red-500 -top-2 -right-2.5 text-lg"
+            className="absolute text-red-500 -bottom-0 -right-2 text-base xs:text-lg "
             aria-hidden="true"
           >
             *
