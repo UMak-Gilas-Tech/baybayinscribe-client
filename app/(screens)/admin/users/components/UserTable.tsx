@@ -194,7 +194,7 @@ function LearningProgressSection({ user }: { user: User }) {
 
   const fetchUserProgress = async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     try {
       // Fetch both quiz progress and last lesson concurrently
@@ -203,9 +203,9 @@ function LearningProgressSection({ user }: { user: User }) {
           average: 0,
           quizzesAnswered: 0,
           totalAnswers: 0,
-          correctAnswers: 0
+          correctAnswers: 0,
         })),
-        getLastLessonProgress(user.id).catch(() => null)
+        getLastLessonProgress(user.id).catch(() => null),
       ]);
 
       // Update quiz data
@@ -215,7 +215,9 @@ function LearningProgressSection({ user }: { user: User }) {
       // Update lesson data
       if (lastLessonData) {
         setLastLesson(lastLessonData.title || "N/A");
-        setLastCompletedLesson(lastLessonData.lesson_number?.toString() || "N/A");
+        setLastCompletedLesson(
+          lastLessonData.lesson_number?.toString() || "N/A"
+        );
       }
     } catch (error) {
       console.error("Error fetching user progress:", error);
@@ -262,17 +264,23 @@ function LearningProgressSection({ user }: { user: User }) {
           <div className="flex flex-col gap-1 text-blue-500 text-base">
             <div>
               Last Completed:{" "}
-              <span className="font-semibold text-blue-950">{lastCompletedLesson}</span>
+              <span className="font-semibold text-blue-950">
+                {lastCompletedLesson}
+              </span>
             </div>
             <div>
               Quizzes Taken:{" "}
-              <span className="font-semibold text-blue-950">{quizzesTaken}</span>
+              <span className="font-semibold text-blue-950">
+                {quizzesTaken}
+              </span>
             </div>
           </div>
           <div className="flex flex-col gap-1 text-blue-500 text-base text-right">
             <div>
               Average Score:{" "}
-              <span className="font-semibold text-blue-950">{averageScore}%</span>
+              <span className="font-semibold text-blue-950">
+                {averageScore}%
+              </span>
             </div>
             <div>
               Last Lesson:{" "}
@@ -306,12 +314,12 @@ function ConfirmActionDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm p-8 rounded-xl border border-blue-400 bg-blue-900 shadow-lg">
+      <DialogContent className="max-w-sm p-8 rounded-xl border border-blue-400 bg-neutral-white shadow-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-blue-950 mb-1 text-left">
+          <DialogTitle className="text-xl font-bold text-blue-300 mb-1 text-left">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-base text-blue-700 text-left mb-2">
+          <DialogDescription className="text-base text-blue-400 text-left mb-2">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -377,10 +385,10 @@ function DrawerActions({
   };
 
   return (
-    <div className="flex flex-row gap-4 justify-start">
+    <div className="flex gap-2 justify-start">
       <Button
         variant="outline"
-        className="border-blue-400 text-blue-400 bg-transparent hover:bg-blue-900 hover:text-blue-500 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
+        className="border-blue-400 text-blue-400 bg-transparent hover:bg-blue-900 hover:text-blue-500 flex items-center gap-2 px-4 py-2 rounded-lg text-base flex-shrink-0"
         onClick={() => setResetOpen(true)}
         disabled={loading}
       >
@@ -395,13 +403,13 @@ function DrawerActions({
           "A password reset link will be sent to the user's registered email address. Continue? (The link sent will expire in 30 minutes)"
         }
         confirmLabel={loading ? "Sending..." : "Send Reset Link"}
-        confirmClass="bg-blue-500 text-blue-900 hover:bg-blue-400 border border-blue-400 cursor-pointer"
+        confirmClass="bg-blue-400 text-blue-900 hover:bg-blue-500 border border-blue-400 cursor-pointer"
         onConfirm={() => handleAction(() => onReset(user.id), setResetOpen)}
         loading={loading}
       />
       <Button
         variant="outline"
-        className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
+        className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-4 py-2 rounded-lg text-base flex-shrink-0"
         onClick={() => setClearOpen(true)}
         disabled={loading}
       >
@@ -416,7 +424,7 @@ function DrawerActions({
           "This action will remove all learning progress for this user. This cannot be undone."
         }
         confirmLabel={loading ? "Clearing..." : "Clear Progress"}
-        confirmClass="bg-warning-400 text-warning-100 hover:bg-warning-500 border border-warning-400 cursor-pointer"
+        confirmClass="bg-warning-100 text-warning-400 hover:bg-warning-100/90 hover:text-warning-300 border border-warning-400 cursor-pointer"
         onConfirm={() => handleAction(() => onClear(user.id), setClearOpen)}
         loading={loading}
       />
@@ -453,7 +461,7 @@ function DrawerActions({
       )}
       <Button
         variant="outline"
-        className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
+        className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-4 py-2 rounded-lg text-base flex-shrink-0"
         onClick={() => setDeleteOpen(true)}
         disabled={loading}
       >
@@ -468,7 +476,7 @@ function DrawerActions({
           "This action will permanently delete the account of user, all associated data, which cannot be undone."
         }
         confirmLabel={loading ? "Deleting..." : "Delete Account"}
-        confirmClass="bg-danger-200/25 text-danger-500 hover:bg-danger-900 border border-danger-600 cursor-pointer"
+        confirmClass="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 border border-danger-600 cursor-pointer"
         onConfirm={() => handleAction(() => onDelete(user.id), setDeleteOpen)}
         loading={loading}
       />
