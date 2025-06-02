@@ -33,9 +33,9 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
   onSubmit: (values: RegisterFormData) => Promise<void>;
-  // onFacebookSignIn: () => Promise<void>;
+  onFacebookSignIn: () => Promise<void>;
   onGoogleSignIn: () => Promise<void>;
-  onRedditSignIn: () => Promise<void>;
+  // onRedditSignIn: () => Promise<void>;
   error: string;
   loginError: string;
   validationError?: string;
@@ -63,9 +63,9 @@ ErrorMessage.displayName = "ErrorMessage";
 
 export const RegisterForm = ({
   onSubmit,
-  // onFacebookSignIn,
+  onFacebookSignIn,
   onGoogleSignIn,
-  onRedditSignIn,
+  // onRedditSignIn,
   error,
   loginError,
   validationError,
@@ -108,11 +108,11 @@ export const RegisterForm = ({
   // Memoize social login handlers
   const memoizedSocialHandlers = useMemo(
     () => ({
-      // onFacebookSignIn,
+      onFacebookSignIn,
       onGoogleSignIn,
-      onRedditSignIn,
+      // onRedditSignIn,
     }),
-    [/*onFacebookSignIn,*/ onGoogleSignIn, onRedditSignIn]
+    [onFacebookSignIn, onGoogleSignIn /*onRedditSignIn*/]
   );
 
   return (

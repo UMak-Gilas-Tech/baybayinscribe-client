@@ -15,7 +15,7 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // --- Handlers ---
-  const { handleRegister, handleGoogleSignIn, handleRedditSignIn } =
+  const { handleRegister, handleGoogleSignIn, handleFacebookSignIn /*handleRedditSignIn*/ } =
     createRegisterHandlers({
       router,
       setError,
@@ -28,8 +28,9 @@ const RegisterPage = () => {
     <Background>
       <RegisterForm
         onSubmit={handleRegister}
-        onRedditSignIn={handleRedditSignIn}
+        onFacebookSignIn={handleFacebookSignIn}
         onGoogleSignIn={handleGoogleSignIn}
+        // onRedditSignIn={handleRedditSignIn}
         error={error}
         loginError={loginError}
         validationError={validationError}
