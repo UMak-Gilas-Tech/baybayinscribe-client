@@ -54,7 +54,7 @@ const MyLessonsPage = () => {
   return (
     <>
       <Background />
-      <div className="relative min-h-screen px-2 flex flex-col items-center justify-start bg-gradient-to-br from-[hsl(227,92%,95%)] via-[hsl(225,25%,94%)] to-[hsl(225,36%,39%)]/10">
+      <div className="relative min-h-screen px-2 flex flex-col items-center justify-start">
         <div className="max-w-4xl w-full mx-auto py-12">
           {/* Header */}
           <header className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">

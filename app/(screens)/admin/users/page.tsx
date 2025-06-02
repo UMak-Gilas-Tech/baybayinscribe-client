@@ -244,9 +244,40 @@ export default function UserManagement() {
 
   const handleReset = async (userId: string) => {
     try {
-      console.log("Attempting to send password reset link for user:", userId);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      toast.info("Password reset link sent (simulated).");
+      const user = users.find((u) => u.id === userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // In development, use mock behavior
+      if (process.env.NODE_ENV === "development") {
+        console.log("Attempting to send password reset link for user:", userId);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        toast.info("Password reset link sent (simulated).");
+        return;
+      }
+
+      // In production, use actual reset functionality
+      await authClient.forgetPassword(
+        {
+          email: user.email,
+        },
+        {
+          onSuccess: () => {
+            toast.success(
+              "Password reset link sent! The user will receive an email with instructions."
+            );
+          },
+          onError: (ctx) => {
+            const errorMessage =
+              ctx.error?.message ||
+              "Failed to send reset link. Please try again.";
+            toast.error(errorMessage);
+            throw new Error(errorMessage);
+          },
+          redirectTo: "/auth/register/resetpassword",
+        }
+      );
     } catch (error: unknown) {
       console.error("Failed to send reset link:", error);
       const errorMessage =
@@ -259,8 +290,22 @@ export default function UserManagement() {
   const handleClear = async (userId: string) => {
     try {
       console.log("Attempting to clear learning progress for user:", userId);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      toast.warning("Learning progress cleared (simulated).");
+
+      // Check both NODE_ENV and VERCEL_ENV for environment detection
+      const isProduction =
+        process.env.NODE_ENV === "production" ||
+        process.env.VERCEL_ENV === "production";
+
+      if (!isProduction) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        toast.warning("Learning progress cleared (simulated).");
+        return;
+      }
+
+      // In production, use actual clear functionality
+      const store = useLearningResourceStore.getState();
+      await store.clearUserLessonProgress(userId);
+      toast.warning("Learning progress cleared.");
     } catch (error: unknown) {
       console.error("Failed to clear progress:", error);
       const errorMessage =
@@ -328,7 +373,7 @@ export default function UserManagement() {
           search={search}
           onSearchChange={setSearch}
           status={status}
-          onStatusChange={(newStatus) => setStatus(newStatus)}
+          onStatusChange={(newStatus: string) => setStatus(newStatus)}
         />
         <UserTable
           users={paginatedUsers}
