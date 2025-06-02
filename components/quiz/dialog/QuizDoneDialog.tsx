@@ -2,8 +2,9 @@ import React from "react";
 import { Button } from "../../ui/button";
 import { Progress } from "../../ui/progress";
 import { BarChart, CheckCircle, XCircle } from "lucide-react";
+import Image from "next/image";
 
-import ButtyPhone from "@/public/images/ButtyPhone.png";
+import ButtyPhone from "@/public/images/ButtyPhone.webp";
 
 interface QuizDoneDialogProps {
   quizTitle: string;
@@ -34,10 +35,12 @@ const QuizDoneDialog: React.FC<QuizDoneDialogProps> = ({
       <div className=" rounded-lg min-w-[70%] md:min-w-[50%] lg:min-w-[30%] flex flex-col gap-4">
         <div className="flex flex-col gap-4 w-full p-10 rounded-xl bg-gradient-to-b from-[#BFCCF8] via-[#dbe3fa] via-[50%] to-[#C5D2FC]  to-[100%]">
           <div className="flex flex-row gap-4  h-20">
-            <img
+            <Image
               src={ButtyPhone.src}
               className="aspect-square h-[100px]"
               alt=""
+              width={100}
+              height={100}
             />
             <div className="w-full flex flex-col justify-between">
               <span className="text-lg font-bold">{quizTitle}</span>

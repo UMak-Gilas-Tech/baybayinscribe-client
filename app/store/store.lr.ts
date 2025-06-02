@@ -3,6 +3,7 @@ import { LearningResource } from "@/types/type.lessons";
 import { Status } from "@/types/type.loading";
 import { create } from "zustand";
 import { mockLessons } from "@/constants/mock/mockLessons";
+import { user } from "@/db/schema/auth-schema";
 
 export type LearningResourceStore = {
   lesson?: LearningResource;
@@ -27,6 +28,8 @@ export type LearningResourceStore = {
   getAllLessons: () => Promise<LearningResource[] | Record<string, unknown>[]>;
   updateLesson: (lesson: Partial<LearningResource>) => Promise<void>;
   deleteLesson: (lessonId: string) => Promise<void>;
+  clearUserLessonProgress: (userId: string) => Promise<void>;
+  getLastLessonProgress: (userId: string) => Promise<LearningResource | null>;
 };
 
 export const useLearningResourceStore = create<LearningResourceStore>(
@@ -136,6 +139,35 @@ export const useLearningResourceStore = create<LearningResourceStore>(
           error: "Using mock data due to API failure.",
         });
         return mockLessons;
+      }
+    },
+
+    clearUserLessonProgress: async (userId) => {
+      try {
+        const response = await axios.post(`/lessons/progress/${userId}/clear`);
+
+        if (response.status === 200) {
+          return response.data;
+        }
+
+        throw new Error("Failed to clear progress");
+      } catch (error: unknown) {
+        console.error("Error clearing user lesson progress:", error);
+        throw new Error((error as Error).message || "Failed to clear progress");
+      }
+    },
+
+    getLastLessonProgress: async (userId) => {
+      try {
+        const response = await axios.get(`/lessons/progress/${userId}/last`);
+
+        if (response.status === 200) {
+          return response.data;
+        }
+        return null;
+      } catch (error: unknown) {
+        console.error("Error fetching last lesson progress:", error);
+        return null;
       }
     },
   })

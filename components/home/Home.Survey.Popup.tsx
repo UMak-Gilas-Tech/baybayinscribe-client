@@ -175,6 +175,13 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
+    // Check if user has chosen not to see the survey again
+    const hasChosenNotToShow = localStorage.getItem("dontShowSurveyAgain");
+    if (hasChosenNotToShow === "true") {
+      setShowSurvey(false);
+      return;
+    }
+
     // For testing: Uncomment this to force show the survey
     setShowSurvey(true);
 
@@ -199,10 +206,19 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
 
   const handleClose = () => {
     if (dontShowAgain) {
-      localStorage.setItem("hasSeenSurvey", "true");
+      localStorage.setItem("dontShowSurveyAgain", "true");
     }
     setShowSurvey(false);
     onClose();
+  };
+
+  const handleDontShowAgainChange = (checked: boolean) => {
+    setDontShowAgain(checked);
+    if (checked) {
+      localStorage.setItem("dontShowSurveyAgain", "true");
+    } else {
+      localStorage.removeItem("dontShowSurveyAgain");
+    }
   };
 
   return (
@@ -210,20 +226,19 @@ export function SurveyPopup({ isOpen, onClose }: SurveyPopupProps) {
       <DialogContent className="sm:max-w-[425px] overflow-visible">
         <div className="hidden sm:block absolute -top-24 left-5 -z-10">
           <Image
-            src="/images/ButtyWave.png"
+            src="/images/ButtyWave.webp"
             alt="Baybayin Character Waving"
             width={120}
             height={120}
             className="object-contain animate-[wave_3s_ease-in-out_infinite]"
+            priority
           />
           <style>{waveAnimation}</style>
         </div>
         <SurveyContent
           step="initial"
           dontShowAgain={dontShowAgain}
-          onDontShowAgainChange={(checked) =>
-            setDontShowAgain(checked as boolean)
-          }
+          onDontShowAgainChange={handleDontShowAgainChange}
           onClose={handleClose}
         />
       </DialogContent>

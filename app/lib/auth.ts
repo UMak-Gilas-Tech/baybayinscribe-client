@@ -26,8 +26,7 @@ export const auth = betterAuth({
         text: `Click the link to reset your password: ${resetPasswordUrl}`,
       });
     },
-  },
-  socialProviders: {
+  },  socialProviders: {
     google: { 
       clientId: process.env.GOOGLE_CLIENT_ID as string, 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -39,14 +38,10 @@ export const auth = betterAuth({
     reddit: {
       clientId: process.env.REDDIT_CLIENT_ID as string,
       clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
-      scope: ["identity", "read", "email"],
+      scope: ["identity", "read"],
       onAuth: async (user: { id: string; email: string; name: string; emailVerified: boolean; image?: string }, account: { id: string; accountId: string; providerId: string; userId: string; accessToken?: string; refreshToken?: string; idToken?: string; scope?: string }) => {
         console.log('Reddit auth callback - User:', user);
         console.log('Reddit auth callback - Account:', account);
-        
-        // Ensure email is verified for Reddit users
-        user.emailVerified = true;
-        
         return user;
       }
     },

@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLearningResourceStore } from "@/app/store/store.lr";
 import useQuizStore from "@/app/store/store.quiz";
 import { HomeCard } from "./cards/HomeCard";
 import { Quiz } from "@/types/type.quiz";
 import { ContentSection } from "./Home.Sect.Content";
-import { SurveyPopup } from "./Home.Survey.Popup";
+import dynamic from "next/dynamic";
 
 interface Lesson {
   title: string;
@@ -18,7 +18,15 @@ interface Lesson {
   updatedAt: Date;
 }
 
+const SurveyPopup = dynamic(
+  () => import("./Home.Survey.Popup").then((mod) => mod.SurveyPopup),
+  {
+    ssr: false,
+  }
+);
+
 export function HomeMainContentScreen() {
+  const [showSurvey, setShowSurvey] = useState(false);
   const lessonsStatus = useLearningResourceStore((state) => state.status);
   const lessons = useLearningResourceStore((state) => state.lessons);
   const getAllLessons = useLearningResourceStore(
@@ -41,9 +49,16 @@ export function HomeMainContentScreen() {
     }
   }, [quizzesStatus, loadAllQuiz]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSurvey(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <main className="min-h-screen max-w-8xl mx-auto pb-6">
-      <SurveyPopup isOpen={true} onClose={() => {}} />
+    <main className="min-h-screen max-w-8xl mx-auto pb-6 mt-6 sm:mt-0">
+      {showSurvey && (
+        <SurveyPopup isOpen={true} onClose={() => setShowSurvey(false)} />
+      )}
       <ContentSection<Lesson>
         title="Guide to Baybayin"
         seeMoreHref="/lesson/all"
