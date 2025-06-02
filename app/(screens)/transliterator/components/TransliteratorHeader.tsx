@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import TransliteratorHeaderImage from "@/public/images/TransliteratorHeader.png";
+import TransliteratorHeaderImage from "@/public/images/TransliteratorHeader.webp";
 
 export function TransliteratorHeader() {
   return (

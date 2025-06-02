@@ -1,6 +1,6 @@
 {
-  "id": "2591b3f9-ab9e-489e-b8e2-bcb37bccfdeb",
-  "prevId": "ca2d38ec-e0fd-4d19-a3a2-1ecec9456476",
+  "id": "d2ecffc6-48df-4905-8a5f-c1c7b50226e8",
+  "prevId": "2591b3f9-ab9e-489e-b8e2-bcb37bccfdeb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -104,7 +104,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "account_provider_id_account_id_unique": {
+          "name": "account_provider_id_account_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "provider_id",
+            "account_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -643,13 +652,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
-        },
-        "is_quiz": {
-          "name": "is_quiz",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         },
         "module_id": {
           "name": "module_id",

@@ -1,18 +1,14 @@
 "use client";
 
 import React from "react";
-import {
-  Settings,
-  User,
-  LogOut
-} from "lucide-react"
+import { Settings, User, LogOut } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "../../ui/sidebar"
+} from "../../ui/sidebar";
 
 export function ProfileNav() {
   const profileItems = [
@@ -52,4 +48,4 @@ export function ProfileNav() {
       </SidebarMenu>
     </SidebarGroup>
   );
-} 
+}

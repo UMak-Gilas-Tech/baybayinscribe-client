@@ -189,9 +189,27 @@ export default function UserManagement() {
 
   const handleReset = async (userId: string) => {
     try {
-      console.log("Attempting to send password reset link for user:", userId);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      toast.info("Password reset link sent (simulated).");
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      await authClient.forgetPassword(
+        {
+          email: user.email,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Password reset link sent! The user will receive an email with instructions.");
+          },
+          onError: (ctx) => {
+            const errorMessage = ctx.error?.message || "Failed to send reset link. Please try again.";
+            toast.error(errorMessage);
+            throw new Error(errorMessage);
+          },
+          redirectTo: "/auth/register/resetpassword",
+        }
+      );
     } catch (error: unknown) {
       console.error("Failed to send reset link:", error);
       const errorMessage = error instanceof Error ? error.message : String(error);

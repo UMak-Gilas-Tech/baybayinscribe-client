@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -37,7 +37,10 @@ type ProfileModalMobileProps = {
   onEdit?: () => void;
 };
 
-export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMobileProps) {
+export default function ProfileModalMobile({
+  userData,
+  onEdit,
+}: ProfileModalMobileProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
@@ -53,7 +56,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push('/auth/login');
+          router.push("/auth/login");
         },
       },
     });
@@ -62,18 +65,18 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
   const handleDeleteAccount = async () => {
     try {
       setIsDeleting(true);
-      const response = await fetch('/api/user.information/delete', {
-        method: 'DELETE',
+      const response = await fetch("/api/user.information/delete", {
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete account');
+        throw new Error("Failed to delete account");
       }
 
       // Sign out after successful deletion
       await handleSignOut();
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error("Error deleting account:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -85,18 +88,19 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
       const dataToUpdate = {
         ...updatedData,
         // Use the new profile picture URL if provided, otherwise keep the existing one
-        profilePictureUrl: updatedData.profilePictureUrl ?? currentUserData.profilePictureUrl
+        profilePictureUrl:
+          updatedData.profilePictureUrl ?? currentUserData.profilePictureUrl,
       };
 
-      const response = await fetch('/api/user.information/update', {
-        method: 'PUT',
+      const response = await fetch("/api/user.information/update", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(dataToUpdate),
       });
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error("Failed to update profile");
       }
 
       // Update the local state with new data
@@ -104,7 +108,8 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         ...updatedData,
         // Remove cache-busting from state update
         profilePictureUrl: dataToUpdate.profilePictureUrl,
-        authProviders: updatedData.authProviders || currentUserData.authProviders
+        authProviders:
+          updatedData.authProviders || currentUserData.authProviders,
       });
       setIsEditing(false);
 
@@ -112,7 +117,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         onEdit();
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -123,7 +128,6 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
       setIsEditing(true);
     }
   };
-
 
   if (isEditing && !onEdit) {
     return (
@@ -142,11 +146,14 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         <div className="flex w-full">
           <button
             onClick={() => setIsSettingsVisible(false)}
-            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${!isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
-              }`}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
+              !isSettingsVisible
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
           >
             <Image
-              src="/images/user.profile/butty.stand.png"
+              src="/images/user.profile/butty.stand.webp"
               alt="Profile Icon"
               width={40}
               height={40}
@@ -157,11 +164,14 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
 
           <button
             onClick={() => setIsSettingsVisible(true)}
-            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${isSettingsVisible ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
-              }`}
+            className={`flex-1 py-3 text-center font-semibold cursor-pointer ${
+              isSettingsVisible
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
           >
             <Image
-              src="/images/user.profile/butty.tonguecheek.png"
+              src="/images/user.profile/butty.tonguecheek.webp"
               alt="Settings Icon"
               width={30}
               height={30}
@@ -177,8 +187,17 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         <div className="flex items-center">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-4 overflow-hidden">
             <Image
-              key={currentUserData.profilePictureUrl ? `${currentUserData.profilePictureUrl}-${new Date().getTime()}` : 'default-avatar'}
-              src={currentUserData.profilePictureUrl || "/images/user.profile/user.avatar.png"}
+              key={
+                currentUserData.profilePictureUrl
+                  ? `${
+                      currentUserData.profilePictureUrl
+                    }-${new Date().getTime()}`
+                  : "default-avatar"
+              }
+              src={
+                currentUserData.profilePictureUrl ||
+                "/images/user.profile/user.avatar.webp"
+              }
               alt="User Profile"
               width={64}
               height={64}
@@ -186,7 +205,9 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
             />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">{currentUserData.firstName} {currentUserData.lastName}</h3>
+            <h3 className="text-lg font-semibold">
+              {currentUserData.firstName} {currentUserData.lastName}
+            </h3>
             <p className="text-sm text-gray-500">@{currentUserData.username}</p>
             <button
               className="text-blue-600 text-sm flex items-center hover:text-blue-700 cursor-pointer"
@@ -224,7 +245,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         <div className="relative w-full">
           <h3 className="font-semibold">Account Info </h3>
           <Image
-            src="/images/user.profile/butty.stand.png"
+            src="/images/user.profile/butty.stand.webp"
             alt="Butty mascot"
             width={100}
             height={70}
@@ -235,7 +256,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         <div className="p-4 rounded-lg space-y-3 bg-neutral-white">
           <div className="flex items-center">
             <Image
-              src="/images/user.profile/phone.icon.png"
+              src="/images/user.profile/phone.icon.webp"
               alt="Phone Icon"
               width={20}
               height={20}
@@ -245,20 +266,25 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
           </div>
           <div className="flex items-center">
             <Image
-              src="/images/user.profile/calendar.icon.png"
+              src="/images/user.profile/calendar.icon.webp"
               alt="Calendar Icon"
               width={20}
               height={20}
               className="mr-3"
             />
             <span>
-              Date of Birth: {currentUserData.dateOfBirth ? new Date(currentUserData.dateOfBirth).toLocaleDateString(
-                'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ""}
+              Date of Birth:{" "}
+              {currentUserData.dateOfBirth
+                ? new Date(currentUserData.dateOfBirth).toLocaleDateString(
+                    "en-US",
+                    { year: "numeric", month: "long", day: "numeric" }
+                  )
+                : ""}
             </span>
           </div>
           <div className="flex items-center">
             <Image
-              src="/images/user.profile/mail.icon.png"
+              src="/images/user.profile/mail.icon.webp"
               alt="Email Icon"
               width={20}
               height={20}
@@ -274,14 +300,21 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         <Dialog>
           <DialogTrigger asChild>
             <button className="flex items-center text-red-600 hover:text-red-500 py-2 cursor-pointer">
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 6H5H21"
+              <svg
+                className="w-5 h-5 mr-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 6H5H21"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                <path
+                  d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
@@ -295,11 +328,13 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
             <DialogHeader>
               <DialogTitle>Delete Account</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete your account? This action cannot be undone.
+                Are you sure you want to delete your account? This action cannot
+                be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex justify-end gap-3">
-              <button onClick={handleDeleteAccount}
+              <button
+                onClick={handleDeleteAccount}
                 disabled={isDeleting}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 cursor-pointer"
               >
@@ -318,23 +353,29 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
       <div className="mt-auto p-4 border-gray-200 border-t">
         <Dialog>
           <DialogTrigger asChild>
-            <button
-              className="flex items-center text-gray-700 py-2 hover:text-blue-600 cursor-pointer"
-            >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+            <button className="flex items-center text-gray-700 py-2 hover:text-blue-600 cursor-pointer">
+              <svg
+                className="w-5 h-5 mr-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path d="M16 17L21 12L16 7"
+                <path
+                  d="M16 17L21 12L16 7"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path d="M21 12H9"
+                <path
+                  d="M21 12H9"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
@@ -369,7 +410,7 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         {/* Butty mascot at bottom */}
         <div className="absolute bottom-0 right-0">
           <Image
-            src="/images/user.profile/butty.waving.png"
+            src="/images/user.profile/butty.waving.webp"
             alt="Butty mascot"
             width={180}
             height={150}
@@ -383,7 +424,6 @@ export default function ProfileModalMobile({ userData, onEdit }: ProfileModalMob
         onSignOut={handleSignOut}
         isVisible={isSettingsVisible}
         onClose={() => setIsSettingsVisible(false)}
-
       />
     </div>
   );

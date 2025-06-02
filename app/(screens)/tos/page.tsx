@@ -70,7 +70,7 @@ export default function TermsOfService() {
                 >
                   <div className="absolute -top-16 -right-16 w-32 h-32 transform rotate-12">
                     <Image
-                      src="/images/ButtyRead.png"
+                      src="/images/ButtyRead.webp"
                       alt="Butty reading terms of service"
                       width={128}
                       height={128}
