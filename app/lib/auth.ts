@@ -26,8 +26,7 @@ export const auth = betterAuth({
         text: `Click the link to reset your password: ${resetPasswordUrl}`,
       });
     },
-  },
-  socialProviders: {
+  },  socialProviders: {
     google: { 
       clientId: process.env.GOOGLE_CLIENT_ID as string, 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -39,12 +38,19 @@ export const auth = betterAuth({
     reddit: {
       clientId: process.env.REDDIT_CLIENT_ID as string,
       clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
+      redirectURI: `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/callback/reddit`,
       scope: ["identity", "read"],
-      onAuth: async (user: { id: string; email: string; name: string; emailVerified: boolean; image?: string }, account: { id: string; accountId: string; providerId: string; userId: string; accessToken?: string; refreshToken?: string; idToken?: string; scope?: string }) => {
-        console.log('Reddit auth callback - User:', user);
-        console.log('Reddit auth callback - Account:', account);
-        return user;
-      }
+      mapProfileToUser: (profile) => {
+        // Reddit doesn't provide email, so we create a unique email-like identifier
+        // using the user's Reddit ID and name to ensure uniqueness
+        const uniqueEmail = `reddit_${profile.id}@reddit.local`;
+        
+        return {
+          email: uniqueEmail,
+          emailVerified: false, // Reddit doesn't provide email verification
+          name: profile.name || `reddit_user_${profile.id}`,
+        };
+      },
     },
   },
   plugins: [

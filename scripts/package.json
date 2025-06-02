@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "cleanup-reddit": "bun run scripts/cleanup-reddit-users.ts",
+    "test-reddit-config": "bun run scripts/test-reddit-config.ts"
+  }
+}

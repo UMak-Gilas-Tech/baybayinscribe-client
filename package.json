@@ -1,8 +1,7 @@
 {
   "name": "baybayinscribe-client",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
+  "private": true,  "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
@@ -14,7 +13,8 @@
     "ios": "npx cap run ios",
     "mm": "npx drizzle-kit generate",
     "m": "npx drizzle-kit push",
-    "introspect:linux": "NODE_EXTRA_CA_CERTS=./certs/ca.pem npx drizzle-kit introspect"
+    "introspect:linux": "NODE_EXTRA_CA_CERTS=./certs/ca.pem npx drizzle-kit introspect",
+    "cleanup-reddit": "bun run scripts/cleanup-reddit-users.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.1",
