@@ -1,27 +1,27 @@
-// import { FaFacebook } from "react-icons/fa";
+import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FaReddit } from "react-icons/fa";
+// import { FaReddit } from "react-icons/fa";
 
 interface SocialLoginButtonsProps {
-  // onFacebookSignIn: () => void;
+  onFacebookSignIn: () => void;
   onGoogleSignIn: () => void;
-  onRedditSignIn: () => void;
+  // onRedditSignIn: () => void;
   message?: string;
 }
 
 export const SocialLoginButtons = ({
-  // onFacebookSignIn,
+  onFacebookSignIn,
   onGoogleSignIn,
-  onRedditSignIn,
+  // onRedditSignIn,
   message = "Or sign in with email",
 }: SocialLoginButtonsProps) => {
   return (
     <>
       {/* Social Login Buttons */}
       <div className="flex gap-4 my-3">
-        {/* <Button
+        <Button
           variant="outline"
           className="flex-1 flex items-center gap-2 border-blue-400 text-blue-400 bg-neutral-white hover:bg-blue-900 transition"
           onClick={onFacebookSignIn}
@@ -29,7 +29,7 @@ export const SocialLoginButtons = ({
         >
           <FaFacebook size={20} />
           <span className="hidden sm:inline">Facebook</span>
-        </Button> */}
+        </Button>
         <Button
           variant="outline"
           className="flex-1 flex items-center gap-2 border-blue-400 text-blue-400 bg-neutral-white hover:bg-blue-900 transition"
@@ -39,7 +39,7 @@ export const SocialLoginButtons = ({
           <FcGoogle size={20} />
           <span className="hidden sm:inline">Google</span>
         </Button>
-        <Button
+        {/* <Button
           variant="outline"
           className="flex-1 flex items-center gap-2 border-blue-400 text-blue-400 bg-neutral-white hover:bg-blue-900 transition"
           onClick={onRedditSignIn}
@@ -47,7 +47,7 @@ export const SocialLoginButtons = ({
         >
           <FaReddit size={20} />
           <span className="hidden sm:inline">Reddit</span>
-        </Button>
+        </Button> */}
       </div>
 
       {/* Divider */}
