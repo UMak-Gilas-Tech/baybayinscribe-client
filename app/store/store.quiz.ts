@@ -53,6 +53,13 @@ export type QuizStore = {
   loadMyQuizzes: (userId: string) => void;
   deleteQuiz: (quizId: string) => void;
 
+  getQuizScoreAverage: (user_id: string) => Promise<{
+    average: number;
+    totalAnswers: number;
+    correctAnswers: number;
+    quizzesAnswered: number;
+  }>;
+
   clearQuiz: () => void;
 };
 
@@ -234,6 +241,29 @@ const useQuizStore = create<QuizStore>((set) => ({
       }
     } catch (error: unknown) {
       set({ error: (error as Error).message || "Error", status: "Error" });
+    }
+  },
+
+  getQuizScoreAverage: async (
+    user_id: string
+  ): Promise<{
+    average: number;
+    totalAnswers: number;
+    correctAnswers: number;
+    quizzesAnswered: number;
+  }> => {
+    try {
+      const response = await axios.get(
+        `/lessons/progress/${user_id}/quiz/average`
+      );
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    } catch (error: unknown) {
+      console.error("Error fetching quiz score average:", error);
+      throw new Error((error as Error).message || "Error fetching average");
     }
   },
 }));

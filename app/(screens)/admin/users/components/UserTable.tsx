@@ -19,7 +19,7 @@ import {
   Trash,
 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -74,9 +74,10 @@ const StatusBadge = ({ banned }: { banned: User["banned"] }) => (
     className={`
       h-6 flex items-center justify-center rounded-sm
       text-sm font-medium leading-tight px-2
-      ${!banned
-        ? "bg-green-100 text-green-900"
-        : "bg-danger-100 text-danger-600"
+      ${
+        !banned
+          ? "bg-green-100 text-green-900"
+          : "bg-danger-100 text-danger-600"
       }
     `}
   >
@@ -103,11 +104,14 @@ const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
 );
 
 import { DrawerTitle } from "@/components/ui/drawer";
+import { useLearningResourceStore } from "@/app/store/store.lr";
+import useQuizStore from "@/app/store/store.quiz";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function UserInfoSection({ user }: { user: User }) {
   const formattedBirthDate = user.userInformation?.dateOfBirth
     ? new Date(user.userInformation.dateOfBirth).toLocaleDateString()
-    : 'N/A';
+    : "N/A";
 
   return (
     <div className="flex flex-row gap-6 min-w-[320px]">
@@ -120,9 +124,13 @@ function UserInfoSection({ user }: { user: User }) {
           <StatusBadge banned={user.banned} />
         </span>
         <span className="text-base text-blue-400">{user.email}</span>
-        <span className="text-base text-blue-400">{user.userInformation?.contactNumber}</span>
         <span className="text-base text-blue-400">
-          {formattedBirthDate !== 'N/A' ? `Date of Birth: ${formattedBirthDate}` : 'Birth Date: N/A'}
+          {user.userInformation?.contactNumber}
+        </span>
+        <span className="text-base text-blue-400">
+          {formattedBirthDate !== "N/A"
+            ? `Date of Birth: ${formattedBirthDate}`
+            : "Birth Date: N/A"}
         </span>
       </div>
     </div>
@@ -131,21 +139,33 @@ function UserInfoSection({ user }: { user: User }) {
 
 function UserMetaSection({ user }: { user: User }) {
   const formattedRegisteredDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-    : 'N/A';
+    ? new Date(user.createdAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "N/A";
 
   const formattedLastLoginDate = user.updatedAt
-    ? new Date(user.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-    : 'N/A';
+    ? new Date(user.updatedAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "N/A";
 
   return (
     <div className="flex flex-col gap-2 items-end min-w-[200px]">
-      <span className="text-lg font-semibold text-blue-400">@{user.userInformation?.username || 'N/A'}</span>
-      <span className="text-base text-blue-950 font-semibold">
-        <span className="text-blue-500 font-normal">Registered:</span> {formattedRegisteredDate}
+      <span className="text-lg font-semibold text-blue-400">
+        @{user.userInformation?.username || "N/A"}
       </span>
       <span className="text-base text-blue-950 font-semibold">
-        <span className="text-blue-500 font-normal">Last Login:</span> {formattedLastLoginDate}
+        <span className="text-blue-500 font-normal">Registered:</span>{" "}
+        {formattedRegisteredDate}
+      </span>
+      <span className="text-base text-blue-950 font-semibold">
+        <span className="text-blue-500 font-normal">Last Login:</span>{" "}
+        {formattedLastLoginDate}
       </span>
       <DrawerClose asChild>
         <button className="absolute top-4 right-4 text-blue-400 hover:text-blue-700 transition-colors text-2xl font-bold cursor-pointer">
@@ -156,34 +176,111 @@ function UserMetaSection({ user }: { user: User }) {
   );
 }
 
-function LearningProgressSection() {
+function LearningProgressSection({ user }: { user: User }) {
+  const [lastLesson, setLastLesson] = useState<string>("N/A");
+  const [quizzesTaken, setQuizzesTaken] = useState<number>(0);
+  const [averageScore, setAverageScore] = useState<number>(0);
+  const [lastCompletedLesson, setLastCompletedLesson] = useState<string>("N/A");
+  const [loading, setLoading] = useState(false);
+
+  const { getQuizScoreAverage } = useQuizStore();
+  const { getLastLessonProgress } = useLearningResourceStore();
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProgress();
+    }
+  }, [user?.id]);
+
+  const fetchUserProgress = async () => {
+    if (!user?.id) return;
+    
+    setLoading(true);
+    try {
+      // Fetch both quiz progress and last lesson concurrently
+      const [quizData, lastLessonData] = await Promise.all([
+        getQuizScoreAverage(user.id).catch(() => ({
+          average: 0,
+          quizzesAnswered: 0,
+          totalAnswers: 0,
+          correctAnswers: 0
+        })),
+        getLastLessonProgress(user.id).catch(() => null)
+      ]);
+
+      // Update quiz data
+      setAverageScore(quizData.average || 0);
+      setQuizzesTaken(quizData.quizzesAnswered || 0);
+
+      // Update lesson data
+      if (lastLessonData) {
+        setLastLesson(lastLessonData.title || "N/A");
+        setLastCompletedLesson(lastLessonData.lesson_number?.toString() || "N/A");
+      }
+    } catch (error) {
+      console.error("Error fetching user progress:", error);
+      // Keep default values on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ProgressSkeleton = () => (
+    <div className="flex flex-row justify-between gap-8 mb-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-blue-500 text-base">Last Completed:</span>
+          <Skeleton className="h-4 w-8 bg-blue-200" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-blue-500 text-base">Quizzes Taken:</span>
+          <Skeleton className="h-4 w-8 bg-blue-200" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 text-right">
+        <div className="flex items-center gap-2 justify-end">
+          <span className="text-blue-500 text-base">Average Score:</span>
+          <Skeleton className="h-4 w-12 bg-blue-200" />
+        </div>
+        <div className="flex items-center gap-2 justify-end">
+          <span className="text-blue-500 text-base">Last Lesson:</span>
+          <Skeleton className="h-4 w-24 bg-blue-200" />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="text-xl font-semibold text-blue-950 mb-2">
         Learning Progress
       </div>
-      <div className="flex flex-row justify-between gap-8 mb-4">
-        <div className="flex flex-col gap-1 text-blue-500 text-base">
-          <div>
-            Last Completed:{" "}
-            <span className="font-semibold text-blue-950">10</span>
+      {loading ? (
+        <ProgressSkeleton />
+      ) : (
+        <div className="flex flex-row justify-between gap-8 mb-4">
+          <div className="flex flex-col gap-1 text-blue-500 text-base">
+            <div>
+              Last Completed:{" "}
+              <span className="font-semibold text-blue-950">{lastCompletedLesson}</span>
+            </div>
+            <div>
+              Quizzes Taken:{" "}
+              <span className="font-semibold text-blue-950">{quizzesTaken}</span>
+            </div>
           </div>
-          <div>
-            Quizzes Taken:{" "}
-            <span className="font-semibold text-blue-950">6</span>
+          <div className="flex flex-col gap-1 text-blue-500 text-base text-right">
+            <div>
+              Average Score:{" "}
+              <span className="font-semibold text-blue-950">{averageScore}%</span>
+            </div>
+            <div>
+              Last Lesson:{" "}
+              <span className="font-semibold text-blue-950">{lastLesson}</span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-col gap-1 text-blue-500 text-base text-right">
-          <div>
-            Average Score:{" "}
-            <span className="font-semibold text-blue-950">75%</span>
-          </div>
-          <div>
-            Last Lesson:{" "}
-            <span className="font-semibold text-blue-950">Baybayin Virama</span>
-          </div>
-        </div>
-      </div>
+      )}
     </>
   );
 }
@@ -261,14 +358,18 @@ function DrawerActions({
   const [clearOpen, setClearOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleAction = async (action: () => Promise<void>, dialogSetter: (open: boolean) => void) => {
+  const handleAction = async (
+    action: () => Promise<void>,
+    dialogSetter: (open: boolean) => void
+  ) => {
     setLoading(true);
     try {
       await action();
       dialogSetter(false);
     } catch (error: unknown) {
       console.error("Action failed:", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       toast.error(`Action failed: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -323,7 +424,12 @@ function DrawerActions({
         <Button
           variant="outline"
           className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
-          onClick={() => handleAction(() => onUnban(user.id), () => { })}
+          onClick={() =>
+            handleAction(
+              () => onUnban(user.id),
+              () => {}
+            )
+          }
           disabled={loading}
         >
           <UserCheck className="size-4 stroke-1.25" />
@@ -333,7 +439,12 @@ function DrawerActions({
         <Button
           variant="outline"
           className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
-          onClick={() => handleAction(() => onBan(user.id), () => { })}
+          onClick={() =>
+            handleAction(
+              () => onBan(user.id),
+              () => {}
+            )
+          }
           disabled={loading}
         >
           <Hammer className="size-4 stroke-1.25" />
@@ -416,7 +527,7 @@ function ManageUserDrawer({
             <UserMetaSection user={user} />
           </div>
           <div className="border-t border-blue-500 w-full mb-4" />
-          <LearningProgressSection />
+          <LearningProgressSection user={user} />
           <div className="border-t border-blue-500 w-full mb-6" />
           <DrawerActions
             user={user}
@@ -489,7 +600,7 @@ const UserRow = ({
 }) => {
   const formattedBirthDate = user.userInformation?.dateOfBirth
     ? new Date(user.userInformation.dateOfBirth).toLocaleDateString()
-    : 'N/A';
+    : "N/A";
 
   return (
     <TableRow className={index % 2 === 0 ? "" : "bg-violet-100"}>
@@ -497,19 +608,19 @@ const UserRow = ({
         {user.email}
       </TableCell>
       <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-        {user.userInformation?.username || 'N/A'}
+        {user.userInformation?.username || "N/A"}
       </TableCell>
       <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-        {user.userInformation?.firstName || 'N/A'}
+        {user.userInformation?.firstName || "N/A"}
       </TableCell>
       <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-        {user.userInformation?.lastName || 'N/A'}
+        {user.userInformation?.lastName || "N/A"}
       </TableCell>
       <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
         {formattedBirthDate}
       </TableCell>
       <TableCell className="p-3 text-gray-900 text-sm font-normal leading-tight">
-        {user.userInformation?.contactNumber || 'N/A'}
+        {user.userInformation?.contactNumber || "N/A"}
       </TableCell>
       <TableCell className="p-3">
         <StatusBadge banned={user.banned} />
@@ -526,7 +637,14 @@ const UserRow = ({
   );
 };
 
-export function UserTable({ users, onDelete, onReset, onClear, onBan, onUnban }: UserTableProps) {
+export function UserTable({
+  users,
+  onDelete,
+  onReset,
+  onClear,
+  onBan,
+  onUnban,
+}: UserTableProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 

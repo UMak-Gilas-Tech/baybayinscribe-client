@@ -8,6 +8,7 @@ import { TablePagination } from "./components/TablePagination";
 import { useState, useMemo, useEffect } from "react";
 import { authClient } from "../../../lib/auth-client";
 import { toast } from "sonner";
+import { useLearningResourceStore } from "@/app/store/store.lr";
 
 interface User {
   id: string;
@@ -221,8 +222,8 @@ export default function UserManagement() {
   const handleClear = async (userId: string) => {
     try {
       console.log("Attempting to clear learning progress for user:", userId);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      toast.warning("Learning progress cleared (simulated).");
+      await useLearningResourceStore.getState().clearUserLessonProgress(userId);
+      toast.warning("Learning progress cleared.");
     } catch (error: unknown) {
       console.error("Failed to clear progress:", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
