@@ -9,6 +9,7 @@ import { useState, useMemo, useEffect } from "react";
 import { authClient } from "../../../lib/auth-client";
 import { toast } from "sonner";
 import { mockUsers } from "@/constants/mock/mockUsers";
+import { useLearningResourceStore } from "@/app/store/store.lr";
 
 interface User {
   id: string;

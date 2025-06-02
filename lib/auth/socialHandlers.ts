@@ -40,12 +40,18 @@ export const createSocialHandlers = ({
 
   const handleRedditSignIn = async () => {
     try {
-      await authClient.signIn.social({
+      console.log('Starting Reddit social login process...');
+      console.log('Callback URL:', callbackURL);
+      
+      const response = await authClient.signIn.social({
         provider: "reddit",
         callbackURL,
       });
+      
+      console.log('Reddit social login response:', response);
       toast.success("Successfully signed in with Reddit! Please wait...");
-    } catch {
+    } catch (error) {
+      console.error('Reddit social login error:', error);
       const errorMessage = "Failed to sign in with Reddit. Please try again.";
       toast.error(errorMessage);
       setLoginError(errorMessage);

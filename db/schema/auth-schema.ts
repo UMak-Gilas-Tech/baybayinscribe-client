@@ -5,6 +5,7 @@ import {
 	boolean,
 	varchar,
 	date,
+	unique,
   } from "drizzle-orm/pg-core";
   
 export const user = pgTable("user", {
@@ -66,7 +67,9 @@ export const account = pgTable("account", {
 	password: text("password"),
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
-});
+}, (account) => ({
+	accountProviderUnique: unique("account_provider_id_account_id_unique").on(account.providerId, account.accountId),
+}));
 
 export const verification = pgTable("verification", {
 	id: text("id").primaryKey(),

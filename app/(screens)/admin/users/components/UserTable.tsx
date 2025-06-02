@@ -19,7 +19,7 @@ import {
   Trash,
 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -104,6 +104,9 @@ const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
 );
 
 import { DrawerTitle } from "@/components/ui/drawer";
+import { useLearningResourceStore } from "@/app/store/store.lr";
+import useQuizStore from "@/app/store/store.quiz";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function UserInfoSection({ user }: { user: User }) {
   const formattedBirthDate = user.userInformation?.dateOfBirth
@@ -173,34 +176,119 @@ function UserMetaSection({ user }: { user: User }) {
   );
 }
 
-function LearningProgressSection() {
+function LearningProgressSection({ user }: { user: User }) {
+  const [lastLesson, setLastLesson] = useState<string>("N/A");
+  const [quizzesTaken, setQuizzesTaken] = useState<number>(0);
+  const [averageScore, setAverageScore] = useState<number>(0);
+  const [lastCompletedLesson, setLastCompletedLesson] = useState<string>("N/A");
+  const [loading, setLoading] = useState(false);
+
+  const { getQuizScoreAverage } = useQuizStore();
+  const { getLastLessonProgress } = useLearningResourceStore();
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProgress();
+    }
+  }, [user?.id]);
+
+  const fetchUserProgress = async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    try {
+      // Fetch both quiz progress and last lesson concurrently
+      const [quizData, lastLessonData] = await Promise.all([
+        getQuizScoreAverage(user.id).catch(() => ({
+          average: 0,
+          quizzesAnswered: 0,
+          totalAnswers: 0,
+          correctAnswers: 0,
+        })),
+        getLastLessonProgress(user.id).catch(() => null),
+      ]);
+
+      // Update quiz data
+      setAverageScore(quizData.average || 0);
+      setQuizzesTaken(quizData.quizzesAnswered || 0);
+
+      // Update lesson data
+      if (lastLessonData) {
+        setLastLesson(lastLessonData.title || "N/A");
+        setLastCompletedLesson(
+          lastLessonData.lesson_number?.toString() || "N/A"
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching user progress:", error);
+      // Keep default values on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ProgressSkeleton = () => (
+    <div className="flex flex-row justify-between gap-8 mb-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-blue-500 text-base">Last Completed:</span>
+          <Skeleton className="h-4 w-8 bg-blue-200" />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-blue-500 text-base">Quizzes Taken:</span>
+          <Skeleton className="h-4 w-8 bg-blue-200" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 text-right">
+        <div className="flex items-center gap-2 justify-end">
+          <span className="text-blue-500 text-base">Average Score:</span>
+          <Skeleton className="h-4 w-12 bg-blue-200" />
+        </div>
+        <div className="flex items-center gap-2 justify-end">
+          <span className="text-blue-500 text-base">Last Lesson:</span>
+          <Skeleton className="h-4 w-24 bg-blue-200" />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="text-xl font-semibold text-blue-950 mb-2">
         Learning Progress
       </div>
-      <div className="flex flex-row justify-between gap-8 mb-4">
-        <div className="flex flex-col gap-1 text-blue-500 text-base">
-          <div>
-            Last Completed:{" "}
-            <span className="font-semibold text-blue-950">10</span>
+      {loading ? (
+        <ProgressSkeleton />
+      ) : (
+        <div className="flex flex-row justify-between gap-8 mb-4">
+          <div className="flex flex-col gap-1 text-blue-500 text-base">
+            <div>
+              Last Completed:{" "}
+              <span className="font-semibold text-blue-950">
+                {lastCompletedLesson}
+              </span>
+            </div>
+            <div>
+              Quizzes Taken:{" "}
+              <span className="font-semibold text-blue-950">
+                {quizzesTaken}
+              </span>
+            </div>
           </div>
-          <div>
-            Quizzes Taken:{" "}
-            <span className="font-semibold text-blue-950">6</span>
+          <div className="flex flex-col gap-1 text-blue-500 text-base text-right">
+            <div>
+              Average Score:{" "}
+              <span className="font-semibold text-blue-950">
+                {averageScore}%
+              </span>
+            </div>
+            <div>
+              Last Lesson:{" "}
+              <span className="font-semibold text-blue-950">{lastLesson}</span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-col gap-1 text-blue-500 text-base text-right">
-          <div>
-            Average Score:{" "}
-            <span className="font-semibold text-blue-950">75%</span>
-          </div>
-          <div>
-            Last Lesson:{" "}
-            <span className="font-semibold text-blue-950">Baybayin Virama</span>
-          </div>
-        </div>
-      </div>
+      )}
     </>
   );
 }
@@ -343,7 +431,7 @@ function DrawerActions({
       {user.banned ? (
         <Button
           variant="outline"
-          className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-4 py-2 rounded-lg text-base flex-shrink-0"
+          className="border-warning-400 text-warning-400 bg-warning-100 hover:bg-warning-50 hover:text-warning-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
           onClick={() =>
             handleAction(
               () => onUnban(user.id),
@@ -358,7 +446,7 @@ function DrawerActions({
       ) : (
         <Button
           variant="outline"
-          className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-4 py-2 rounded-lg text-base flex-shrink-0"
+          className="border-danger-500 text-danger-500 bg-danger-100 hover:bg-danger-50 hover:text-danger-600 flex items-center gap-2 px-6 py-2 rounded-lg text-base"
           onClick={() =>
             handleAction(
               () => onBan(user.id),
@@ -447,7 +535,7 @@ function ManageUserDrawer({
             <UserMetaSection user={user} />
           </div>
           <div className="border-t border-blue-500 w-full mb-4" />
-          <LearningProgressSection />
+          <LearningProgressSection user={user} />
           <div className="border-t border-blue-500 w-full mb-6" />
           <DrawerActions
             user={user}
