@@ -1,0 +1,1 @@
+ALTER TABLE "learning_resource_module" ADD COLUMN "is_quiz" boolean DEFAULT false NOT NULL;

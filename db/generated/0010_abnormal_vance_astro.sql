@@ -1,0 +1,1 @@
+ALTER TABLE "quiz_answer_question" ALTER COLUMN "user_id" SET DATA TYPE text;
