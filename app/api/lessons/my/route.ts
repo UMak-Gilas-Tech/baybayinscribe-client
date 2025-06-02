@@ -39,7 +39,6 @@ export async function POST(request: Request) {
   if (lessonsWithModules.length === 0) {
     return NextResponse.json(
       { message: "No lessons found for this user." },
-      { status: 404 }
     );
   }
 
