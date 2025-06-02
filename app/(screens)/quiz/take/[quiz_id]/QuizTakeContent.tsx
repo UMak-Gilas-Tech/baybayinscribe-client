@@ -256,6 +256,7 @@ export const QuizTakeContent = () => {
               quizContext.currentQuestion.type === "multipleChoice") ? (
               <MultipleChoice
                 key={quizContext.currentQuestion.question_number}
+                choiceLanguage={quizContext.currentQuestion.language ?? "Tagalog"}
                 options={[
                   ...(quizContext.currentQuestion.options as string[])!.map(
                     (option, index) => ({

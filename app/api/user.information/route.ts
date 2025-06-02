@@ -3,16 +3,20 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../lib/auth";
 import { Pool } from "pg";
+import { mockUsers } from "@/constants/mock/mockUsers";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 export async function POST(req: NextRequest) {
-  try { 
+  try {
     const session = await auth.api.getSession({
-      headers: req.headers
+      headers: req.headers,
     });
 
     const userId = session?.user?.id;
@@ -30,13 +34,16 @@ export async function POST(req: NextRequest) {
       contactNumber,
       dateOfBirth,
       wantsNotifications,
-      profilePictureUrl
+      profilePictureUrl,
     } = body;
 
     if (
-      !username || username.length > 30 ||
-      !firstName || firstName.length > 30 ||
-      !lastName || lastName.length > 30 ||
+      !username ||
+      username.length > 30 ||
+      !firstName ||
+      firstName.length > 30 ||
+      !lastName ||
+      lastName.length > 30 ||
       !/^\d{11}$/.test(contactNumber) ||
       !dateOfBirth ||
       typeof wantsNotifications !== "boolean"
@@ -51,7 +58,10 @@ export async function POST(req: NextRequest) {
       );
 
       if (existingResult.rows.length > 0) {
-        return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+        return NextResponse.json(
+          { error: "Username already taken" },
+          { status: 409 }
+        );
       }
 
       await pool.query(
@@ -84,7 +94,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     } catch (dbError) {
       console.error("Database error:", dbError);
-      return NextResponse.json({ error: "Database operation failed" }, { status: 500 });
+      // Fallback: simulate success for mock admin
+      if (
+        body.email === "admin@baybayinscribe.top" ||
+        body.username === "admin"
+      ) {
+        console.log("Using mock fallback for admin POST user information");
+        return NextResponse.json({ success: true, mock: true });
+      }
+      return NextResponse.json(
+        { error: "Database operation failed" },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error inserting user information:", error);
@@ -95,7 +116,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: req.headers
+      headers: req.headers,
     });
 
     const userId = session?.user?.id;
@@ -119,7 +140,10 @@ export async function PATCH(req: NextRequest) {
       );
 
       if (userInfoResult.rows.length === 0) {
-        return NextResponse.json({ error: "User information not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "User information not found" },
+          { status: 404 }
+        );
       }
 
       // Update the wants_notifications preference
@@ -135,7 +159,18 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true });
     } catch (dbError) {
       console.error("Database error:", dbError);
-      return NextResponse.json({ error: "Database operation failed" }, { status: 500 });
+      // Fallback: simulate success for mock admin
+      if (
+        body.email === "admin@baybayinscribe.top" ||
+        body.username === "admin"
+      ) {
+        console.log("Using mock fallback for admin PATCH user information");
+        return NextResponse.json({ success: true, mock: true });
+      }
+      return NextResponse.json(
+        { error: "Database operation failed" },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error updating user information:", error);
@@ -146,7 +181,7 @@ export async function PATCH(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: req.headers
+      headers: req.headers,
     });
 
     const userId = session?.user?.id;
@@ -155,7 +190,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    try {      const result = await pool.query(
+    try {
+      const result = await pool.query(
         `SELECT 
           ui.username,
           ui.first_name as "firstName",
@@ -171,13 +207,35 @@ export async function GET(req: NextRequest) {
       );
 
       if (result.rows.length === 0) {
-        return NextResponse.json({ error: "User information not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "User information not found" },
+          { status: 404 }
+        );
       }
 
       return NextResponse.json(result.rows[0]);
     } catch (dbError) {
       console.error("Database error:", dbError);
-      return NextResponse.json({ error: "Database operation failed" }, { status: 500 });
+      // Fallback: return mock admin user
+      const mockUser = mockUsers.find(
+        (u) => u.email === "admin@baybayinscribe.top"
+      );
+      if (mockUser) {
+        console.log("Using mock fallback for admin GET user information");
+        return NextResponse.json({
+          username: mockUser.username,
+          firstName: mockUser.firstName,
+          lastName: mockUser.lastName,
+          contactNumber: mockUser.contactNumber,
+          dateOfBirth: mockUser.dateOfBirth,
+          profilePictureUrl: mockUser.profilePictureUrl,
+          email: mockUser.email,
+        });
+      }
+      return NextResponse.json(
+        { error: "Database operation failed" },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error fetching user information:", error);

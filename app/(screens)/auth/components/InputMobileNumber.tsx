@@ -45,7 +45,7 @@ export const InputMobileNumber = <
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs">
             <Image
-              src="/images/flag-ph.svg"
+              src="/images/flag-ph.webp"
               alt="Philippine flag"
               width={14}
               height={14}

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import BaybayInscribeBackgroundImage from "@/public/images/BaybayInscribe-BackgroundImage.png";
+import BaybayInscribeBackgroundImage from "@/public/images/BaybayInscribe-BackgroundImage.webp";
 
 const Background = () => {
   return (
@@ -10,7 +10,8 @@ const Background = () => {
       fill
       priority
       className="-z-10 w-screen h-screen absolute object-cover inset-0"
-      quality={100}
+      quality={80}
+      sizes="100vw"
     />
   );
 };

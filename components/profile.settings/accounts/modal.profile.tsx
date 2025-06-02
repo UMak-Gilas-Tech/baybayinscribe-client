@@ -8,7 +8,7 @@ import DesktopTerms from "./terms/desktop.terms";
 import DesktopAbout from "./about/desktop.about";
 // import DesktopPreference from "./preferences/desktop.pref";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; 
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import MobileEditProfile from "./edit.profile/mobile.edit";
 import DesktopEditProfile from "./edit.profile/desktop.edit";
 
@@ -25,7 +25,7 @@ type UserData = {
   dateOfBirth?: string;
   email: string;
   authProviders?: AuthProvider[];
-  provider?: string; 
+  provider?: string;
   profilePictureUrl?: string | null;
 };
 
@@ -36,7 +36,12 @@ type ProfileModalProps = {
   onProfileUpdated?: () => void;
 };
 
-export default function ProfileModal({ userData: initialUserData, onClose, isOpen, onProfileUpdated }: ProfileModalProps) {
+export default function ProfileModal({
+  userData: initialUserData,
+  onClose,
+  isOpen,
+  onProfileUpdated,
+}: ProfileModalProps) {
   const isMobile = useMediaQuery("(max-width: 1023px)");
   const [isEditing, setIsEditing] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -64,9 +69,11 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
   // Convert provider string to authProviders array if needed
   const enhancedUserData = {
     ...localUserData,
-    authProviders: localUserData.authProviders || (
-      localUserData.provider ? [{ name: localUserData.provider, linked: true }] : []
-    ),
+    authProviders:
+      localUserData.authProviders ||
+      (localUserData.provider
+        ? [{ name: localUserData.provider, linked: true }]
+        : []),
   };
 
   // Handler for saving profile
@@ -75,19 +82,20 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
       // Prepare the data for update, keeping existing profilePictureUrl if not changed
       const dataToUpdate = {
         ...updatedData,
-        profilePictureUrl: updatedData.profilePictureUrl ?? localUserData.profilePictureUrl
+        profilePictureUrl:
+          updatedData.profilePictureUrl ?? localUserData.profilePictureUrl,
       };
 
-      const response = await fetch('/api/user.information/update', {
-        method: 'PUT',
+      const response = await fetch("/api/user.information/update", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(dataToUpdate),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error("Failed to update profile");
       }
 
       // Get the updated user data from the response
@@ -95,8 +103,9 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
 
       const enhancedUpdatedData = {
         ...updatedUserData,
-        profilePictureUrl: updatedUserData.profilePictureUrl || localUserData.profilePictureUrl,
-        authProviders: updatedUserData.authProviders || []
+        profilePictureUrl:
+          updatedUserData.profilePictureUrl || localUserData.profilePictureUrl,
+        authProviders: updatedUserData.authProviders || [],
       };
 
       // Update local state and close edit mode
@@ -106,12 +115,13 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
         onProfileUpdated();
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
 
   // Choose the content based on states and device type
-  let modalContent;   if (showTerms) {
+  let modalContent;
+  if (showTerms) {
     modalContent = (
       <DesktopTerms
         onClose={onClose}
@@ -126,8 +136,7 @@ export default function ProfileModal({ userData: initialUserData, onClose, isOpe
         // }}
       />
     );
-  }
-  else if (showAbout) {
+  } else if (showAbout) {
     modalContent = (
       <DesktopAbout
         onClose={onClose}

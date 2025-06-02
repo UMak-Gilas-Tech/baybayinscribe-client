@@ -48,8 +48,8 @@ export default function TopNavbar() {
               <Image
                 src={
                   pathname?.startsWith("/admin")
-                    ? "/images/BaybayInscribe-AppIcon-old.png"
-                    : "/images/BaybayInscribe-AppIcon.png"
+                    ? "/images/BaybayInscribe-AppIcon-old.webp"
+                    : "/images/BaybayInscribe-AppIcon.webp"
                 }
                 alt="Logo"
                 width={42}

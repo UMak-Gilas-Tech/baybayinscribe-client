@@ -35,7 +35,6 @@ export const InputLastName = <
         <Input
           placeholder="Enter your family name"
           type="text"
-          maxLength={24}
           {...field}
           className={error ? "border-red-500 focus:ring-red-500" : ""}
         />

@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import Image from "next/image";
 import {
   useInferenceStore,
   InferenceStatus,
@@ -94,6 +95,16 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
       else inference.init();
     }, []);
 
+    // Pre-initialize canvas size for better LCP
+    useEffect(() => {
+      if (canvasRef.current) {
+        canvasRef.current.width = 640;
+        canvasRef.current.height = 640;
+        canvasRef.current.style.width = "100%";
+        canvasRef.current.style.height = "100%";
+      }
+    }, []);
+
     // once model is ready, stop loading and continue
     useEffect(() => {
       if (inference.status === InferenceStatus.READY) {
@@ -106,11 +117,6 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
           );
         } else if (!imageOnly) {
           startWebcam();
-        }
-
-        if (canvasRef.current) {
-          canvasRef.current!.style.width = "100%";
-          canvasRef.current!.style.height = "100%";
         }
       }
     }, [inference.status, imageSrc]);
@@ -247,11 +253,11 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                     Upload an image
                   </span>
                 </div>
-                <div className="flex flex-col gap-2 *:text-center *:text-xl">
-                  <span className="text-white">
+                <div className="flex flex-col gap-2 *:text-center ">
+                  <span className="text-white text-xs sm:text-sm md:text-base">
                     Got a Baybayin Image? Let&apos;s scan it!
                   </span>
-                  <span className="text-white">
+                  <span className="text-white text-xs sm:text-sm md:text-base">
                     Accepts image formats: PNG, JPG (max 5 MB)
                   </span>
                 </div>
@@ -273,41 +279,51 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                   onChange={handleImageUpload}
                   className="hidden"
                   ref={fileInputRef}
-                />{" "}
+                />
               </div>
             )}
 
             {imageSrc && (
               <div className="w-full h-full relative">
-                <img
-                  ref={imageRef}
-                  className="absolute h-full w-full object-contain"
-                  src={imageSrc}
-                  alt="Uploaded"
-                  onLoad={() => {
-                    // Set canvas size to match image size
-                    if (imageRef.current && canvasRef.current) {
-                      const img = imageRef.current;
-                      const canvas = canvasRef.current;
-                      // Use naturalWidth/naturalHeight for actual image size
-                      canvas.width = img.naturalWidth;
-                      canvas.height = img.naturalHeight;
-                      canvas.style.width = "100%";
-                      canvas.style.height = "100%";
-                    }
-                    // Clear canvas before inference
-                    clearCanvas();
-                    // Run inference after sizing
-                    if (inference.status === InferenceStatus.READY) {
-                      inference.inferLocal(
-                        imageRef.current!,
-                        canvasRef.current!,
-                        true, // always render to canvas for bounding box
-                        showScannerGrid
-                      );
-                    }
-                  }}
-                />
+                <div className="absolute h-full w-full">
+                  <Image
+                    ref={imageRef}
+                    src={imageSrc}
+                    alt="Uploaded image for Baybayin recognition"
+                    fill
+                    priority
+                    quality={90}
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 640px"
+                    onLoad={() => {
+                      // Set canvas size to match image size
+                      if (imageRef.current && canvasRef.current) {
+                        const img = imageRef.current;
+                        const canvas = canvasRef.current;
+                        // Use naturalWidth/naturalHeight for actual image size
+                        canvas.width = img.naturalWidth;
+                        canvas.height = img.naturalHeight;
+                        canvas.style.width = "100%";
+                        canvas.style.height = "100%";
+                      }
+                      // Clear canvas before inference
+                      clearCanvas();
+                      // Run inference after sizing
+                      if (inference.status === InferenceStatus.READY) {
+                        inference.inferLocal(
+                          imageRef.current!,
+                          canvasRef.current!,
+                          true, // always render to canvas for bounding box
+                          showScannerGrid
+                        );
+                      }
+                    }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/images/error-fallback.webp";
+                    }}
+                  />
+                </div>
                 <canvas
                   ref={canvasRef}
                   className="absolute top-0 left-0 w-full h-full z-50 rounded-md shadow-lg pointer-events-none"
@@ -317,13 +333,9 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
                 <div className="absolute bottom-4 -translate-x-1/2 left-1/2 z-10">
                   <Button
                     onClick={() => secondFileInputRef.current?.click()}
-                    className=" "
+                    className=""
                   >
-                    {
-                      imageSrc
-                        ? "Retry Scan"
-                        : "Upload an Image"
-                    }
+                    {imageSrc ? "Retry Scan" : "Upload an Image"}
                   </Button>
                 </div>
 
@@ -342,6 +354,7 @@ const InferenceWebcam = forwardRef<InferenceWebcamHandle, InferenceWebcamProps>(
             <video
               ref={videoRef}
               autoPlay
+              playsInline
               className="absolute top-0 left-0 w-full h-full -z-10 rounded-md shadow-lg"
               onLoadedMetadata={() => {
                 // Set canvas size to match video size

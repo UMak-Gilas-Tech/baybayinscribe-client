@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import {
   InputContainer,
   SwitchButton,
@@ -16,17 +16,25 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { useTranslate } from "@/app/store/store.translate";
+import { useSearchParams } from "next/navigation";
 
-export default function TransliterationScreen() {
+function TransliterationContent() {
   const [latinText, setLatinText] = useState("");
   const [baybayinText, setBaybayinText] = useState(baybayifyWord(""));
   const [switchOrder, setSwitchOrder] = useState(false);
   const [latinLang, setLatinLang] = useState("filipino");
   const [loading, setLoading] = useState(false);
 
+  const params = useSearchParams();
   const translate = useTranslate((s) => s.translate);
   const translateFilToEng = useTranslate((s) => s.translateFilToEng);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (params.get("s")) {
+      setLatinText(params.get("s") || "");
+    }
+  }, [params]);
 
   // Debounced translation effect for English and Filipino-to-English
   useEffect(() => {
@@ -96,7 +104,11 @@ export default function TransliterationScreen() {
       onChange={handleLatinChange}
       placeholder="Type Latin..."
       headerRight={
-        <Select value={latinLang} onValueChange={setLatinLang} disabled={loading}>
+        <Select
+          value={latinLang}
+          onValueChange={setLatinLang}
+          disabled={loading}
+        >
           <SelectTrigger className="w-fit bg-neutral-white/25 backdrop-blur-sm text-blue-200 border-blue-300/20 focus:border-blue-500 ">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
@@ -106,7 +118,7 @@ export default function TransliterationScreen() {
               value="filipino"
             >
               <Image
-                src="/images/flag-ph.svg"
+                src="/images/flag-ph.webp"
                 alt="Philippines flag"
                 width={20}
                 height={20}
@@ -118,7 +130,7 @@ export default function TransliterationScreen() {
               value="english"
             >
               <Image
-                src="/images/flag-us.svg"
+                src="/images/flag-us.webp"
                 alt="US flag"
                 width={20}
                 height={20}
@@ -175,5 +187,24 @@ export default function TransliterationScreen() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function TransliterationScreen() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex flex-col items-center min-h-full font-sans">
+          <TransliteratorHeader />
+          <div className="flex items-center justify-center p-8">
+            <span className="text-blue-200 text-sm animate-pulse">
+              Loading...
+            </span>
+          </div>
+        </main>
+      }
+    >
+      <TransliterationContent />
+    </Suspense>
   );
 }

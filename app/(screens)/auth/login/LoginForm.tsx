@@ -21,9 +21,7 @@ import { PasswordInput } from "../components/InputPassword";
 import { AccountHelper } from "../components/AccountHelper";
 import { AccountPwHelper } from "../components/AccountPwHelper";
 
-export async function getServerSideProps() {
-  
-}
+export async function getServerSideProps() {}
 
 // Memoize the schema to prevent recreation on each render
 const loginSchema = z.object({
@@ -35,8 +33,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSubmit: (values: LoginFormData & { rememberMe: boolean }) => Promise<void>;
-  onFacebookSignIn: () => Promise<void>;
+  // onFacebookSignIn: () => Promise<void>;
   onGoogleSignIn: () => Promise<void>;
+  onRedditSignIn: () => Promise<void>;
   error: string;
   loginError: string;
   validationError?: string;
@@ -62,8 +61,9 @@ ErrorMessage.displayName = "ErrorMessage";
 
 export const LoginForm = ({
   onSubmit,
-  onFacebookSignIn,
+  // onFacebookSignIn,
   onGoogleSignIn,
+  onRedditSignIn,
   error,
   loginError,
   validationError,
@@ -88,17 +88,18 @@ export const LoginForm = ({
   // Memoize social login handlers
   const memoizedSocialHandlers = useMemo(
     () => ({
-      onFacebookSignIn,
+      // onFacebookSignIn,
       onGoogleSignIn,
+      onRedditSignIn,
     }),
-    [onFacebookSignIn, onGoogleSignIn]
+    [/*onFacebookSignIn,*/ onGoogleSignIn, onRedditSignIn]
   );
 
   return (
     <div className="flex flex-col items-center z-20 w-full max-w-11/12">
       {/* --- Login Form Card --- */}
       <Card
-        className="w-full max-w-md bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3"
+        className="w-full max-w-md bg-neutral-white border border-blue-400 shadow-xl rounded-xl z-30 relative gap-3 [@media(max-height:700px)]:mt-24 [@media(max-height:700px)]:mb-8 "
         role="form"
         aria-label="Login form"
       >

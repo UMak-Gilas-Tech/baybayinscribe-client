@@ -98,7 +98,7 @@ const MyLessonsPage = () => {
           {learningResourceStore.status == "Loaded" &&
             !error &&
             (!learningResourceStore.lessons ||
-              learningResourceStore.lessons.length === 0) && (
+              learningResourceStore.lessons.length <= 0) && (
               <div className="flex flex-col items-center py-20">
                 <FileText
                   className="w-16 h-16 text-blue-200 mb-4"
@@ -131,6 +131,7 @@ const MyLessonsPage = () => {
             aria-label="Lessons list"
           >
             {learningResourceStore.lessons &&
+              learningResourceStore.lessons.length > 0 &&
               learningResourceStore.lessons.map((lesson: LearningResource) => (
                 <Card
                   key={lesson.id}

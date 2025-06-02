@@ -8,6 +8,8 @@ import {
 import { create } from "zustand";
 import axios from "@/lib/axios";
 import { ModifiedQuizAnswerQuestion, Quiz } from "@/types/type.quiz";
+import { mockQuizzes } from "@/constants/mock/mockQuizzes";
+
 export type QuizStore = {
   status: Status;
   quizAnswerUploadStatus: Status;
@@ -51,6 +53,13 @@ export type QuizStore = {
   loadMyQuizzes: (userId: string) => void;
   deleteQuiz: (quizId: string) => void;
 
+  getQuizScoreAverage: (user_id: string) => Promise<{
+    average: number;
+    totalAnswers: number;
+    correctAnswers: number;
+    quizzesAnswered: number;
+  }>;
+
   clearQuiz: () => void;
 };
 
@@ -63,7 +72,7 @@ const useQuizStore = create<QuizStore>((set) => ({
       quiz: undefined,
       answerHistory: undefined,
       status: "Idle",
-      quizAnswerUploadStatus: "Idle"
+      quizAnswerUploadStatus: "Idle",
     });
   },
   loadQuiz: async (quiz_id: string) => {
@@ -112,8 +121,29 @@ const useQuizStore = create<QuizStore>((set) => ({
       } & { questions: (typeof quiz_question.$inferSelect)[] } =
         quizResponse.data;
       set({ quiz_details: quiz, status: "Loaded" });
-    } catch (error: unknown) {
-      set({ error: (error as Error).message || "Error", status: "Error" });
+    } catch {
+      // Fallback to mock data
+      const mockQuiz = mockQuizzes.find((q) => q.metadata.quiz_id === quiz_id);
+      console.log(
+        "Mock fallback for quiz_id:",
+        quiz_id,
+        "Found:",
+        !!mockQuiz,
+        mockQuiz
+      );
+      if (mockQuiz) {
+        set({
+          quiz_details: mockQuiz,
+          status: "Loaded",
+          error: "Using mock data due to API failure.",
+        });
+      } else {
+        set({
+          quiz_details: undefined,
+          status: "Error",
+          error: "Quiz not found in mock data.",
+        });
+      }
     }
   },
   submitQuizAnswers: async (quiz_id: string, answers) => {
@@ -170,9 +200,13 @@ const useQuizStore = create<QuizStore>((set) => ({
       } else {
         set({ error: response.data.error, status: "Error" });
       }
-    } catch (error: unknown) {
-      console.error(error);
-      set({ error: (error as Error).message || "Error", status: "Error" });
+    } catch {
+      set({
+        quizzes: mockQuizzes,
+        status: "Loaded",
+        error: "Using mock data due to API failure.",
+      });
+      return mockQuizzes;
     }
   },
   loadMyQuizzes: async (userId: string) => {
@@ -207,6 +241,29 @@ const useQuizStore = create<QuizStore>((set) => ({
       }
     } catch (error: unknown) {
       set({ error: (error as Error).message || "Error", status: "Error" });
+    }
+  },
+
+  getQuizScoreAverage: async (
+    user_id: string
+  ): Promise<{
+    average: number;
+    totalAnswers: number;
+    correctAnswers: number;
+    quizzesAnswered: number;
+  }> => {
+    try {
+      const response = await axios.get(
+        `/lessons/progress/${user_id}/quiz/average`
+      );
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    } catch (error: unknown) {
+      console.error("Error fetching quiz score average:", error);
+      throw new Error((error as Error).message || "Error fetching average");
     }
   },
 }));

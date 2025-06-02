@@ -50,7 +50,7 @@ export const createLoginHandlers = ({
     }
   };
 
-  const { handleGoogleSignIn, handleFacebookSignIn } = createSocialHandlers({
+  const { handleGoogleSignIn, /*handleFacebookSignIn,*/ handleRedditSignIn } = createSocialHandlers({
     setLoginError,
     callbackURL: "/",
   });
@@ -58,6 +58,7 @@ export const createLoginHandlers = ({
   return {
     handleLogin,
     handleGoogleSignIn,
-    handleFacebookSignIn,
+    // handleFacebookSignIn,
+    handleRedditSignIn,
   };
 };

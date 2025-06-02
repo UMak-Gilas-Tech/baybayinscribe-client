@@ -24,9 +24,15 @@ export default function AllQuizzesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    loadAllQuiz();
-    // eslint-disable-next-line
-  }, []);
+    const fetchQuizzes = async () => {
+      try {
+        await loadAllQuiz();
+      } catch (error) {
+        console.error("Failed to load quizzes:", error);
+      }
+    };
+    fetchQuizzes();
+  }, [loadAllQuiz]);
 
   useEffect(() => {
     if (!quizzes) return;
@@ -57,7 +63,17 @@ export default function AllQuizzesPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full sm:w-64"
             />
-            <Button onClick={() => loadAllQuiz()} variant="outline">
+            <Button
+              onClick={async () => {
+                // setError(null);
+                // try {
+                //   await loadAllQuiz();
+                // } catch {
+                //   setError("Failed to load quizzes. Please try again later.");
+                // }
+              }}
+              variant="outline"
+            >
               Refresh
             </Button>
           </div>
@@ -98,7 +114,9 @@ export default function AllQuizzesPage() {
                     <span className="text-xs text-muted-foreground">
                       Updated:{" "}
                       {quiz.metadata.updated_at
-                        ? new Date(quiz.metadata.updated_at).toLocaleDateString()
+                        ? new Date(
+                            quiz.metadata.updated_at
+                          ).toLocaleDateString()
                         : "-"}
                     </span>
                     <button

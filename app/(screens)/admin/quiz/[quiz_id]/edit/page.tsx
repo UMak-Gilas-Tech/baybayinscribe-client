@@ -15,6 +15,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Plus,
   List,
   PenTool,
@@ -588,9 +593,7 @@ const EditQuizScreenInner = () => {
                     }));
                   }}
                 />
-              )}
-
-              {/* Updated FAB implementation */}
+              )}              {/* Updated FAB implementation */}
               <div className="p-10 fixed bottom-4 right-4 flex flex-col items-end">
                 <div
                   className={`mt-2 flex flex-col gap-2 transform origin-bottom transition-all duration-300 pb-6 ${
@@ -601,44 +604,72 @@ const EditQuizScreenInner = () => {
                 >
                   {params.quiz_id != "new" ? (
                     <>
-                      <button
-                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
-                        onClick={() => {
-                          addField("multipleChoice");
-                          setShowFabOptions(false);
-                        }}
-                      >
-                        <List size={16} />
-                      </button>
-                      <button
-                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
-                        onClick={() => {
-                          addField("sketch");
-                          setShowFabOptions(false);
-                        }}
-                      >
-                        <PenTool size={16} />
-                      </button>
-                      <button
-                        className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
-                        onClick={() => {
-                          addField("quiz");
-                          setShowFabOptions(false);
-                        }}
-                      >
-                        <FileText size={16} />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
+                            onClick={() => {
+                              addField("multipleChoice");
+                              setShowFabOptions(false);
+                            }}
+                          >
+                            <List size={16} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <p>Add Multiple Choice Question</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
+                            onClick={() => {
+                              addField("sketch");
+                              setShowFabOptions(false);
+                            }}
+                          >
+                            <PenTool size={16} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <p>Add Sketch Question</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
+                            onClick={() => {
+                              addField("quiz");
+                              setShowFabOptions(false);
+                            }}
+                          >
+                            <FileText size={16} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <p>Add Quiz Question</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <Dialog
                         open={aiDialogOpen}
                         onOpenChange={setAiDialogOpen}
                       >
                         <DialogTrigger asChild>
-                          <button
-                            className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
-                            onClick={() => setShowFabOptions(false)}
-                          >
-                            <Sparkles size={16} />
-                          </button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
+                                onClick={() => setShowFabOptions(false)}
+                              >
+                                <Sparkles size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              <p>Generate AI Questions</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
@@ -691,23 +722,37 @@ const EditQuizScreenInner = () => {
                       </Dialog>
                     </>
                   ) : null}
-                  <button
-                    className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md hover:bg-indigo-700 focus:bg-indigo-800"
-                    onClick={() => {
-                      handleSaveQuiz();
-                      setShowFabOptions(false);
-                    }}
-                  >
-                    <Save size={16} />
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md hover:bg-indigo-700 focus:bg-indigo-800"
+                        onClick={() => {
+                          handleSaveQuiz();
+                          setShowFabOptions(false);
+                        }}
+                      >
+                        <Save size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p>Save Quiz</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
 
-                <button
-                  className="w-16 h-16 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-lg hover:bg-indigo-600 focus:bg-indigo-700"
-                  onClick={() => setShowFabOptions(!showFabOptions)}
-                >
-                  <Plus size={24} />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      className="w-16 h-16 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-lg hover:bg-indigo-600 focus:bg-indigo-700"
+                      onClick={() => setShowFabOptions(!showFabOptions)}
+                    >
+                      <Plus size={24} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>{showFabOptions ? "Close Options" : "Add Content"}</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="flex flex-col gap-6">

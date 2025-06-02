@@ -25,7 +25,7 @@ export type TranslateStore = {
 export const useTranslate = create<TranslateStore>(() => ({
   translate: async (text) => {
     try {
-      const response = await translationAxios.get(`/tl/en/${text}`);
+      const response = await translationAxios.get(`${text}`);
       return response.data.translation;
     } catch (error) {
       console.error("Translation error:", error);
@@ -34,7 +34,7 @@ export const useTranslate = create<TranslateStore>(() => ({
   },
   translateFilToEng: async (text) => {
     try {
-      const response = await filToEngAxios.post(`/en/tl/${text}`);
+      const response = await filToEngAxios.post(`/tl/en/${text}`);
       return response.data.translation;
     } catch (error) {
       console.error("Filipino to English translation error:", error);

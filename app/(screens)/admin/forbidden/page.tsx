@@ -14,7 +14,7 @@ const MobileBlockedScreen = () => {
       <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
         <div className="bg-neutral-white  min-w-72  min-h-fit rounded-2xl shadow-xl p-8 px-4 max-w-2xl gap-y-4 w-full flex flex-col items-center border border-[var(--color-blue-800)]">
           <Image
-            src="/images/ai-whale-laptop.png"
+            src="/images/ai-whale-laptop.webp"
             alt="Whale with laptop"
             width={203}
             height={206}

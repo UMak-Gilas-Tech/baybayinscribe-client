@@ -13,13 +13,28 @@ import { QuizFormCard } from "./QuizFormCard";
 import { useQuizContext } from "../context/useQuizContext";
 import { QuizDifficulty } from "@/types/type.quiz";
 
-// Define schema with Quiz Topic field
+// Define schema with Quiz Topic field and timer validation based on difficulty
 const quizSchema = z.object({
   title: z.string().min(1, "Title is required"),
   quizTopic: z.string().min(1, "Quiz Topic is required"),
   description: z.string().min(1, "Description is required"),
   timer: z.string().min(1, "Timer is required"),
   difficulty: z.string().min(1, "Difficulty is required"),
+}).refine((data) => {
+  const timerValue = parseInt(data.timer);
+  if (isNaN(timerValue)) return false;
+  
+  const minTimers = {
+    [QuizDifficulty.Easy]: 15,
+    [QuizDifficulty.Moderate]: 10,
+    [QuizDifficulty.Hard]: 5,
+  };
+  
+  const minTime = minTimers[data.difficulty as QuizDifficulty];
+  return timerValue >= minTime;
+}, {
+  message: "Timer must meet minimum requirements for selected difficulty",
+  path: ["timer"],
 });
 
 interface QuizFormHeaderProps {
@@ -140,10 +155,13 @@ export const QuizFormHeader = ({
   return (
     <QuizFormCard>
       {/* Updated container to take full width */}
-      <div className="flex flex-col gap-4 w-full">
-        {/* Quiz Title */}
+      <div className="flex flex-col gap-4 w-full">        {/* Quiz Title */}
         <div>
+          <label htmlFor="quiz-title" className="block text-sm font-medium text-gray-700 mb-2">
+            Quiz Title
+          </label>
           <input
+            id="quiz-title"
             className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.title && touched.title
                 ? "border-red-500"
@@ -161,10 +179,13 @@ export const QuizFormHeader = ({
           {errors.title && touched.title && (
             <p className="text-red-500 text-sm mt-1">{errors.title}</p>
           )}
-        </div>
-        {/* Quiz Topic */}
+        </div>        {/* Quiz Topic */}
         <div>
+          <label htmlFor="quiz-topic" className="block text-sm font-medium text-gray-700 mb-2">
+            Quiz Category
+          </label>
           <input
+            id="quiz-topic"
             className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.quizTopic && touched.quizTopic
                 ? "border-red-500"
@@ -182,10 +203,13 @@ export const QuizFormHeader = ({
           {errors.quizTopic && touched.quizTopic && (
             <p className="text-red-500 text-sm mt-1">{errors.quizTopic}</p>
           )}
-        </div>
-        {/* Description */}
+        </div>        {/* Description */}
         <div>
+          <label htmlFor="quiz-description" className="block text-sm font-medium text-gray-700 mb-2">
+            Quiz Description
+          </label>
           <Textarea
+            id="quiz-description"
             className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.description && touched.description
                 ? "border-red-500"
@@ -202,11 +226,14 @@ export const QuizFormHeader = ({
           {errors.description && touched.description && (
             <p className="text-red-500 text-sm mt-1">{errors.description}</p>
           )}
-        </div>
-        <div className="flex flex-row gap-4 items-end w-full">
+        </div>        <div className="flex flex-row gap-4 items-end w-full">
           {/* Timer */}
           <div className="flex-1">
+            <label htmlFor="quiz-timer" className="block text-sm font-medium text-gray-700 mb-2">
+              Timer (seconds) - Min: {difficulty === QuizDifficulty.Easy ? '15' : difficulty === QuizDifficulty.Moderate ? '10' : '5'}s for {difficulty}
+            </label>
             <input
+              id="quiz-timer"
               className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.timer && touched.timer
                   ? "border-red-500"
@@ -226,7 +253,10 @@ export const QuizFormHeader = ({
             )}
           </div>
           {/* Difficulty */}
-          <div className="flex flex-col mt-4 flex-1">
+          <div className="flex flex-col flex-1">
+            <label htmlFor="quiz-difficulty" className="block text-sm font-medium text-gray-700 mb-2">
+              Difficulty
+            </label>
             <Select
               value={difficulty}
               onValueChange={(value) => {
@@ -237,6 +267,7 @@ export const QuizFormHeader = ({
               }}
             >
               <SelectTrigger
+                id="quiz-difficulty"
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.difficulty && touched.difficulty
                     ? "border-red-500"
