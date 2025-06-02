@@ -35,7 +35,6 @@ export const InputUsername = <
         <Input
           placeholder="Create a unique username (3-16 characters)"
           type="text"
-          maxLength={16}
           {...field}
           className={error ? "border-red-500 focus:ring-red-500" : ""}
         />
