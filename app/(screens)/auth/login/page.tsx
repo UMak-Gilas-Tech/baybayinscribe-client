@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // --- Handlers ---
-  const { handleLogin, handleGoogleSignIn, /*handleFacebookSignIn,*/ handleRedditSignIn } =
+  const { handleLogin, handleGoogleSignIn, handleFacebookSignIn /*handleRedditSignIn*/ } =
     createLoginHandlers({
       router,
       setLoginError,
@@ -28,9 +28,9 @@ const LoginPage = () => {
       <LoginForm
         error={""}
         onSubmit={handleLogin}
-        // onFacebookSignIn={handleFacebookSignIn}
+        onFacebookSignIn={handleFacebookSignIn}
         onGoogleSignIn={handleGoogleSignIn}
-        onRedditSignIn={handleRedditSignIn}
+        // onRedditSignIn={handleRedditSignIn}
         loginError={loginError}
         validationError={validationError}
         isLoading={isLoading}

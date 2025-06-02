@@ -31,27 +31,27 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string, 
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-    // facebook: {
-    //   clientId: process.env.FACEBOOK_CLIENT_ID as string,
-    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
-    // },
-    reddit: {
-      clientId: process.env.REDDIT_CLIENT_ID as string,
-      clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
-      redirectURI: `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/callback/reddit`,
-      scope: ["identity", "read"],
-      mapProfileToUser: (profile) => {
-        // Reddit doesn't provide email, so we create a unique email-like identifier
-        // using the user's Reddit ID and name to ensure uniqueness
-        const uniqueEmail = `reddit_${profile.id}@reddit.local`;
-        
-        return {
-          email: uniqueEmail,
-          emailVerified: false, // Reddit doesn't provide email verification
-          name: profile.name || `reddit_user_${profile.id}`,
-        };
-      },
+    facebook: {
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     },
+    // reddit: {
+    //   clientId: process.env.REDDIT_CLIENT_ID as string,
+    //   clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
+    //   redirectURI: `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/callback/reddit`,
+    //   scope: ["identity", "read"],
+    //   mapProfileToUser: (profile) => {
+    //     // Reddit doesn't provide email, so we create a unique email-like identifier
+    //     // using the user's Reddit ID and name to ensure uniqueness
+    //     const uniqueEmail = `reddit_${profile.id}@reddit.local`;
+        
+    //     return {
+    //       email: uniqueEmail,
+    //       emailVerified: false, // Reddit doesn't provide email verification
+    //       name: profile.name || `reddit_user_${profile.id}`,
+    //     };
+    //   },
+    // },
   },
   plugins: [
     jwt(),
