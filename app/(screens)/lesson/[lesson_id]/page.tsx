@@ -44,10 +44,10 @@ function LessonContent() {
   if (status === "Loading" || status == "Idle") {
     // Loading skeleton UI
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
-        <div className="sticky top-0 z-10 bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-md border-b border-muted/40 mb-8">
+      <div className="min-h-screen pb-20">
+        <div className="sticky top-0 z-10 backdrop-blur-md border-b border-muted/40 mb-8">
           <div className="max-w-4xl mx-auto px-4 pt-8">
-            <div className="shadow-lg border border-muted/30 bg-white/90 rounded-xl">
+            <div className="shadow-lg border border-muted/30 bg-blue-990 rounded-xl">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
@@ -114,8 +114,8 @@ function LessonContent() {
   const completedCount = modules.filter((m) => m.is_finished).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-slate-100 pb-20">
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-md border-b border-muted/40 mb-8">
+    <div className="min-h-screen pb-20">
+      <div className="sticky top-0 z-10  backdrop-blur-md border-b border-muted/40 mb-8">
         <div className="max-w-4xl mx-auto px-4 pt-8">
           {/* Back button */}
           <div className="mb-4">
@@ -124,7 +124,7 @@ function LessonContent() {
               onClick={() => router.back()}
             />
           </div>
-          <Card className="shadow-lg border border-muted/30 bg-white/90">
+          <Card className="shadow-lg border border-muted/30 bg-blue-900">
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>

@@ -54,7 +54,7 @@ const WebcamConfig = ({
 }: WebcamConfigProps) => {
   return (
     <div className="z-20 w-full flex flex-row justify-evenly items-center">
-      <Webcam size={30} />
+      <Webcam size={30} className="text-blue-400" />
 
       <Popover>
         <PopoverTrigger disabled={disableCamera} asChild>
@@ -62,7 +62,7 @@ const WebcamConfig = ({
             disabled={disableCamera}
             className="bg-transparent hover:bg-transparent text-black flex-1 flex flex-row justify-evenly items-center gap-3"
           >
-            <div className="flex flex-row gap-2 items-center justify-center">
+            <div className="flex flex-row gap-2 items-center justify-center text-blue-300">
               <Settings size={20} />
               <span className="underline">Camera Preference</span>
             </div>
