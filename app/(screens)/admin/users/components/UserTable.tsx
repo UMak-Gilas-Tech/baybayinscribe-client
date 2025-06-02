@@ -19,7 +19,7 @@ import {
   Trash,
 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -186,13 +186,7 @@ function LearningProgressSection({ user }: { user: User }) {
   const { getQuizScoreAverage } = useQuizStore();
   const { getLastLessonProgress } = useLearningResourceStore();
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserProgress();
-    }
-  }, [user?.id]);
-
-  const fetchUserProgress = async () => {
+  const fetchUserProgress = useCallback(async () => {
     if (!user?.id) return;
 
     setLoading(true);
@@ -215,9 +209,7 @@ function LearningProgressSection({ user }: { user: User }) {
       // Update lesson data
       if (lastLessonData) {
         setLastLesson(lastLessonData.title || "N/A");
-        setLastCompletedLesson(
-          lastLessonData.lesson_number?.toString() || "N/A"
-        );
+        setLastCompletedLesson(lastLessonData?.toString() || "N/A");
       }
     } catch (error) {
       console.error("Error fetching user progress:", error);
@@ -225,7 +217,13 @@ function LearningProgressSection({ user }: { user: User }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, getQuizScoreAverage, getLastLessonProgress]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProgress();
+    }
+  }, [user?.id, fetchUserProgress]);
 
   const ProgressSkeleton = () => (
     <div className="flex flex-row justify-between gap-8 mb-4">

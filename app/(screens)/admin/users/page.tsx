@@ -291,17 +291,20 @@ export default function UserManagement() {
     try {
       console.log("Attempting to clear learning progress for user:", userId);
 
-      // In development, use mock behavior
-      if (process.env.NODE_ENV === "development") {
+      // Check both NODE_ENV and VERCEL_ENV for environment detection
+      const isProduction =
+        process.env.NODE_ENV === "production" ||
+        process.env.VERCEL_ENV === "production";
+
+      if (!isProduction) {
         await new Promise((resolve) => setTimeout(resolve, 500));
         toast.warning("Learning progress cleared (simulated).");
         return;
       }
 
       // In production, use actual clear functionality
-      // Since clearUserLessonProgress is not available in the store,
-      // we'll use a mock behavior for now
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const store = useLearningResourceStore.getState();
+      await store.clearUserLessonProgress(userId);
       toast.warning("Learning progress cleared.");
     } catch (error: unknown) {
       console.error("Failed to clear progress:", error);
