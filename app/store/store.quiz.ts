@@ -8,7 +8,6 @@ import {
 import { create } from "zustand";
 import axios from "@/lib/axios";
 import { ModifiedQuizAnswerQuestion, Quiz } from "@/types/type.quiz";
-import { mockQuizzes } from "@/constants/mock/mockQuizzes";
 
 export type QuizStore = {
   status: Status;
@@ -121,29 +120,8 @@ const useQuizStore = create<QuizStore>((set) => ({
       } & { questions: (typeof quiz_question.$inferSelect)[] } =
         quizResponse.data;
       set({ quiz_details: quiz, status: "Loaded" });
-    } catch {
-      // Fallback to mock data
-      const mockQuiz = mockQuizzes.find((q) => q.metadata.quiz_id === quiz_id);
-      console.log(
-        "Mock fallback for quiz_id:",
-        quiz_id,
-        "Found:",
-        !!mockQuiz,
-        mockQuiz
-      );
-      if (mockQuiz) {
-        set({
-          quiz_details: mockQuiz,
-          status: "Loaded",
-          error: "Using mock data due to API failure.",
-        });
-      } else {
-        set({
-          quiz_details: undefined,
-          status: "Error",
-          error: "Quiz not found in mock data.",
-        });
-      }
+    } catch (error: unknown) {
+      set({ error: (error as Error).message, status: "Error" });
     }
   },
   submitQuizAnswers: async (quiz_id: string, answers) => {
@@ -192,21 +170,18 @@ const useQuizStore = create<QuizStore>((set) => ({
       if (response.status === 200) {
         const quizzes = response.data;
         if (Array.isArray(quizzes) && quizzes.length === 0) {
-          set({ quizzes: undefined, status: "Loaded" });
-          return undefined;
+          set({ quizzes: [], status: "Loaded" });
+          return [];
         }
         set({ quizzes, status: "Loaded" });
         return quizzes;
       } else {
         set({ error: response.data.error, status: "Error" });
+        return [];
       }
-    } catch {
-      set({
-        quizzes: mockQuizzes,
-        status: "Loaded",
-        error: "Using mock data due to API failure.",
-      });
-      return mockQuizzes;
+    } catch (error: unknown) {
+      set({ error: (error as Error).message, status: "Error" });
+      return [];
     }
   },
   loadMyQuizzes: async (userId: string) => {

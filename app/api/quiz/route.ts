@@ -11,7 +11,7 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-async function saveQuizToDB(quiz: Quiz) {
+async function saveQuizToDB(quiz: Quiz, created_by: string) {
   const quizId = crypto.randomUUID();
 
   console.log(quiz);
@@ -19,7 +19,7 @@ async function saveQuizToDB(quiz: Quiz) {
   // Insert master quiz record
   await db.insert(QuizSchema).values({
     id: quizId,
-    created_by: "", // Add a default created_by value or pass from the request
+    created_by: created_by,
   });
 
   // Insert quiz metadata record
@@ -60,12 +60,19 @@ async function saveQuizToDB(quiz: Quiz) {
 
 export async function POST(request: Request) {
   try {
-    const { question_count, topic, difficulty, quiz_name } =
+    const { question_count, topic, difficulty, quiz_name, created_by } =
       await request.json();
 
     if (!question_count || !topic || !difficulty) {
       return NextResponse.json(
         { error: "Missing required fields." },
+        { status: 400 }
+      );
+    }
+
+    if (!created_by) {
+      return NextResponse.json(
+        { error: "User ID is required." },
         { status: 400 }
       );
     }
@@ -77,7 +84,7 @@ export async function POST(request: Request) {
       quiz_name
     );
 
-    const savedQuiz = await saveQuizToDB(quiz);
+    const savedQuiz = await saveQuizToDB(quiz, created_by);
 
     return NextResponse.json(savedQuiz);
   } catch (error: unknown) {
