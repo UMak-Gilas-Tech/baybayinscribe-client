@@ -19,6 +19,7 @@ import {
 } from "../../../../../components/ui/alert";
 import { useRouter } from "next/navigation";
 import Background from "@/components/background";
+import useQuizStore from "@/app/store/store.quiz";
 
 export default function CreateQuizPage() {
   const [quizData, setQuizData] = useState({
@@ -32,6 +33,7 @@ export default function CreateQuizPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
+  const quizStore = useQuizStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuizData({ ...quizData, [e.target.name]: e.target.value });
@@ -50,10 +52,13 @@ export default function CreateQuizPage() {
           quizData.description == "" ? undefined : quizData.description,
         difficulty: quizData.difficulty,
         question_count: Number(quizData.question_count),
-      };
-      const response = await axios.post("/api/quiz", payload);
+      };      const response = await axios.post("/api/quiz", payload);
       console.log(response.data);
       setSuccess(response.data.message || "Quiz created successfully");
+      
+      // Invalidate quiz store cache to ensure home page shows the new quiz
+      quizStore.loadAllQuiz();
+      
       setQuizData({
         quiz_name: "",
         topic: "",

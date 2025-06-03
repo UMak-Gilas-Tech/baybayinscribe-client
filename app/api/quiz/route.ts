@@ -9,7 +9,7 @@ import db from "@/db/drizzle";
 import { Quiz } from "../../../types/type.quiz";
 import { eq } from "drizzle-orm";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 async function saveQuizToDB(quiz: Quiz) {
   const quizId = crypto.randomUUID();

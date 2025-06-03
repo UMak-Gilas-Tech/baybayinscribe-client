@@ -3,7 +3,7 @@ import db from "@/db/drizzle";
 import { metadata, quiz_question, QuizSchema } from "@/db/schema/quiz-schema";
 import { eq } from "drizzle-orm";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
