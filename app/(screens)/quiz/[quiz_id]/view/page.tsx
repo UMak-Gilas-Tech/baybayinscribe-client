@@ -10,6 +10,7 @@ import { authClient } from "@/app/lib/auth-client";
 export default function QuizPage() {
   const [mounted, setMounted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const params = useParams();
   const router = useRouter();
   const quizId = params.quiz_id as string;
@@ -22,17 +23,18 @@ export default function QuizPage() {
       if (session.data) {
         setUserId(session.data.user.id);
       }
+      setSessionLoading(false);
     })();
-  }, [quizId]);
+  }, []);
 
   useEffect(() => {
-    if (userId === null) return;
+    if (sessionLoading || userId === null) return;
     setMounted(true);
     quizStore.loadQuizDetails(quizId);
-    quizStore.loadQuizAnswerHistory(quizId, userId!);
-  }, [quizId, userId, quizStore]);
+    quizStore.loadQuizAnswerHistory(quizId, userId);
+  }, [quizId, userId, sessionLoading]);
 
-  if (!mounted) return null;
+  if (sessionLoading || !mounted) return null;
 
   if (quizStore.status !== "Loading" && !quizStore.quiz_details) {
     return (

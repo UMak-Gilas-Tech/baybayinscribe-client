@@ -15,6 +15,25 @@ import {
 import useQuizStore from "@/app/store/store.quiz";
 import { useInferenceStore, InferenceState, InferenceStatus } from "@/app/store/store.inference";
 
+// Helper function to get health based on difficulty
+const getHealthByDifficulty = (difficulty: string): number => {
+  switch (difficulty) {
+    case "Easy":
+      return 3;
+    case "Moderate":
+      return 2;
+    case "Hard":
+      return 1;
+    default:
+      return 3; // fallback to Easy
+  }
+};
+
+// Helper function to get per-question time limit from user-configured time_limit
+const getTimePerQuestion = (timeLimit: number): number => {
+  return timeLimit || 30; // Use user-configured time limit or fallback to 30
+};
+
 type QuizTakeContextType = {
   quizId?: string;
   quiz?: Quiz;
@@ -30,6 +49,7 @@ type QuizTakeContextType = {
   setHealth: React.Dispatch<React.SetStateAction<number>>;
   answerHistory: ModifiedQuizAnswerQuestion[];
   recordAnswer: (record: ModifiedQuizAnswerQuestion) => void;
+  getTimePerQuestion: () => number;
 };
 
 const QuizTakeContext = createContext<QuizTakeContextType | undefined>(
@@ -91,13 +111,18 @@ export const QuizTakeProvider: React.FC<{
       console.log("Inference model is ready!");
     }
   }, [inference.status]);
-
   useEffect(() => {
     if (quizStore.status === "Loaded") {
       const quiz = quizStore.quiz;
       setQuiz(quiz as Quiz);
 
       setCurrentQuestion(quiz?.questions[progress]);
+      
+      // Initialize health based on quiz difficulty
+      if (quiz?.metadata.difficulty) {
+        const initialHealth = getHealthByDifficulty(quiz.metadata.difficulty);
+        setHealth(initialHealth);
+      }
     } else if (quizStore.status === "Error") {
       toast.error("Failed to load quiz.");
     }
@@ -147,9 +172,14 @@ export const QuizTakeProvider: React.FC<{
       );
     };
   };
-
   const recordAnswer = (record: ModifiedQuizAnswerQuestion) => {
     setAnswerHistory((prev) => [...prev, record]);
+  };
+  const getTimePerQuestionValue = () => {
+    if (quiz?.metadata.time_limit) {
+      return getTimePerQuestion(quiz.metadata.time_limit);
+    }
+    return 30; // fallback to 30 seconds if no time limit is set
   };
 
   return (
@@ -168,6 +198,7 @@ export const QuizTakeProvider: React.FC<{
         onSubmit,
         subscribeToSubmit,
         recordAnswer,
+        getTimePerQuestion: getTimePerQuestionValue,
       }}
     >
       {children}
