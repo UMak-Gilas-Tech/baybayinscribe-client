@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "../../../../../components/ui/button";
 import { Input } from "../../../../../components/ui/input";
@@ -19,6 +19,7 @@ import {
 } from "../../../../../components/ui/alert";
 import { useRouter } from "next/navigation";
 import Background from "@/components/background";
+import { authClient } from "@/app/lib/auth-client";
 
 export default function CreateQuizPage() {
   const [quizData, setQuizData] = useState({
@@ -31,7 +32,22 @@ export default function CreateQuizPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [currentSession, setCurrentSession] = useState<any>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data: session, error } = await authClient.getSession();
+      if (error) {
+        console.error("Error loading session:", error);
+        setError("Please log in to create a quiz");
+      } else {
+        setCurrentSession(session);
+      }
+    };
+
+    loadSession();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuizData({ ...quizData, [e.target.name]: e.target.value });
@@ -39,6 +55,11 @@ export default function CreateQuizPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentSession?.user?.id) {
+      setError("Please log in to create a quiz");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -50,6 +71,7 @@ export default function CreateQuizPage() {
           quizData.description == "" ? undefined : quizData.description,
         difficulty: quizData.difficulty,
         question_count: Number(quizData.question_count),
+        created_by: currentSession.user.id,
       };
       const response = await axios.post("/api/quiz", payload);
       console.log(response.data);
