@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  devIndicators: false,
   // Remove the static export to allow dynamic API routes
   // output: "export",
   async headers() {
