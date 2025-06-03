@@ -28,6 +28,7 @@ import {
   Save,
   Trash,
   ChevronLeft,
+  Bot,
 } from "lucide-react";
 import { generateQuiz } from "@/lib/genai";
 import { QuizDifficulty, QuizQuestion, QuizMetadata } from "@/types/type.quiz";
@@ -235,10 +236,9 @@ const EditQuizScreenInner = () => {
       if (fieldsChanged) {
         setFields(newFields);
       }
-      console.log(quiz);
-      // Only update quizInformation if it is different
+      console.log(quiz);      // Only update quizInformation if it is different
       const newQuizInfo = {
-        quiz_id: params.quiz_id || "",
+        quiz_id: Array.isArray(params.quiz_id) ? params.quiz_id[0] : params.quiz_id || "",
         quiz_name: quiz.metadata.quiz_name || "",
         category: quiz.metadata.category || "",
         description: quiz.metadata.description || "",
@@ -328,18 +328,36 @@ const EditQuizScreenInner = () => {
   const removeField = (id: string) => {
     setFields((prev) => prev.filter((field) => field.id !== id));
   };
-
   const handleGenerateAI = async () => {
     const count = parseInt(aiCount, 10);
-    if (isNaN(count) || count <= 0) return;
+    if (isNaN(count) || count <= 0) {
+      toast.error("Please enter a valid number of questions to generate.");
+      return;
+    }
+    
+    if (!quizInformation?.category) {
+      toast.error("Please set a quiz category before generating AI questions.");
+      return;
+    }
+    
     setAiGenerating(true);
     try {
+      console.log("Generating AI questions with:", {
+        count,
+        category: quizInformation.category,
+        difficulty: quizInformation.difficulty,
+        quiz_name: quizInformation.quiz_name
+      });
+      
       const quizGenerationResult = await generateQuiz(
         count,
         quizInformation?.category ?? "",
         (quizInformation?.difficulty as QuizDifficulty) ?? "Easy",
         quizInformation?.quiz_name ?? ""
       );
+      
+      console.log("AI generation result:", quizGenerationResult);
+      
       const aiFields = quizGenerationResult.questions.map((question) => {
         const fieldType: FieldType = question.type as FieldType;
         const data: any = { ...question };
@@ -359,9 +377,14 @@ const EditQuizScreenInner = () => {
           data,
         };
       });
+      
       setFields((prev) => [...prev, ...aiFields]);
       setAiDialogOpen(false);
       setAiCount("");
+      toast.success(`Successfully generated ${aiFields.length} questions!`);
+    } catch (error) {
+      console.error("Error generating AI questions:", error);
+      toast.error("Failed to generate AI questions. Please try again.");
     } finally {
       setAiGenerating(false);
     }
@@ -601,8 +624,7 @@ const EditQuizScreenInner = () => {
                       ? "opacity-100 scale-100"
                       : "opacity-0 scale-95 pointer-events-none"
                   }`}
-                >
-                  {params.quiz_id != "new" ? (
+                >                  {params.quiz_id != "new" || quizInformation?.category ? (
                     <>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -651,75 +673,62 @@ const EditQuizScreenInner = () => {
                         <TooltipContent side="left">
                           <p>Add Quiz Question</p>
                         </TooltipContent>
-                      </Tooltip>
-                      <Dialog
-                        open={aiDialogOpen}
-                        onOpenChange={setAiDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-md hover:bg-indigo-600 focus:bg-indigo-700"
-                                onClick={() => setShowFabOptions(false)}
-                              >
-                                <Sparkles size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="left">
-                              <p>Generate AI Questions</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Generate AI Questions</DialogTitle>
-                          </DialogHeader>
-                          <div className="flex flex-col gap-3 mt-2">
-                            <input
-                              type="number"
-                              placeholder="How many?"
-                              value={aiCount}
-                              onChange={(e) => setAiCount(e.target.value)}
-                              className="px-3 py-2 border rounded"
-                              disabled={aiGenerating}
-                            />
-                            <button
-                              onClick={handleGenerateAI}
-                              className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:bg-indigo-700 flex items-center justify-center"
-                              disabled={aiGenerating}
-                            >
-                              {aiGenerating ? (
-                                <>
-                                  <svg
-                                    className="animate-spin h-5 w-5 mr-2 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                    ></path>
-                                  </svg>
-                                  Generating...
-                                </>
-                              ) : (
-                                "Generate"
-                              )}
-                            </button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      </Tooltip>                      {/* AI Generation Button - show if category is set */}
+                      {quizInformation?.category && (
+                        <Dialog
+                          open={aiDialogOpen}
+                          onOpenChange={setAiDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md hover:bg-purple-600 focus:bg-purple-700"
+                                  onClick={() => setShowFabOptions(false)}
+                                >
+                                  <Bot size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                <p>Generate AI Questions</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Generate AI Questions</DialogTitle>
+                            </DialogHeader>
+                            <div className="flex flex-col gap-3 mt-2">
+                              <input
+                                type="number"
+                                placeholder="How many questions?"
+                                value={aiCount}
+                                onChange={(e) => setAiCount(e.target.value)}
+                                className="px-3 py-2 border rounded"
+                                disabled={aiGenerating}
+                                min="1"
+                                max="20"
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => setAiDialogOpen(false)}
+                                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                                  disabled={aiGenerating}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={handleGenerateAI}
+                                  className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50"
+                                  disabled={aiGenerating || !aiCount || parseInt(aiCount) <= 0}
+                                >
+                                  {aiGenerating ? "Generating..." : "Generate"}
+                                </button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
                     </>
                   ) : null}
                   <Tooltip>

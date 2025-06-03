@@ -152,11 +152,10 @@ export const QuizTakeContent = () => {
 
         {/* Only show quiz content if ready and not done */}
         {!isQuizDone && !shouldShowLoading && (
-          <>
-            <div className="flex flex-col">
+          <>            <div className="flex flex-col">
               {quizContext.quiz && quizContext.currentQuestion ? (
                 <QuizPlayerStatistics
-                  duration={quizContext.quiz.metadata.time_limit}
+                  duration={quizContext.getTimePerQuestion()}
                   onTimerEnd={() => {
                     quizContext.setHealth((h) => h - 1);
                     quizContext.recordAnswer({
