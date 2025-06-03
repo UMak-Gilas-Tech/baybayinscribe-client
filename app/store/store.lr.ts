@@ -2,8 +2,6 @@ import axios from "@/lib/axios";
 import { LearningResource } from "@/types/type.lessons";
 import { Status } from "@/types/type.loading";
 import { create } from "zustand";
-import { mockLessons } from "@/constants/mock/mockLessons";
-import { user } from "@/db/schema/auth-schema";
 
 export type LearningResourceStore = {
   lesson?: LearningResource;
@@ -127,18 +125,14 @@ export const useLearningResourceStore = create<LearningResourceStore>(
       try {
         const response = await axios.get("lessons/all");
         if (!response.data || response.data.length === 0) {
-          set({ lessons: mockLessons, status: "Loaded" });
-          return mockLessons;
+          set({ lessons: [], status: "Loaded" });
+          return [];
         }
         set({ lessons: response.data, status: "Loaded" });
         return response.data;
-      } catch {
-        set({
-          lessons: mockLessons,
-          status: "Loaded",
-          error: "Using mock data due to API failure.",
-        });
-        return mockLessons;
+      } catch (error: unknown) {
+        set({ error: (error as Error).message, status: "Error" });
+        return [];
       }
     },
 
