@@ -134,7 +134,6 @@ export const userInfoSchema = z
     username: z
       .string()
       .min(MIN_USERNAME_LENGTH, "Username must be at least 3 characters")
-      .max(15, "Username must be less than 15 characters")
       .regex(
         USERNAME_PATTERN,
         "Username can only contain letters, numbers, and underscores"
@@ -154,7 +153,6 @@ export const userInfoSchema = z
     firstName: z
       .string()
       .min(MIN_NAME_LENGTH, "First name must be at least 2 characters")
-      .max(15, "First name must be less than 15 characters")
       .regex(NAME_PATTERN, "First name can only contain letters and spaces")
       .refine(
         (name) => name.trim().length > 0,
@@ -171,7 +169,6 @@ export const userInfoSchema = z
     lastName: z
       .string()
       .min(MIN_NAME_LENGTH, "Last name must be at least 2 characters")
-      .max(15, "Last name must be less than 15 characters")
       .regex(NAME_PATTERN, "Last name can only contain letters and spaces")
       .refine(
         (name) => name.trim().length > 0,
