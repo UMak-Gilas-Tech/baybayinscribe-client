@@ -3,14 +3,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Quiz, QuizDifficulty } from "../types/type.quiz";
 
-const apiKey = process.env.GOOGLE_GENAI_API_KEY;
-
-console.log("API KEY: ", apiKey);
-
-if (!apiKey) {
-  throw new Error("GOOGLE_GENAI_API_KEY is not set");
-}
-
 const prompt = `
 
 Generate a Baybayin Quiz with {x} questions, on the topic of {y}, and difficulty level {z}. {a}, {b}
@@ -160,12 +152,17 @@ Sagot: Ang salitang "house" sa Tagalog ay "bahay". Sa Baybayin, ito ay isinusula
 QUERY NG USER: "{query}"
 `;
 
-const googleGenerativeAI = new GoogleGenerativeAI(
-  process.env.GOOGLE_GENAI_API_KEY!
-);
-const model = googleGenerativeAI.getGenerativeModel({
-  model: "gemini-2.0-flash",
-});
+const getModel = () => {
+  const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GOOGLE_GENAI_API_KEY is not set");
+  }
+
+  return new GoogleGenerativeAI(apiKey).getGenerativeModel({
+    model: "gemini-2.0-flash",
+  });
+};
 
 export const generateQuiz = async (
   question_count: number,
@@ -192,7 +189,7 @@ export const generateQuiz = async (
         : "Generate me a quiz name depending on the question topic"
     );
     console.log(_newPrompt);
-    const response = await model.generateContent([_newPrompt]);
+    const response = await getModel().generateContent([_newPrompt]);
     return JSON.parse(
       response.response.text().replace("```json", "").replace("```", "")
     ).quiz as Quiz;
@@ -206,7 +203,7 @@ export const generateQuiz = async (
 export const promptGemini = async (userQuery: string): Promise<string> => {
   try {
     const fullPrompt = baybayinInstruction.replace("{query}", userQuery);
-    const response = await model.generateContent([fullPrompt]);
+    const response = await getModel().generateContent([fullPrompt]);
     return response.response.text();
   } catch (error) {
     console.error("Error in promptGemini:", error);
