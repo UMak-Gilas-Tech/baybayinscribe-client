@@ -1,12 +1,12 @@
 # BaybayinScribe Client
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/baybayinscribe-client)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/yourusername/baybayinscribe-client/releases)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/UMak-Gilas-Tech/baybayinscribe-client)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/UMak-Gilas-Tech/baybayinscribe-client/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 BaybayinScribe is an application for working with the ancient Philippine script called Baybayin. This client application provides a user-friendly interface for interacting with Baybayin.
 
-[View Demo](https://baybayinscribe-demo.example.com) · [Report Bug](https://github.com/yourusername/baybayinscribe-client/issues) · [Request Feature](https://github.com/yourusername/baybayinscribe-client/issues)
+[View Demo](https://baybayinscribe-demo.example.com) · [Report Bug](https://github.com/UMak-Gilas-Tech/baybayinscribe-client/issues) · [Request Feature](https://github.com/UMak-Gilas-Tech/baybayinscribe-client/issues)
 
 ## Table of Contents
 
@@ -103,7 +103,7 @@ Before you begin, ensure you have the following installed:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/baybayinscribe-client.git
+   git clone https://github.com/UMak-Gilas-Tech/baybayinscribe-client.git
    cd baybayinscribe-client
    ```
 
@@ -230,7 +230,7 @@ After installation, you can:
 3. Practice writing Baybayin characters with the interactive tools
 4. Complete lessons to improve your Baybayin knowledge
 
-Detailed usage documentation is available [in the wiki](https://github.com/yourusername/baybayinscribe-client/wiki).
+Detailed usage documentation is available [in the wiki](https://github.com/UMak-Gilas-Tech/baybayinscribe-client/wiki).
 
 ## Testing
 
@@ -312,7 +312,7 @@ bun run test:e2e
    - Check that the API server is running
    - Confirm network connectivity
 
-For more troubleshooting help, see our [troubleshooting guide](https://github.com/yourusername/baybayinscribe-client/wiki/Troubleshooting).
+For more troubleshooting help, see our [troubleshooting guide](https://github.com/UMak-Gilas-Tech/baybayinscribe-client/wiki/Troubleshooting).
 
 ## Security Considerations
 
@@ -345,6 +345,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Project Maintainer - [@yourusername](https://twitter.com/yourusername) - email@example.com
+Project Maintainer - [@UMak-Gilas-Tech](https://github.com/UMak-Gilas-Tech) - email@example.com
 
-Project Link: [https://github.com/yourusername/baybayinscribe-client](https://github.com/yourusername/baybayinscribe-client)
+Project Link: [https://github.com/UMak-Gilas-Tech/baybayinscribe-client](https://github.com/UMak-Gilas-Tech/baybayinscribe-client)
