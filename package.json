@@ -17,8 +17,8 @@
     "cleanup-reddit": "bun run scripts/cleanup-reddit-users.ts"
   },
   "dependencies": {
-    "@capacitor/android": "^7.0.1",
-    "@capacitor/core": "^7.0.1",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/core": "^7.6.10",
     "@google-cloud/translate": "^9.1.0",
     "@google/generative-ai": "^0.24.0",
     "@hookform/resolvers": "^5.0.1",
@@ -89,7 +89,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.1",
+    "@capacitor/cli": "^7.6.10",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^5.0.2",
@@ -104,6 +104,16 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "undici": "^7.30.1",
+    "source-map-js": "^1.2.2",
+    "@humanfs/node": "^0.16.8",
+    "@grpc/grpc-js": "^1.13.6",
+    "tar": "^7.5.2",
+    "serialize-javascript": "^7.1.3",
+    "cross-spawn": "^7.0.6",
+    "braces": "^3.0.3"
   },
   "browserslist": [
     "last 2 Chrome versions",
